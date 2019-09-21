@@ -10,5 +10,4 @@ class Grade(id: EntityID<Int>): IntEntity(id) {
     companion object: IntEntityClass<Grade>(Grades)
 
     var name by Grades.name
-    val users by User referrersOn Users.grade
 }

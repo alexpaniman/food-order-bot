@@ -9,12 +9,14 @@ import org.order.data.tables.Users
 class User(id: EntityID<Int>): IntEntity(id) {
     companion object : EntityClass<Int, User>(Users)
 
-    var telegramId by Users.telegramId
+    var chat by Users.chat
 
     var name by Users.name
     var phone by Users.phone
-    var right by Right referencedOn Users.right
-    var grade by Grade referencedOn Users.grade
+    var right by Users.right
+    var grade by Grade optionalReferencedOn Users.grade
+
+    var state by Users.state
 
     val orders by Order referrersOn Orders.user
 }
