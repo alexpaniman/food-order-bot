@@ -1,12 +1,16 @@
 package org.order.data.tables
 
 import org.jetbrains.exposed.dao.IntIdTable
+import org.order.data.entities.Right
+import org.order.data.entities.State
 
 object Users: IntIdTable() {
-    val telegramId = integer("telegram_id")
-    val name = varchar("name", 255)
-    val phone = varchar("phone", 15)
+    val chat = integer("chat")
+    val name = varchar("name", 255).nullable()
+    val phone = varchar("phone", 15).nullable()
 
-    val grade = reference("grade_id", Grades)
-    val right = reference("right_id", Rights)
+    val grade = reference("grade_id", Grades).nullable()
+
+    val right = enumeration("right", Right::class)
+    val state = enumeration("state", State::class)
 }
