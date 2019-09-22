@@ -3,6 +3,8 @@ package org.order
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.order.data.entities.*
 import org.order.data.entities.Right.*
 
@@ -11,12 +13,12 @@ import org.order.data.tables.Users
 import org.order.data.entities.State.*
 import org.order.data.tables.Grades
 import org.order.data.tables.Menus
-import org.order.data.tables.Orders
 
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.generics.LongPollingBot
 import org.telegram.telegrambots.util.WebhookUtils
+import java.time.DayOfWeek
 import java.util.*
 
 class FoodOrderBot(
@@ -121,16 +123,16 @@ class FoodOrderBot(
             }
 
             val mon = Menu.new {
-                name = "Классное"
+                name = "223"
                 active = true
-                amount = 10
+                cost = 10
                 schedule = 1
             }
 
             val mon2 = Menu.new {
-                name = null
+                name = "1"
                 active = true
-                amount = 10
+                cost = 10
                 schedule = 1
             }
 
@@ -230,21 +232,23 @@ class FoodOrderBot(
             }
         }
 
-        fun User.getKeyboard() = when (right) {
-            ADMINISTRATOR, PRODUCER, CUSTOMER -> customer // TODO
+        fun User.getMainKeyboard() = when (right) {
+            ADMINISTRATOR -> admin
+            PRODUCER -> producer
+            CUSTOMER -> customer
         }
 
         command { user ->
             when {
                 user.name == null -> {
                     user.send("Вас приветствует бот для заказа еды в буфете Ришельевского лицея! " +
-                                    "Для начала работы нам понадобиться некоторая информация о вас. " +
-                                    "Введите свое имя и фамилию через пробел:")
+                            "Для начала работы нам понадобиться некоторая информация о вас. " +
+                            "Введите свое имя и фамилию через пробел:")
                     user.state = NAME
                 }
                 user.phone == null -> {
                     user.send("Нам не хватает информации о вас для продолжения работы! " +
-                                    "Пожалуйста введите свой номер телефона или нажмите на соответствующую кнопку:") {
+                            "Пожалуйста введите свой номер телефона или нажмите на соответствующую кнопку:") {
                         reply {
                             row {
                                 button("отправить мой номер") {
@@ -258,7 +262,7 @@ class FoodOrderBot(
                 user.grade == null -> {
                     user.send(
                             "Нам не хватает информации о вас для продолжения работы!" +
-                            "Пожалуйста выберите свой класс:") {
+                                    "Пожалуйста выберите свой класс:") {
                         val grades = Grade.all().map { it.name }
                         inline {
                             show(grades, length = 4) { "set-grade:$it" }
@@ -279,7 +283,7 @@ class FoodOrderBot(
                 user.name = text
                 if (isModification) user.apply {
                     send("Имя было успешно изменено на `$name`!") {
-                        keyboard(user.getKeyboard())
+                        keyboard(user.getMainKeyboard())
                     }
                     state = COMMAND
                 } else user.apply {
@@ -320,7 +324,7 @@ class FoodOrderBot(
                 user.phone = telephone
                 if (isModification)
                     user.send("Телефонный номер был успешно изменен на `${user.phone}`!") {
-                        keyboard(user.getKeyboard())
+                        keyboard(user.getMainKeyboard())
                     }
                 else user.apply {
                     send("Ваш телефонный номер был успешно установлен, как `$phone`!")
@@ -353,7 +357,7 @@ class FoodOrderBot(
 
             src.edit("Установлен ${grade.name} класс!") {}
             user.send("Вы успешно зарегистрированы!") {
-                keyboard(user.getKeyboard())
+                keyboard(user.getMainKeyboard())
             }
         }
 
@@ -401,20 +405,31 @@ class FoodOrderBot(
         }
 
         command("заказать обед") { user ->
-            val now = DateTime.now()
+            val now = LocalDate.now()
+            val isWeekend = now.dayOfWeek in 6..7
 
-            val dates = (0..6)
-                    .map { now.plusDays(it) }
-                    .filter { it.dayOfWeek !in 6..7 }
-                    .sortedBy { it.dayOfWeek }
+            val lastOrderTime = LocalTime.parse(
+                    System.getenv("LAST_ORDER_TIME") //"HH:mm"
+            )
+            val datetime = now.toDateTime(lastOrderTime)
+
+            val active = (0..6).asSequence()
+                    .map { datetime.plusDays(it) }
+                    .filter { !it.isBeforeNow }
+                    .filter {
+                        !Menu.find {
+                            Menus.schedule eq it.dayOfWeek
+                        }.empty()
+                    }
+                    .distinctBy { it.dayOfWeek }
+                    .sortedBy { it.dayOfWeek }.toList()
 
             user.send("Выберите дату заказа:") {
                 inline {
                     row {
                         val locale = Locale("ru")
-
                         dates.forEach {
-                            val isNotOutOfDate = it.dayOfWeek >= now.dayOfWeek
+                           val isNotOutOfDate = it.dayOfWeek >= now.dayOfWeek
                             val isWeekend = now.dayOfWeek in 6..7
 
                             if (isNotOutOfDate || isWeekend) {
@@ -446,7 +461,7 @@ class FoodOrderBot(
 
             val current = menus[num]
             val message = buildString {
-                appendln("Меню ".bold() + "${(current.name ?: num.toString()).bold()}:\n")
+                appendln("Меню ".bold() + "${current.name.bold()}:\n")
                 appendln("Блюда:".bold())
 
                 val length = (current.dishes.map { it.name.length }.max() ?: 0) + 4
@@ -479,7 +494,7 @@ class FoodOrderBot(
         }
 
         callback("choose-menu") { user, src, (id, time) ->
-            val day = DateTime.parse(time)
+            val orderDate = LocalDate.parse(time).compareTo()
 
             val menu = Menu.findById(id.toInt())
             if (menu == null) {
@@ -492,7 +507,7 @@ class FoodOrderBot(
                 this.menu = menu
 
                 this.registered = DateTime.now()
-                this.onDate = day
+                this.orderDate = orderDate
             }
 
             src.safeEdit("Обед успешно заказан!")

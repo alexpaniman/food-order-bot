@@ -16,9 +16,9 @@ import kotlin.test.assertTrue
 class DatabaseTests {
     private fun createGrade(name: String) = Grade.new { this.name = name }
     private fun createRight(name: String) = Right.new { this.name = name }
-    private fun createMenu(name: String, amount: Int) = Menu.new {
+    private fun createMenu(name: String, cost: Int) = Menu.new {
         this.name = name
-        this.amount = amount
+        this.cost = cost
         this.active = true
     }
     private fun createIngredient(name: String, menu: Menu) = Ingredient.new {
