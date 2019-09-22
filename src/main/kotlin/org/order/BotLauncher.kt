@@ -12,14 +12,18 @@ fun main() {
     // Initialize bots context
     ApiContextInitializer.init()
 
-    // Fetch token and username from environment
-    Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+    // Fetch database url and driver and connect to database
+    Database.connect(
+            url    = System.getenv("DATABASE_URL"),
+            driver = System.getenv("DATABASE_DRIVER")
+    )
     transaction {
         SchemaUtils.create(Users, Grades, Dishes, Menus, Orders)
     }
 
-    val token = /*System.getenv("BOT_TOKEN")*/ "***REMOVED***"
-    val username = /*System.getenv("BOT_USERNAME")*/ "***REMOVED***"
+    // Fetch token and username from the environment
+    val token    = System.getenv("BOT_TOKEN")
+    val username = System.getenv("BOT_USERNAME")
 
     // Use the default bot options to create sender that the bot will use to execute telegram api methods
     val options = DefaultBotOptions()

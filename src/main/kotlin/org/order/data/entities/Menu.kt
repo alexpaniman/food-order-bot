@@ -10,7 +10,7 @@ class Menu(id: EntityID<Int>): IntEntity(id) {
     companion object: IntEntityClass<Menu>(Menus)
 
     var name by Menus.name
-    var amount by Menus.amount
+    var cost by Menus.cost
 
     var active by Menus.active
     var schedule by Menus.schedule
