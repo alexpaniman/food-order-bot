@@ -18,7 +18,6 @@ import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.generics.LongPollingBot
 import org.telegram.telegrambots.util.WebhookUtils
-import java.time.DayOfWeek
 import java.util.*
 
 class FoodOrderBot(
@@ -126,14 +125,14 @@ class FoodOrderBot(
                 name = "223"
                 active = true
                 cost = 10
-                schedule = 1
+                schedule = 3
             }
 
             val mon2 = Menu.new {
                 name = "1"
                 active = true
                 cost = 10
-                schedule = 1
+                schedule = 3
             }
 
             Dish.new {
@@ -163,7 +162,7 @@ class FoodOrderBot(
 
             User.new {
                 chat = 505120843
-                name = "***REMOVED*** Паниман"
+                name = "Александр Паниман"
                 phone = "+380669362726"
                 grade = ph
 
@@ -171,6 +170,8 @@ class FoodOrderBot(
                 state = COMMAND
             }
         }
+
+        val locale = Locale("ru")
 
         val customer = reply {
             row {
@@ -404,129 +405,190 @@ class FoodOrderBot(
             }
         }
 
-        command("заказать обед") { user ->
-            val now = LocalDate.now()
-            val isWeekend = now.dayOfWeek in 6..7
+        fun LocalDate.checkOrderTime() = !toDateTime(
+                LocalTime.parse(
+                        System.getenv("LAST_ORDER_TIME") //"HH:mm"
+                )
+        ).isBeforeNow
 
+        command("заказать обед") { user ->
             val lastOrderTime = LocalTime.parse(
                     System.getenv("LAST_ORDER_TIME") //"HH:mm"
             )
-            val datetime = now.toDateTime(lastOrderTime)
 
-            val active = (0..6).asSequence()
-                    .map { datetime.plusDays(it) }
-                    .filter { !it.isBeforeNow }
+            val now = LocalDate.now()
+
+            var day = now
+            // Move day to nearest next monday or friday
+            while (day.dayOfWeek != 1 && day.dayOfWeek != 5)
+                day = day.plusDays(1)
+            // If day is friday then move day to nearest previous monday
+            while (day.dayOfWeek != 1)
+                day = day.minusDays(1)
+
+            val datesFromWeekStart = (0..4).map { day.plusDays(it) }
+            val datesWithActiveMenu = datesFromWeekStart
+                    .map { it.toDateTime(lastOrderTime) } // Map to last order time in each day
+                    .filter { !it.isBeforeNow } // Filter previous days
                     .filter {
                         !Menu.find {
-                            Menus.schedule eq it.dayOfWeek
+                            (Menus.schedule eq it.dayOfWeek) and
+                                    (Menus.active eq true) // Filter days with at least one active menu
                         }.empty()
                     }
-                    .distinctBy { it.dayOfWeek }
-                    .sortedBy { it.dayOfWeek }.toList()
+            val activeDaysOfWeek = datesWithActiveMenu
+                    .map { it.dayOfWeek to it }
+                    .toMap()
 
             user.send("Выберите дату заказа:") {
                 inline {
                     row {
-                        val locale = Locale("ru")
-                        dates.forEach {
-                           val isNotOutOfDate = it.dayOfWeek >= now.dayOfWeek
-                            val isWeekend = now.dayOfWeek in 6..7
-
-                            if (isNotOutOfDate || isWeekend) {
-                                val isContainsMenu = Menu.find {
-                                    (Menus.active eq true) and (Menus.schedule eq it.dayOfWeek)
-                                }.count() > 0
-
-                                if (isContainsMenu) {
-                                    val day = it.dayOfWeek().getAsShortText(locale)
-                                    val date = it.toString("yyyy-MM-dd")
-                                    button(day, "order-menu:$date:0")
-                                } else button("∅")
-                            } else button("✘")
+                        for (dayOfWeek in 1..7) {
+                            val date = activeDaysOfWeek[dayOfWeek]
+                            val displayedName = date?.dayOfWeek()?.getAsShortText(locale)
+                            if (displayedName != null)
+                                button(displayedName, "order-menu:${date.toString("yyyy-MM-dd")}:?")
+                            else
+                                button("✘")
                         }
+
                     }
                 }
             }
         }
 
-        callback("order-menu") { _, src, (time, number) ->
-            val day = DateTime.parse(time)
-            val num = number.toInt()
+        callback("order-menu") { _, src, (date, identifier) ->
+            val orderDate = DateTime.parse(date)
 
-            val menus = Menu.find { Menus.schedule eq day.dayOfWeek }.toList()
-            if (num !in menus.indices) {
-                src.safeEdit("Ошибка! Это меню уже не существует!")
+            // List of menus on selected day
+            val menus = Menu.find {
+                (Menus.schedule eq orderDate.dayOfWeek) and
+                        (Menus.active eq true)
+            }.toList()
+
+            if (menus.isEmpty()) {
+                src.safeEdit("Ошибка! В этот день уже нет активных меню!")
                 return@callback
             }
 
-            val current = menus[num]
-            val message = buildString {
-                appendln("Меню ".bold() + "${current.name.bold()}:\n")
-                appendln("Блюда:".bold())
+            val id = identifier.toIntOrNull() ?: menus.first().id.value
+            val current = menus.find { it.id.value == id } ?: menus.first()
+            val index = menus.indexOf(current)
 
-                val length = (current.dishes.map { it.name.length }.max() ?: 0) + 4
-
-                for (dish in current.dishes) {
-                    appendln("    " + " - ".code() + dish.name.code())
-                }
-                appendln()
-
-                append("${"-".repeat(length / 2)}${num + 1}/${menus.size}${"-".repeat(length / 2)}".code())
-            }
-
-            src.safeEdit(message) {
+            src.safeEdit("Выберите меню:\n\n".bold() +
+                    current.displayMessage(id + 1, menus.size)) {
                 row {
-                    val date = day.toString("yyyy-MM-dd")
+                    val displayedDate = orderDate.toString("yyyy-MM-dd")!!
+                    val menuId = menus[index].id.value
+                    val callback = "$displayedDate:$menuId"
 
-                    if (num - 1 in menus.indices)
-                        button("◀", "order-menu:$date:${num - 1}")
+                    if (index - 1 in menus.indices)
+                        button("◀", "order-menu:$callback")
                     else
                         button("∅")
 
-                    button("Выбрать", "choose-menu:${current.id.value}:${day.toString("yyyy-MM-dd")}")
+                    button("Выбрать", "choose-menu:$callback")
 
-                    if (num + 1 in menus.indices)
-                        button("▶", "order-menu:$date:${num + 1}")
+                    if (index + 1 in menus.indices)
+                        button("▶", "order-menu:$callback")
                     else
                         button("∅")
                 }
             }
         }
 
-        callback("choose-menu") { user, src, (id, time) ->
-            val orderDate = LocalDate.parse(time).compareTo()
+        callback("choose-menu") { _, src, (date, identifier) ->
+            val orderDate = LocalDate.parse(date)
 
-            val menu = Menu.findById(id.toInt())
+            val menu = Menu.findById(identifier.toInt())
             if (menu == null) {
                 src.safeEdit("Ошибка! Это меню уже не существует!")
                 return@callback
             }
-
-            Order.new {
-                this.user = user
-                this.menu = menu
-
-                this.registered = DateTime.now()
-                this.orderDate = orderDate
+            if (!orderDate.checkOrderTime()) {
+                src.safeEdit("Ошибка! Уже слишком поздно, вы не можете сделать заказ сейчас.")
+                return@callback
             }
 
-            src.safeEdit("Обед успешно заказан!")
+            src.safeEdit("**Вы уверены, что хотите заказать:**\n\n${menu.displayMessage()}") {
+                row {
+                    button("Подтвердить!", "confirm-order:$date:$identifier")
+                }
+            }
         }
 
-        command("посмотреть список заказов") { user ->
-            val now = DateTime.now()
-            val message = buildString {
-                appendln("Ваши активные заказы:".bold())
-                val days = user.orders.filter { it.onDate.isAfterNow }.map { it.onDate.dayOfWeek to it }.toMap()
-                val list = (0..6)
-                        .map { now.plusDays(it) }
-                        .sortedBy { it.dayOfWeek }
-                        .mapNotNull { days[it.dayOfWeek] }
+        callback("confirm-order") { user, src, (date, identifier) ->
+            val orderDate = LocalDate.parse(date)
 
-                for (order in list)
-                    appendln("     ${order.onDate.toString("yyyy-MM-dd")}: ${order.menu.name}".code())
+            val menu = Menu.findById(identifier.toInt())
+            if (menu == null) {
+                src.safeEdit("Ошибка! Это меню уже не существует!")
+                return@callback
             }
-            user.send(message)
+            if (!orderDate.checkOrderTime()) {
+                src.safeEdit("Ошибка! Уже слишком поздно, вы не можете сделать заказ сейчас.")
+                return@callback
+            }
+
+            val registered = DateTime.now()
+            src.safeEdit("""
+                |Заказ был успешно оформлен!
+                |
+                |${menu.displayMessage()}
+                |
+                |Время регистрации: `${registered.toString("hh:mm:ss")}`""".trimMargin())
+
+            Order.new {
+                this.orderDate = orderDate
+                this.registered = registered
+
+                this.user = user
+                this.menu = menu
+            }
+        }
+
+        command("посмотреть список всех заказов") { called ->
+            val now = LocalDate.now()
+
+            val orders = User.all().asSequence()
+                    .map { it.orders }
+                    .flatten()
+                    .filter {
+                        !it.orderDate.isBefore(now)
+                    }
+
+            val message = buildString {
+                appendln("Все активные заказы:\n".bold())
+
+                val groupedByDate = orders
+                        .groupBy { it.orderDate }
+                        .toSortedMap()
+                for ((date, byDate) in groupedByDate) {
+                    val dateDisplay = date.toString("yyyy-MM-dd")
+                    val dayOfWeek = date.dayOfWeek().getAsShortText(locale)
+
+                    appendln("$dayOfWeek($dateDisplay) [${byDate.size}]:".bold())
+
+                    val groupedByGrade = byDate
+                            .groupBy { it.user.grade }
+                            .toSortedMap(compareBy { it!!.name })
+                    for ((grade, byGrade) in groupedByGrade) {
+                        appendln("\t${grade!!.name} [${byGrade.size}]:".bold())
+
+                        val groupedByUser = byGrade
+                                .groupBy { it.user }
+                                .toSortedMap(compareBy { it.name })
+                        for ((user, byUser) in groupedByUser) {
+                            val pad = " ".repeat(5)
+                            val name = user.name!!.code()
+                            val joined = byUser.joinToString(", ") { it.menu.name.code() }
+                            appendln("$pad$name: $joined")
+                        }
+                    }
+                }
+
+            }
+            called.send(message)
         }
 
         command("отменить заказ") { user ->
