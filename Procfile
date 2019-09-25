@@ -1,1 +1,1 @@
-worker: sh build/install/bin/food-order
+worker: java -jar build/libs/food-order.jar
