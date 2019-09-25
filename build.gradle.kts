@@ -44,3 +44,7 @@ application {
     // Define the main class for the application
     mainClassName = "org.order.BotLauncherKt"
 }
+
+task("stage") {
+    dependsOn("installDist")
+}
