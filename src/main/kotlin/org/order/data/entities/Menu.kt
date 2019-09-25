@@ -3,7 +3,6 @@ package org.order.data.entities
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
-import org.order.bold
 import org.order.code
 import org.order.data.tables.Dishes
 import org.order.data.tables.Menus
@@ -18,25 +17,22 @@ class Menu(id: EntityID<Int>): IntEntity(id) {
     var schedule by Menus.schedule
 
     private val dishes by Dish referrersOn Dishes.menu
-    fun displayMessage(number: Int? = null, count: Int? = null) = buildString {
-        val maxLineLength = (dishes.map { it.name.length  + 3 /*padding*/ } + name.length).max()!!
-
-        appendln(name.bold() + ":")
+    fun displayMessage(number: Int? = null, count: Int? = null, maxLineLength: Int = 0) = buildString {
+        appendln("Меню".code() + " " + name.code() + ":" + System.lineSeparator())
 
         for (dish in dishes)
             appendln(" - ".code() + dish.name.code())
 
         appendln()
-        appendln("Цена: ${cost.toString().bold()}")
+        append("Цена: " + cost.toString().code())
 
         if (number != null && count != null) {
             appendln()
 
             val numDisplay = "$number/$count"
-            val numFill = (maxLineLength - numDisplay.length) / 2
-            append("-".repeat(numFill).code())
-            append(numDisplay.code())
-            append("-".repeat(numFill).code())
+            val fillLength = ((maxLineLength - numDisplay.length) / 2).coerceAtLeast(0)
+            val fill = "-".repeat(fillLength).code()
+            append(fill + numDisplay.code() + fill)
         }
     }
 }

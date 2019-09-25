@@ -26,7 +26,7 @@ class Sender(private val token: String, options: DefaultBotOptions): DefaultAbsS
 
     fun User.send(text: String, markdown: Boolean = true, init: SendMessage.() -> Unit = {}): Message = chat.send(text, markdown, init)
 
-    fun Message.edit(text: String, markdown: Boolean = true, init: InlineKeyboardMarkup.() -> Unit = {}) {
+    private fun Message.edit(text: String, markdown: Boolean = true, init: InlineKeyboardMarkup.() -> Unit = {}) {
         val send = EditMessageText().apply {
             this.text = text
             this.chatId = this@edit.chatId.toString()
@@ -36,16 +36,6 @@ class Sender(private val token: String, options: DefaultBotOptions): DefaultAbsS
         }
 
         send.replyMarkup = InlineKeyboardMarkup().apply(init)
-
-        execute(send)
-    }
-
-    fun Message.edit(init: InlineKeyboardMarkup.() -> Unit = {}) {
-        val send = EditMessageReplyMarkup().apply {
-            this.chatId = this@edit.chatId.toString()
-            this.messageId = this@edit.messageId
-            this.replyMarkup = InlineKeyboardMarkup().apply(init)
-        }
 
         execute(send)
     }
