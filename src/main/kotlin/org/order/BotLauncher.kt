@@ -2,6 +2,8 @@ package org.order
 
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.order.data.tables.*
 import org.telegram.telegrambots.ApiContextInitializer
@@ -13,12 +15,12 @@ fun main() {
     ApiContextInitializer.init()
 
     // Fetch database url and driver and connect to database
-    Class.forName("org.postgresql.Driver").newInstance()
     Database.connect(
             url    = System.getenv("DATABASE_URL"),
             driver = System.getenv("DATABASE_DRIVER")
     )
     transaction {
+        addLogger(StdOutSqlLogger)
         SchemaUtils.create(Users, Grades, Dishes, Menus, Orders)
     }
 

@@ -50,7 +50,7 @@ application {
 
 tasks.withType<ShadowJar>() {
     manifest {
-        attributes["Main-Class"] = "HelloKt"
+        attributes["Main-Class"] = "org.order.BotLauncherKt"
     }
 }
 
