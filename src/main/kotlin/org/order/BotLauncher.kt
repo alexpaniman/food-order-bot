@@ -13,6 +13,7 @@ fun main() {
     ApiContextInitializer.init()
 
     // Fetch database url and driver and connect to database
+    Class.forName("org.postgresql.Driver").newInstance()
     Database.connect(
             url    = System.getenv("DATABASE_URL"),
             driver = System.getenv("DATABASE_DRIVER")
