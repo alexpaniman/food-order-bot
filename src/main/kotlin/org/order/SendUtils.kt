@@ -59,4 +59,4 @@ fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback:
 }
 
 fun String.bold() = "***$this***"
-fun String.code() = "```$this```"
+fun String.code() = "`$this`"

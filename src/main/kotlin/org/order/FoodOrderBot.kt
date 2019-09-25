@@ -73,7 +73,10 @@ class FoodOrderBot(
                             .singleOrNull()
                     if (reader == null) {
                         if (message.hasText())
-                            commands.filterKeys { it.isEmpty() || message.text in it }
+                            commands.filterKeys {
+                                if (user.name == null) it.isEmpty()
+                                else message.text in it
+                            }
                                     .forEach { (_, run) ->
                                         sender.run(user)
                                     }
@@ -101,75 +104,74 @@ class FoodOrderBot(
     }
 
     init {
-        transaction {
-            val ph = Grade.new {
+        /*transaction {
+            val ph10 = Grade.new {
                 name = "10-Ф"
             }
-            Grade.new {
+            val math10 = Grade.new {
                 name = "10-М"
             }
-            Grade.new {
-                name = "11-ХБ"
-            }
-            Grade.new {
-                name = "7-V"
-            }
-            Grade.new {
-                name = "5"
-            }
-            Grade.new {
-                name = "9-Ф"
+            val ph11 = Grade.new {
+                name = "11-Ф"
             }
 
-            val mon = Menu.new {
-                name = "223"
-                active = true
-                cost = 10
-                schedule = 3
+            fun menu(name: String, schedule: Int) = Menu.new {
+                this.name = name
+                this.active = true
+                this.cost = 10
+                this.schedule = schedule
             }
 
-            val mon2 = Menu.new {
-                name = "1"
-                active = true
-                cost = 10
-                schedule = 3
+            fun dish(menu: Menu, name: String) = Dish.new {
+                this.name = name
+                this.menu = menu
             }
 
-            Dish.new {
-                name = "картошка"
-                menu = mon2
-            }
+            fun dishes(vararg names: String, menu: Menu) = names.forEach { dish(menu, it) }
 
-            Dish.new {
-                name = "котлета"
-                menu = mon2
-            }
-
-            Dish.new {
-                name = "картошка"
-                menu = mon
-            }
-
-            Dish.new {
-                name = "котлета"
-                menu = mon
-            }
-
-            Dish.new {
-                name = "салат"
-                menu = mon
-            }
-
-            User.new {
-                chat = 505120843
-                name = "Александр Паниман"
-                phone = "+380669362726"
-                grade = ph
+            fun user(name: String = "***REMOVED*** ***REMOVED***", chat: Int = 505120843) = User.new {
+                this.chat = chat
+                this.name = name
+                phone = "nothing"
+                grade = listOf(math10, ph10, ph11).random()
 
                 right = ADMINISTRATOR
                 state = COMMAND
             }
-        }
+
+            fun order(date: String, user: User, menu: Menu) = Order.new {
+                this.orderDate = LocalDate.parse(date)
+                this.menu = menu
+                this.user = user
+
+                this.registered = DateTime.now()
+            }
+
+            user()
+
+            val menus = listOf(
+                    menu("1", 1),
+                    menu("2", 2),
+                    menu("3", 3),
+                    menu("4", 4),
+                    menu("5", 5),
+
+                    menu("6", 1),
+                    menu("7", 2),
+                    menu("8", 3),
+                    menu("9", 4),
+                    menu("10", 5)
+            )
+
+            val dishes = arrayOf("картошка", "котлета", "сок")
+
+            repeat(16) { dishes(*dishes, menu = menus.random()) }
+
+            repeat(500) {
+                val user = user(chat = ***REMOVED***, name = "Имя Фамилия" + (10000..99999).random().toString())
+                order(LocalDate.now().plusDays((0..3).random()).toString(), user, menus.random())
+            }
+        }*/
 
         val locale = Locale("ru")
 
@@ -179,129 +181,44 @@ class FoodOrderBot(
                 button("отменить заказ")
             }
             row {
-                button("список заказов")
-            }
-            row {
-                button("изменить имя")
-                button("изменить класс")
-                button("изменить телефон")
-            }
-        }
-
-        val producer = reply {
-            row {
-                button("создать меню")
-                button("изменить меню")
-                button("удалить меню")
-            }
-            row {
-                button("сводка всез заказов")
-            }
-            row {
-                button("список всех заказов")
-            }
-        }
-
-        val admin = reply {
-            row {
-                button("заказать обед")
-                button("отменить заказ")
-            }
-            row {
-                button("список заказов")
-            }
-            row {
-                button("изменить имя")
-                button("изменить класс")
-                button("изменить телефон")
-            }
-            row {
-                button("создать меню")
-                button("изменить меню")
-                button("удалить меню")
-            }
-            row {
-                button("сводка всез заказов")
+                button("список моих заказов")
             }
             row {
                 button("список всех заказов")
             }
             row {
-                button("создать пользователя")
-                button("изменить пользователя")
-                button("удалить пользователя")
+                button("сводка всех заказов")
             }
         }
 
         fun User.getMainKeyboard() = when (right) {
-            ADMINISTRATOR -> admin
-            PRODUCER -> producer
-            CUSTOMER -> customer
+            ADMINISTRATOR, PRODUCER, CUSTOMER -> customer
         }
 
         command { user ->
-            when {
-                user.name == null -> {
-                    user.send("Вас приветствует бот для заказа еды в буфете Ришельевского лицея! " +
-                            "Для начала работы нам понадобиться некоторая информация о вас. " +
-                            "Введите свое имя и фамилию через пробел:")
-                    user.state = NAME
-                }
-                user.phone == null -> {
-                    user.send("Нам не хватает информации о вас для продолжения работы! " +
-                            "Пожалуйста введите свой номер телефона или нажмите на соответствующую кнопку:") {
-                        reply {
-                            row {
-                                button("отправить мой номер") {
-                                    requestContact = true
-                                }
-                            }
-                        }
-                    }
-                    user.state = PHONE
-                }
-                user.grade == null -> {
-                    user.send(
-                            "Нам не хватает информации о вас для продолжения работы!" +
-                                    "Пожалуйста выберите свой класс:") {
-                        val grades = Grade.all().map { it.name }
-                        inline {
-                            show(grades, length = 4) { "set-grade:$it" }
-                        }
-                    }
-                }
-            }
+            if (user.name != null && user.phone != null && user.grade != null)
+                return@command
+            user.send("Вас приветствует бот для заказа еды в буфете Ришельевского лицея! " +
+                    "Для начала работы нам понадобиться некоторая информация о вас. " +
+                    "Введите свое имя и фамилию через пробел:")
+            user.state = NAME
         }
 
         reader(NAME) { user, message ->
             val text = message.text ?: return@reader
-
-            val isModification = user.name != null
-            val isNextEmpty = user.phone == null
-
             val isCorrectName = text matches "^[А-ЯҐІЄЇ][а-яґієї]+ [А-ЯҐІЄЇ][а-яґієї]+(-[А-ЯҐІЄЇ][а-яґієї]+)?$".toRegex()
-            if (isCorrectName) {
-                user.name = text
-                if (isModification) user.apply {
-                    send("Имя было успешно изменено на `$name`!") {
-                        keyboard(user.getMainKeyboard())
-                    }
-                    state = COMMAND
-                } else user.apply {
-                    send("Ваше имя было успешно установленно, как `$name`!")
-
-                    if (isNextEmpty)
-                        send("Теперь пожалуйста введите свой номер телефона или нажмите на соответствующую кнопку:") {
-                            reply {
-                                row {
-                                    button("отправить мой номер") {
-                                        requestContact = true
-                                    }
-                                }
+            if (isCorrectName) user.apply {
+                name = text
+                send("Ваше имя было успешно установленно, как '${name!!.code()}'. Теперь введите свой номер телефона или нажмите на соответствующую кнопку:") {
+                    reply {
+                        row {
+                            button("отправить мой номер") {
+                                requestContact = true
                             }
                         }
-                    state = PHONE
+                    }
                 }
+                state = PHONE
             } else user.send("Неверный ввод имени! " +
                     "Пожалуйста вводите имя и фамилию кириллицей с большой буквы через пробел. " +
                     "Повторите попытку:")
@@ -309,44 +226,23 @@ class FoodOrderBot(
 
         reader(PHONE) { user, message ->
             val telephone = message.contact?.phoneNumber ?: message.text ?: return@reader
-
-            val isRegistered = user.name != null && user.phone != null && user.grade != null
-            if (isRegistered && telephone == "отмена") {
-                user.state = COMMAND
-                user.send("Успешно отменено!")
-            }
-
-            val isModification = user.phone != null
-            val isNextEmpty = user.grade == null
-
             val isCorrectPhone = telephone matches "^(\\+)?([- _(]?[0-9]){10,14}$".toRegex()
 
-            if (isCorrectPhone) {
-                user.phone = telephone
-                if (isModification)
-                    user.send("Телефонный номер был успешно изменен на `${user.phone}`!") {
-                        keyboard(user.getMainKeyboard())
+            if (isCorrectPhone) user.apply {
+                phone = telephone
+                send("Ваш телефонный номер был успешно установлен, как ${phone!!.code()}. Теперь выберите свой класс:") {
+                    val grades = Grade.all().map { it.name }
+                    inline {
+                        show(grades, length = 4) { "set-grade:$it" }
                     }
-                else user.apply {
-                    send("Ваш телефонный номер был успешно установлен, как `$phone`!")
-
-                    if (isNextEmpty)
-                        send("Теперь выберите свой класс:") {
-                            val grades = Grade.all().map { it.name }
-                            inline {
-                                show(grades, length = 4) { "set-grade:$it" }
-                            }
-                        }
                 }
-                user.state = COMMAND
+                user.state = GRADE
             } else user.send("Неверный ввод телефона! Повторите попытку:") {
                 reply {
                     row {
                         button("отправить мой номер") {
                             requestContact = true
                         }
-                        if (isModification)
-                            button("отмена")
                     }
                 }
             }
@@ -355,67 +251,24 @@ class FoodOrderBot(
         callback("set-grade") { user, src, (name) ->
             val grade = Grade.find { Grades.name eq name }.singleOrNull() ?: return@callback
             user.grade = grade
-
-            src.edit("Установлен ${grade.name} класс!") {}
-            user.send("Вы успешно зарегистрированы!") {
+            src.safeEdit("Установлен ${grade.name} класс!")
+            user.state = COMMAND
+            user.send("Теперь вы зарегистрированы! Можете пользоваться ботом. Для этого импользуйте кнопки снизу:") {
                 keyboard(user.getMainKeyboard())
             }
         }
 
-        command("изменить имя") { user ->
-            user.send("Введите изменённое имя и фамилию через пробел:") {
-                inline {
-                    row {
-                        button("отмена", "cancellation:")
-                    }
-                }
-            }
-            user.state = NAME
+        reader(GRADE) { user, _ ->
+            user.send("Сначала выберите класс!")
         }
 
-        command("изменить телефон") { user ->
-            user.send("Введите новый номер телефона или нажмите на соответствующую кнопку:") {
-                reply {
-                    row {
-                        button("отправить мой номер") {
-                            requestContact = true
-                        }
-                        button("отмена")
-                    }
-                }
-            }
-            user.state = PHONE
-        }
-
-        command("изменить класс") { user ->
-            user.send("Выберите другой класс:") {
-                val grades = Grade.all().map { it.name }
-                inline {
-                    show(grades, length = 4) { "set-grade:$it" }
-                }
-            }
-            user.state = PHONE
-        }
-
-        callback("cancellation") { user, src, _ ->
-            val isRegistered = user.name != null && user.phone != null && user.grade != null
-            if (isRegistered) {
-                user.state = COMMAND
-                src.safeEdit("Успешно отменено!")
-            }
-        }
-
-        fun LocalDate.checkOrderTime() = !toDateTime(
+        fun LocalDate.toLimitDateTime() = toDateTime(
                 LocalTime.parse(
-                        System.getenv("LAST_ORDER_TIME") //"HH:mm"
+                        System.getenv("LAST_ORDER_TIME") // hh:mm
                 )
-        ).isBeforeNow
+        )
 
         command("заказать обед") { user ->
-            val lastOrderTime = LocalTime.parse(
-                    System.getenv("LAST_ORDER_TIME") //"HH:mm"
-            )
-
             val now = LocalDate.now()
 
             var day = now
@@ -428,7 +281,7 @@ class FoodOrderBot(
 
             val datesFromWeekStart = (0..4).map { day.plusDays(it) }
             val datesWithActiveMenu = datesFromWeekStart
-                    .map { it.toDateTime(lastOrderTime) } // Map to last order time in each day
+                    .map { it.toLimitDateTime() } // Map to last order time in each day
                     .filter { !it.isBeforeNow } // Filter previous days
                     .filter {
                         !Menu.find {
@@ -440,10 +293,15 @@ class FoodOrderBot(
                     .map { it.dayOfWeek to it }
                     .toMap()
 
+            if (activeDaysOfWeek.isEmpty()) {
+                user.send("На данный момент нет доступных для заказа меню!".bold())
+                return@command
+            }
+
             user.send("Выберите дату заказа:") {
                 inline {
                     row {
-                        for (dayOfWeek in 1..7) {
+                        for (dayOfWeek in 1..5) {
                             val date = activeDaysOfWeek[dayOfWeek]
                             val displayedName = date?.dayOfWeek()?.getAsShortText(locale)
                             if (displayedName != null)
@@ -467,7 +325,7 @@ class FoodOrderBot(
             }.toList()
 
             if (menus.isEmpty()) {
-                src.safeEdit("Ошибка! В этот день уже нет активных меню!")
+                src.safeEdit("Ошибка! В этот день уже нет активных меню!".bold())
                 return@callback
             }
 
@@ -475,42 +333,47 @@ class FoodOrderBot(
             val current = menus.find { it.id.value == id } ?: menus.first()
             val index = menus.indexOf(current)
 
-            src.safeEdit("Выберите меню:\n\n".bold() +
-                    current.displayMessage(id + 1, menus.size)) {
+            val message = "Выберите меню из предложенных:"
+
+            src.safeEdit(message.bold() +
+                    System.lineSeparator().repeat(2) +
+                    current.displayMessage(index + 1, menus.size, message.length)) {
                 row {
                     val displayedDate = orderDate.toString("yyyy-MM-dd")!!
                     val menuId = menus[index].id.value
-                    val callback = "$displayedDate:$menuId"
 
                     if (index - 1 in menus.indices)
-                        button("◀", "order-menu:$callback")
+                        button("◀", "order-menu:$displayedDate:${menus[index - 1].id.value}")
                     else
                         button("∅")
 
-                    button("Выбрать", "choose-menu:$callback")
+                    button("Выбрать", "choose-menu:$displayedDate:$menuId")
 
                     if (index + 1 in menus.indices)
-                        button("▶", "order-menu:$callback")
+                        button("▶", "order-menu:$displayedDate:${menus[index + 1].id.value}")
                     else
                         button("∅")
                 }
             }
         }
 
+        fun LocalDate.checkOrderTime() = !toLimitDateTime().isBeforeNow
+
         callback("choose-menu") { _, src, (date, identifier) ->
             val orderDate = LocalDate.parse(date)
 
             val menu = Menu.findById(identifier.toInt())
-            if (menu == null) {
-                src.safeEdit("Ошибка! Это меню уже не существует!")
+            if (menu == null || !menu.active) {
+                src.safeEdit("Ошибка! Это меню уже не активно!".bold())
                 return@callback
             }
             if (!orderDate.checkOrderTime()) {
-                src.safeEdit("Ошибка! Уже слишком поздно, вы не можете сделать заказ сейчас.")
+                src.safeEdit("Ошибка! Уже слишком поздно, вы не можете сделать этот заказ сейчас.".bold())
                 return@callback
             }
 
-            src.safeEdit("**Вы уверены, что хотите заказать:**\n\n${menu.displayMessage()}") {
+            src.safeEdit("Вы уверены, что хотите заказать:".bold()
+                    + System.lineSeparator().repeat(2) + menu.displayMessage()) {
                 row {
                     button("Подтвердить!", "confirm-order:$date:$identifier")
                 }
@@ -521,22 +384,21 @@ class FoodOrderBot(
             val orderDate = LocalDate.parse(date)
 
             val menu = Menu.findById(identifier.toInt())
-            if (menu == null) {
-                src.safeEdit("Ошибка! Это меню уже не существует!")
+            if (menu == null || !menu.active) {
+                src.safeEdit("Ошибка! Это меню уже не активно!".bold())
                 return@callback
             }
             if (!orderDate.checkOrderTime()) {
-                src.safeEdit("Ошибка! Уже слишком поздно, вы не можете сделать заказ сейчас.")
+                src.safeEdit("Ошибка! Уже слишком поздно, вы не можете сделать заказ сейчас.".bold())
                 return@callback
             }
 
             val registered = DateTime.now()
-            src.safeEdit("""
-                |Заказ был успешно оформлен!
-                |
-                |${menu.displayMessage()}
-                |
-                |Время регистрации: `${registered.toString("hh:mm:ss")}`""".trimMargin())
+            src.safeEdit("Заказ был успешно оформлен!".bold() +
+                    System.lineSeparator().repeat(2) + menu.displayMessage() +
+                    System.lineSeparator().repeat(2) +
+                    "Зарегистрирован: ".code() +
+                    registered.toString("hh:mm:ss"))
 
             Order.new {
                 this.orderDate = orderDate
@@ -547,7 +409,7 @@ class FoodOrderBot(
             }
         }
 
-        command("посмотреть список всех заказов") { called ->
+        command("список всех заказов") { called ->
             val now = LocalDate.now()
 
             val orders = User.all().asSequence()
@@ -556,47 +418,142 @@ class FoodOrderBot(
                     .filter {
                         !it.orderDate.isBefore(now)
                     }
+                    .toList()
+
+            if (orders.none()) {
+                called.send("Заказов ещё нет!".bold())
+                return@command
+            }
 
             val message = buildString {
-                appendln("Все активные заказы:\n".bold())
+                appendln("Все заказы [${orders.size}]:\n".bold())
 
+                var linesCounter = 0
                 val groupedByDate = orders
                         .groupBy { it.orderDate }
                         .toSortedMap()
                 for ((date, byDate) in groupedByDate) {
-                    val dateDisplay = date.toString("yyyy-MM-dd")
-                    val dayOfWeek = date.dayOfWeek().getAsShortText(locale)
+                    val dayOfWeek = date.dayOfWeek().getAsText(locale).toUpperCase()
 
-                    appendln("$dayOfWeek($dateDisplay) [${byDate.size}]:".bold())
+                    appendln("$dayOfWeek [${byDate.size}]:".bold())
 
                     val groupedByGrade = byDate
                             .groupBy { it.user.grade }
                             .toSortedMap(compareBy { it!!.name })
                     for ((grade, byGrade) in groupedByGrade) {
-                        appendln("\t${grade!!.name} [${byGrade.size}]:".bold())
+                        appendln("     ${grade!!.name} [${byGrade.size}]:".bold())
+                        append("```")
 
                         val groupedByUser = byGrade
                                 .groupBy { it.user }
                                 .toSortedMap(compareBy { it.name })
                         for ((user, byUser) in groupedByUser) {
-                            val pad = " ".repeat(5)
-                            val name = user.name!!.code()
-                            val joined = byUser.joinToString(", ") { it.menu.name.code() }
-                            appendln("$pad$name: $joined")
+                            val joined = byUser.joinToString(", ") { it.menu.name }
+                            appendln("     ${user.name}: $joined")
                         }
+
+                        append("```")
+                    }
+                    linesCounter += byDate.size
+                    if (linesCounter >= 100) {
+                        append("|")
+                        linesCounter = 0
                     }
                 }
-
             }
-            called.send(message)
+            message.split('|').forEach {
+                if (it.isNotBlank()) {
+                    called.send(it)
+                }
+            }
+        }
+
+        command("сводка всех заказов") { user ->
+            val now = LocalDate.now()
+
+            val orders = User.all().asSequence()
+                    .map { it.orders }
+                    .flatten()
+                    .filter {
+                        !it.orderDate.isBefore(now)
+                    }
+                    .toList()
+
+            if (orders.none()) {
+                user.send("Заказов ещё нет!".bold())
+                return@command
+            }
+
+            val message = buildString {
+                appendln("Всего заказов: ".bold() + orders.size.toString().code())
+
+                appendln()
+
+                appendln("По меню: ".bold())
+                val groupedByMenu = orders.groupBy { it.menu }
+                for ((menu, byMenu) in groupedByMenu)
+                    appendln(" - Меню ${menu.name}: ${byMenu.size}".code())
+
+                appendln()
+
+                appendln("По классу: ".bold())
+                val groupedByGrade = orders.groupBy { it.user.grade }
+                for ((grade, byGrade) in groupedByGrade) {
+                    appendln(" - ${grade!!.name}: ${byGrade.size}".code())
+                    val groupedByMenuInGrade = byGrade.groupBy { it.menu }
+                    for ((menu, byMenu) in groupedByMenuInGrade)
+                        appendln("    - Меню ${menu.name}: ${byMenu.size}".code())
+                }
+            }
+            user.send(message)
+        }
+
+        command("список моих заказов") { user ->
+            val orders = user.orders
+            if (orders.none()) {
+                user.send("Вы ещё не делали заказы!".bold())
+                return@command
+            }
+            val message = buildString {
+                appendln("Список ваших заказов:".bold())
+
+                val groupedByDate = user.orders.groupBy { it.orderDate }
+                for ((date, userOrders) in groupedByDate) {
+                    val joined = userOrders.joinToString(", ") { it.menu.name }
+                    appendln("     ${date.toString("yyyy-MM-dd")}: $joined")
+                }
+            }
+            user.send(message)
         }
 
         command("отменить заказ") { user ->
-            user.send("")
+            val orders = user.orders
+            if (orders.none()) {
+                user.send("Вы ещё не делали заказы!".bold())
+                return@command
+            }
+            user.send("Выберите заказ, который хотите отменить:") {
+                inline {
+                    for (order in orders) {
+                        val dateDisplay = order.orderDate.toString("yyyy-MM-dd")
+                        val menuName = order.menu.name
+                        row {
+                            button("     $dateDisplay: $menuName", "cancel-order:${order.id.value}")
+                        }
+                    }
+                }
+            }
         }
-//
-//        command("посмотреть список заказов") { user ->
-//
-//        }
+
+        callback("cancel-order") { user, src, (identifier) ->
+            val id = identifier.toInt()
+            val order = user.orders.find { it.id.value == id }
+            if (order == null) {
+                src.safeEdit("Этот заказ уже был отменён!")
+                return@callback
+            }
+            order.delete()
+            src.safeEdit("Вы успешно отменили заказ!")
+        }
     }
 }
