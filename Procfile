@@ -1,1 +1,1 @@
-worker: java -jar build/libs/food-order.jar
+worker: java -jar build/libs/food-order-all.jar

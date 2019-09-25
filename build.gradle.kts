@@ -1,6 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.3.41"
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 
     // Apply the application plugin to add support for running project on heroku
     application
@@ -43,6 +46,12 @@ dependencies {
 application {
     // Define the main class for the application
     mainClassName = "org.order.BotLauncherKt"
+}
+
+tasks.withType<ShadowJar>() {
+    manifest {
+        attributes["Main-Class"] = "HelloKt"
+    }
 }
 
 task("stage") {
