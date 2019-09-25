@@ -55,5 +55,5 @@ tasks.withType<ShadowJar>() {
 }
 
 task("stage") {
-    dependsOn("installDist")
+    dependsOn("installShadowDist", "installDist")
 }
