@@ -35,7 +35,7 @@ fun ReplyKeyboardMarkup.row(init: KeyboardRow.() -> Unit) {
     keyboard.last().apply(init)
 }
 
-fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = "nothing", init: InlineKeyboardButton.() -> Unit = {}) {
+fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) {
     this += InlineKeyboardButton(text).apply {
         this.callbackData = callback
     }.apply(init)
@@ -55,6 +55,20 @@ fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback:
             keyboard.add(mutableListOf())
 
         keyboard.last() += InlineKeyboardButton(element.toString()).setCallbackData(callback(element))
+    }
+}
+
+fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int) {
+    check(length > 0) { "length must be greater then 0" }
+    if (keyboard == null)
+        keyboard = mutableListOf()
+
+
+    for (element in elements) {
+        if (keyboard.size == 0 || keyboard.last().size == length)
+            keyboard.add(KeyboardRow())
+
+        keyboard.last() += KeyboardButton(element.toString())
     }
 }
 

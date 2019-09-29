@@ -11,6 +11,11 @@ object Users: IntIdTable() {
 
     val grade = reference("grade_id", Grades).nullable()
 
-    val right = enumeration("right", Right::class)
-    val state = enumeration("state", State::class)
+    val right = enumeration("right_id", Right::class)
+    val state = enumeration("state_id", State::class)
+
+    val firstName = varchar("first_name", 255)
+
+    val username = varchar("username", 255).nullable()
+    val lastName = varchar("last_name", 255).nullable()
 }

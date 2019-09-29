@@ -18,5 +18,10 @@ class User(id: EntityID<Int>): IntEntity(id) {
 
     var state by Users.state
 
+    var firstName by Users.firstName
+
+    var lastName by Users.lastName
+    var username by Users.username
+
     val orders by Order referrersOn Orders.user
 }
