@@ -5,17 +5,14 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.order.data.entities.*
 import org.order.data.entities.Right.*
-
-import org.order.data.tables.Users
-
 import org.order.data.entities.State.*
-import org.order.data.tables.Grades
 import org.order.data.tables.Menus
-
+import org.order.data.tables.Users
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.generics.LongPollingBot
@@ -39,6 +36,8 @@ class FoodOrderBot(
     private val commands = mutableMapOf<List<String>, Sender.(User) -> Unit>()
     private val readers = mutableMapOf<State, Sender.(User, Message) -> Unit>()
 
+    private var newUser: Sender.(User) -> Unit = { }
+
     private fun callback(marker: String, run: Sender.(User, Message, List<String>) -> Unit) {
         callbacks[marker] = run
     }
@@ -51,63 +50,78 @@ class FoodOrderBot(
         readers[state] = run
     }
 
-    private fun fetchOrCreateUser(telegramUser: org.telegram.telegrambots.meta.api.objects.User) =
-            User.find { Users.chat eq telegramUser.id }.firstOrNull() ?: User.new {
-                chat = telegramUser.id
+    private fun newUser(run: Sender.(User) -> Unit) {
+        this.newUser = run
+    }
 
-                name = null
-                phone = null
-                grade = null
+    private fun fetchUser(telegramUser: org.telegram.telegrambots.meta.api.objects.User) =
+            User.find { Users.chat eq telegramUser.id }.firstOrNull()
 
-                right = CUSTOMER
-                state = COMMAND
-            }
+    private fun createUser(telegramUser: org.telegram.telegrambots.meta.api.objects.User) = User.new {
+        chat = telegramUser.id
+
+        firstName = telegramUser.firstName
+        lastName = telegramUser.lastName
+        username = telegramUser.userName
+
+        name = null
+        phone = null
+        grade = null
+
+        right = CUSTOMER
+        state = COMMAND
+    }
 
     override fun onUpdateReceived(update: Update) = transaction {
         addLogger(StdOutSqlLogger)
+
+        val telegramUser = update.message?.from ?: update.callbackQuery?.from ?: return@transaction
+
+        val fetchUser = fetchUser(telegramUser)
+        val isNewUser = fetchUser == null
+        val user = fetchUser ?: createUser(telegramUser)
+
+        if (isNewUser) {
+            sender.newUser(user)
+            return@transaction
+        }
+
         when {
-            update.hasMessage() -> {
-                val message = update.message
-                val user = fetchOrCreateUser(message.from)
-                if (message.isUserMessage) {
-                    val reader = readers
-                            .filterKeys { it == user.state }
-                            .map { (_, run) -> run }
-                            .singleOrNull()
-                    if (reader == null) {
-                        if (message.hasText())
-                            commands.filterKeys {
-                                if (user.name == null) it.isEmpty()
-                                else message.text in it
-                            }
-                                    .forEach { (_, run) ->
-                                        sender.run(user)
-                                    }
-                    } else sender.reader(user, message)
-                }
-            }
+            update.hasMessage() -> if (update.message.isUserMessage) readers
+                    .filterKeys { it == user.state }
+                    .map { (_, run) -> run }
+                    .singleOrNull()
+                    ?.invoke(sender, user, update.message) ?: if (update.message.hasText())
+                commands.filterKeys { update.message.text in it }
+                        .map { (_, run) -> run }
+                        .singleOrNull()
+                        ?.invoke(sender, user)
+            else return@transaction
+
             update.hasCallbackQuery() -> {
-                val callback = update.callbackQuery
+                val callback = update.callbackQuery!!
+
                 val message = callback.message
+
                 val parts = callback.data.split(':')
                 val marker = parts[0]
                 val data = parts.drop(1)
 
-                val user = fetchOrCreateUser(callback.from)
-                if (message.isUserMessage) {
-                    val handler = callbacks
-                            .filterKeys { it == marker }
-                            .map { (_, run) -> run }
-                            .singleOrNull() ?: return@transaction
-
-                    handler(sender, user, callback.message, data)
-                }
+                if (message.isUserMessage) callbacks
+                        .filterKeys { it == marker }
+                        .map { (_, run) -> run }
+                        .singleOrNull()
+                        ?.invoke(sender, user, callback.message, data)
             }
         }
     }
 
+    private var summaryList: List<String>? = null
+    private var ordersList: List<String>? = null
+
     init {
-        /*transaction {
+        /*
+        transaction {
             val ph10 = Grade.new {
                 name = "10-Ф"
             }
@@ -133,6 +147,10 @@ class FoodOrderBot(
             fun dishes(vararg names: String, menu: Menu) = names.forEach { dish(menu, it) }
 
             fun user(name: String = "Александр Паниман", chat: Int = 505120843) = User.new {
+                this.lastName = ""
+                this.firstName = ""
+                this.username = ""
+
                 this.chat = chat
                 this.name = name
                 phone = "nothing"
@@ -150,7 +168,7 @@ class FoodOrderBot(
                 this.registered = DateTime.now()
             }
 
-            user()
+//            user()
 
             val menus = listOf(
                     menu("1", 1),
@@ -170,12 +188,13 @@ class FoodOrderBot(
 
             repeat(16) { dishes(*dishes, menu = menus.random()) }
 
-            repeat(500) {
+            repeat(100) {
                 val user = user(chat = 100939823, name = "Имя Фамилия" + (10000..99999).random().toString())
                 order(LocalDate.now().plusDays((0..3).random()).toString(), user, menus.random())
             }
         }*/
 
+        DateTimeZone.setDefault(DateTimeZone.forID("Europe/Kiev"))
         val locale = Locale("ru")
 
         val customer = reply {
@@ -192,77 +211,176 @@ class FoodOrderBot(
             row {
                 button("сводка всех заказов")
             }
+            row {
+                button("изменить имя")
+                button("изменить телефон")
+                button("изменить класс")
+            }
         }
 
-        fun User.getMainKeyboard() = when (right) {
+        fun User.actionsKeyboard() = when (right) {
             ADMINISTRATOR, PRODUCER, CUSTOMER -> customer
         }
 
-        command { user ->
-            if (user.name != null && user.phone != null && user.grade != null)
-                return@command
-            user.send("Вас приветствует бот для заказа еды в буфете Ришельевского лицея! " +
-                    "Для начала работы нам понадобиться некоторая информация о вас. " +
-                    "Введите свое имя и фамилию через пробел:")
-            user.state = NAME
+        fun <Q, T> Q.validate(transform: (Q) -> T, validate: (T) -> Boolean, valid: (T) -> Unit, invalid: (T) -> Unit) {
+            val transformed = transform(this)
+            if (validate(transformed))
+                valid(transformed)
+            else
+                invalid(transformed)
         }
 
-        reader(NAME) { user, message ->
-            val text = message.text ?: return@reader
-            val isCorrectName = text matches "^[А-ЯҐІЄЇ][а-яґієї]+ [А-ЯҐІЄЇ][а-яґієї]+(-[А-ЯҐІЄЇ][а-яґієї]+)?$".toRegex()
-            if (isCorrectName) user.apply {
-                name = text
-                send("Ваше имя было успешно установленно, как '${name!!.code()}'. Теперь введите свой номер телефона или нажмите на соответствующую кнопку:") {
+        fun User.readName() = sender.run {
+            val isModification = name != null
+
+            send("Введите, пожалуйста, свою фамилию и затем имя через пробел:") {
+                if (isModification)
                     reply {
                         row {
-                            button("отправить мой номер") {
-                                requestContact = true
-                            }
+                            button("отмена")
                         }
                     }
-                }
-                state = PHONE
-            } else user.send("Неверный ввод имени! " +
-                    "Пожалуйста вводите имя и фамилию кириллицей с большой буквы через пробел. " +
-                    "Повторите попытку:")
+            }
+            state = NAME
         }
 
-        reader(PHONE) { user, message ->
-            val telephone = message.contact?.phoneNumber ?: message.text ?: return@reader
-            val isCorrectPhone = telephone matches "^(\\+)?([- _(]?[0-9]){10,14}$".toRegex()
+        fun User.readPhone() = sender.run {
+            val isModification = phone != null
 
-            if (isCorrectPhone) user.apply {
-                phone = telephone
-                send("Ваш телефонный номер был успешно установлен, как ${phone!!.code()}. Теперь выберите свой класс:") {
-                    val grades = Grade.all().map { it.name }
-                    inline {
-                        show(grades, length = 4) { "set-grade:$it" }
-                    }
-                }
-                user.state = GRADE
-            } else user.send("Неверный ввод телефона! Повторите попытку:") {
+            send("Введите пожалуста свой номер телефона или нажмите на кнопку снизу:") {
                 reply {
                     row {
                         button("отправить мой номер") {
                             requestContact = true
                         }
                     }
+                    if (isModification)
+                        row {
+                            button("отмена")
+                        }
                 }
             }
+            state = PHONE
         }
 
-        callback("set-grade") { user, src, (name) ->
-            val grade = Grade.find { Grades.name eq name }.singleOrNull() ?: return@callback
-            user.grade = grade
-            src.safeEdit("Установлен ${grade.name} класс!")
-            user.state = COMMAND
-            user.send("Теперь вы зарегистрированы! Можете пользоваться ботом. Для этого импользуйте кнопки снизу:") {
-                keyboard(user.getMainKeyboard())
+        fun User.readGrade() = sender.run {
+            val isModification = grade != null
+
+            send("Выберите свой класс:") {
+                reply {
+                    show(Grade.all().map { it.name }, 5)
+                    if (isModification)
+                        row {
+                            button("отмена")
+                        }
+                }
+            }
+            state = GRADE
+        }
+
+        fun User.checkRegistration() = sender.run {
+            when {
+                name == null -> readName()
+                phone == null -> readPhone()
+                grade == null -> readGrade()
+                else -> return@run true
+            }
+            false
+        }
+
+        fun User.sendMainKeyboard() = sender.run {
+            send("Пользуйтесь ботом, используя кнопки снизу:") {
+                keyboard(actionsKeyboard())
             }
         }
 
-        reader(GRADE) { user, _ ->
-            user.send("Сначала выберите класс!")
+        fun User.registrationStep() {
+            if (checkRegistration()) {
+                sendMainKeyboard()
+                state = COMMAND
+            }
+        }
+
+        newUser { user ->
+            if (user.name != null && user.phone != null && user.grade != null)
+                return@newUser
+            user.send("Вас приветствует бот для заказа еды в буфете Ришельевского лицея! " +
+                    "Для начала работы нам понадобится некоторая информация о Вас.")
+            user.registrationStep()
+        }
+
+        reader(NAME) { user, message ->
+            if (message.text == "отмена" && user.name != null) {
+                user.send("Успешно отменено!") {
+                    keyboard(user.actionsKeyboard())
+                }
+                user.state = COMMAND
+                return@reader
+            }
+            message.validate({ it.text }, { it != null &&
+                    it matches "^[А-ЯҐІЄЇ][а-яґієї]+ [А-ЯҐІЄЇ][а-яґієї]+(-[А-ЯҐІЄЇ][а-яґієї]+)?\$".toRegex()
+            }, {
+                user.run {
+                    name = it
+                    send("Ваше имя успешно установлено как '$it'")
+                    registrationStep()
+                }
+            }, {
+                user.send("Неверный ввод! Пожалуйста, введите фамилию и затем имя с большой буквы через пробел:")
+            })
+        }
+
+        reader(PHONE) { user, message ->
+            if (message.text == "отмена" && user.phone != null) {
+                user.send("Успешно отменено!") {
+                    keyboard(user.actionsKeyboard())
+                }
+                user.state = COMMAND
+                return@reader
+            }
+            message.validate({ it.contact?.phoneNumber ?: it.text }, { it != null &&
+                        it matches "^(\\+)?([- _(]?[0-9]){10,14}$".toRegex()
+            }, {
+                user.run {
+                    phone = it
+                    send("Ваш телефонный номер был успешно установлен как '$it'")
+                    registrationStep()
+                }
+            }, {
+                user.send("Неверный ввод телефона! Повторите попытку:")
+            })
+        }
+
+        reader(GRADE) { user, message ->
+            if (message.text == "отмена" && user.grade != null){
+                user.send("Успешно отменено!") {
+                    keyboard(user.actionsKeyboard())
+                }
+                user.state = COMMAND
+                return@reader
+            }
+            val grades = Grade.all().map { it.name to it }.toMap()
+            message.validate({ it.text }, { it != null && it in grades }, {
+                user.run {
+                    grade = grades[it]
+                    send("Ваш класс был успешно установлен как '$it'")
+                    registrationStep()
+                }
+            }, {
+                user.send("Вы ввели неверный класс! Пожалуйста, используйте кнопки снизу. Повторите попытку:")
+            })
+        }
+
+        command("изменить имя") { user ->
+            user.readName()
+        }
+
+        command("изменить телефон") { user ->
+            user.readPhone()
+        }
+
+        command("изменить класс") { user ->
+            user.readGrade()
         }
 
         fun LocalDate.toLimitDateTime() = toDateTime(
@@ -400,8 +518,8 @@ class FoodOrderBot(
             src.safeEdit("Заказ был успешно оформлен!".bold() +
                     System.lineSeparator().repeat(2) + menu.displayMessage() +
                     System.lineSeparator().repeat(2) +
-                    "Зарегистрирован: ".code() +
-                    registered.toString("hh:mm:ss"))
+                    "Зарегистрирован: ".code() + System.lineSeparator() +
+                    registered.toString("yyyy-MM-dd HH:mm").code())
 
             Order.new {
                 this.orderDate = orderDate
@@ -410,9 +528,22 @@ class FoodOrderBot(
                 this.user = user
                 this.menu = menu
             }
+
+            summaryList = null
+            ordersList = null
+        }
+
+        fun LocalDate.dayOfWeekAsText(): String {
+            val text = dayOfWeek().getAsText(locale)
+            return text[0].toUpperCase() + text.drop(1)
         }
 
         command("список всех заказов") { called ->
+            if (ordersList != null) {
+                ordersList!!.forEach { called.send(it) }
+                return@command
+            }
+
             val now = LocalDate.now()
 
             val orders = User.all().asSequence()
@@ -436,9 +567,7 @@ class FoodOrderBot(
                         .groupBy { it.orderDate }
                         .toSortedMap()
                 for ((date, byDate) in groupedByDate) {
-                    val dayOfWeek = date.dayOfWeek().getAsText(locale).toUpperCase()
-
-                    appendln("$dayOfWeek [${byDate.size}]:".bold())
+                    appendln("${date.dayOfWeekAsText()} [${byDate.size}]:".bold())
 
                     val groupedByGrade = byDate
                             .groupBy { it.user.grade }
@@ -452,26 +581,31 @@ class FoodOrderBot(
                                 .toSortedMap(compareBy { it.name })
                         for ((user, byUser) in groupedByUser) {
                             val joined = byUser.joinToString(", ") { it.menu.name }
-                            appendln("     ${user.name}: $joined")
+                            appendln("     ${user.name}: Меню $joined")
                         }
-
                         append("```")
+                        appendln()
+                        linesCounter += byGrade.size
+                        if (linesCounter >= 70) {
+                            append("|")
+                            linesCounter = 0
+                        }
                     }
-                    linesCounter += byDate.size
-                    if (linesCounter >= 100) {
-                        append("|")
-                        linesCounter = 0
-                    }
+                    appendln()
+                    appendln()
                 }
             }
-            message.split('|').forEach {
-                if (it.isNotBlank()) {
-                    called.send(it)
-                }
-            }
+            val list = message.split('|').filter { it.isNotBlank() }
+            ordersList = list
+            list.forEach { called.send(it) }
         }
 
         command("сводка всех заказов") { user ->
+            if (summaryList != null) {
+                summaryList!!.forEach { user.send(it) }
+                return@command
+            }
+
             val now = LocalDate.now()
 
             val orders = User.all().asSequence()
@@ -488,27 +622,48 @@ class FoodOrderBot(
             }
 
             val message = buildString {
-                appendln("Всего заказов: ".bold() + orders.size.toString().code())
-
+                appendln("Всего заказов: ${orders.size}".bold())
                 appendln()
 
-                appendln("По меню: ".bold())
-                val groupedByMenu = orders.groupBy { it.menu }
-                for ((menu, byMenu) in groupedByMenu)
-                    appendln(" - Меню ${menu.name}: ${byMenu.size}".code())
+                var linesCounter = 0
+                val groupedByDate = orders.groupBy { it.orderDate }
+                for ((date, byDate) in groupedByDate) {
+                    appendln("${date.dayOfWeekAsText()}: ${byDate.size}".bold())
 
-                appendln()
+                    appendln("      По меню: ".bold())
+                    append("```")
 
-                appendln("По классу: ".bold())
-                val groupedByGrade = orders.groupBy { it.user.grade }
-                for ((grade, byGrade) in groupedByGrade) {
-                    appendln(" - ${grade!!.name}: ${byGrade.size}".code())
-                    val groupedByMenuInGrade = byGrade.groupBy { it.menu }
-                    for ((menu, byMenu) in groupedByMenuInGrade)
-                        appendln("    - Меню ${menu.name}: ${byMenu.size}".code())
+                    val groupedByMenu = byDate.groupBy { it.menu }
+                    for ((menu, byMenu) in groupedByMenu)
+                        appendln("    Меню ${menu.name}: ${byMenu.size}")
+
+                    append("```")
+                    appendln()
+
+                    appendln("      По классу: ".bold())
+
+                    val groupedByGrade = byDate.groupBy { it.user.grade }
+                    for ((grade, byGrade) in groupedByGrade) {
+                        appendln("            ${grade!!.name}: ${byGrade.size}".bold())
+                        val groupedByMenuInGrade = byGrade.groupBy { it.menu }
+                        append("```")
+                        for ((menu, byMenu) in groupedByMenuInGrade)
+                            appendln("        Меню ${menu.name}: ${byMenu.size}")
+                        append("```")
+                        appendln()
+                        linesCounter += groupedByMenuInGrade.size
+                        if (linesCounter >= 70) {
+                            append("|")
+                            linesCounter = 0
+                        }
+                    }
+                    appendln()
+                    appendln()
                 }
             }
-            user.send(message)
+            val list = message.split('|').filter { it.isNotBlank() }
+            summaryList = list
+            list.forEach { user.send(it) }
         }
 
         command("список моих заказов") { user ->
@@ -523,7 +678,7 @@ class FoodOrderBot(
                 val groupedByDate = user.orders.groupBy { it.orderDate }
                 for ((date, userOrders) in groupedByDate) {
                     val joined = userOrders.joinToString(", ") { it.menu.name }
-                    appendln("     ${date.toString("yyyy-MM-dd")}: $joined")
+                    appendln("     ${date.toString("yyyy-MM-dd")}: Меню $joined")
                 }
             }
             user.send(message)
@@ -541,7 +696,7 @@ class FoodOrderBot(
                         val dateDisplay = order.orderDate.toString("yyyy-MM-dd")
                         val menuName = order.menu.name
                         row {
-                            button("     $dateDisplay: $menuName", "cancel-order:${order.id.value}")
+                            button("     $dateDisplay: Меню $menuName", "cancel-order:${order.id.value}")
                         }
                     }
                 }
@@ -557,6 +712,9 @@ class FoodOrderBot(
             }
             order.delete()
             src.safeEdit("Вы успешно отменили заказ!")
+
+            summaryList = null
+            ordersList = null
         }
     }
 }
