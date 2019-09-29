@@ -16,7 +16,7 @@ fun main() {
 
     // Fetch database url and driver and connect to database
     Database.connect(
-            url    = System.getenv("URL_DATABASE"),
+            url    = System.getenv("JDBC_DATABASE_URL"),
             driver = System.getenv("DATABASE_DRIVER")
     )
     transaction {
