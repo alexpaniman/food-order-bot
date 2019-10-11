@@ -24,4 +24,6 @@ class User(id: EntityID<Int>): IntEntity(id) {
     var username by Users.username
 
     val orders by Order referrersOn Orders.user
+
+    val isRegistered get() = name != null && phone != null && grade != null
 }

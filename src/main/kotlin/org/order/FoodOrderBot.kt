@@ -13,8 +13,10 @@ import org.order.data.entities.Right.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Menus
 import org.order.data.tables.Users
+import org.telegram.telegrambots.meta.api.methods.send.SendInvoice
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice
 import org.telegram.telegrambots.meta.generics.LongPollingBot
 import org.telegram.telegrambots.util.WebhookUtils
 import java.util.*
@@ -86,8 +88,9 @@ class FoodOrderBot(
             return@transaction
         }
 
+        update.message.successfulPayment.currency
         when {
-            update.hasMessage() -> if (update.message.isUserMessage) readers
+            update.message != null -> if (update.message.isUserMessage) readers
                     .filterKeys { it == user.state }
                     .map { (_, run) -> run }
                     .singleOrNull()
@@ -302,6 +305,16 @@ class FoodOrderBot(
         }
 
         newUser { user ->
+            val send = SendInvoice(user.chat,
+                    "pay",
+                    "description",
+                    "payload",
+                    System.getenv("PAYMENTS_TOKEN"),
+                    "pay-parameter",
+                    "EUR",
+                    listOf(LabeledPrice("price", 100))
+            )
+            sender.execute(send)
             if (user.name != null && user.phone != null && user.grade != null)
                 return@newUser
             user.send("Вас приветствует бот для заказа еды в буфете Ришельевского лицея! " +
