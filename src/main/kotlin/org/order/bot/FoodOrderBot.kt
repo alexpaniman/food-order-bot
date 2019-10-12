@@ -1,4 +1,4 @@
-package org.order
+package org.order.bot
 
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -8,6 +8,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
+import org.order.bot.send.*
 import org.order.data.entities.*
 import org.order.data.entities.Right.*
 import org.order.data.entities.State.*
@@ -149,7 +150,7 @@ class FoodOrderBot(
 
             fun dishes(vararg names: String, menu: Menu) = names.forEach { dish(menu, it) }
 
-            fun user(name: String = "***REMOVED*** ***REMOVED***", chat: Int = 505120843) = User.new {
+            fun user(name: String = "***REMOVED*** Паниман", chat: Int = 505120843) = User.new {
                 this.lastName = ""
                 this.firstName = ""
                 this.username = ""

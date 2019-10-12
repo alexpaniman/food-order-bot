@@ -1,4 +1,4 @@
-package org.order
+package org.order.bot.send
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
@@ -13,8 +13,8 @@ fun reply(init: ReplyKeyboardMarkup.() -> Unit) = ReplyKeyboardMarkup().apply {
         this.resizeKeyboard = true
     }.apply(init)
 
-fun SendMessage.inline(init: InlineKeyboardMarkup.() -> Unit) = keyboard(org.order.inline(init))
-fun SendMessage.reply(init: ReplyKeyboardMarkup.() -> Unit) = keyboard(org.order.reply(init))
+fun SendMessage.inline(init: InlineKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.inline(init))
+fun SendMessage.reply(init: ReplyKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.reply(init))
 
 fun SendMessage.keyboard(markup: ReplyKeyboard) {
     replyMarkup = markup
@@ -44,6 +44,11 @@ fun KeyboardRow.button(text: String, init: KeyboardButton.() -> Unit = {}) {
     this += KeyboardButton(text).apply(init)
 }
 
+fun ReplyKeyboardMarkup.button(text: String, init: KeyboardButton.() -> Unit = {}) =
+        row { button(text, init) }
+fun InlineKeyboardMarkup.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) =
+        row { button(text, callback, init) }
+
 fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback: (T) -> String = { it.toString() }) {
     check(length > 0) { "length must be greater then 0" }
     if (keyboard == null)
@@ -57,7 +62,6 @@ fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback:
         keyboard.last() += InlineKeyboardButton(element.toString()).setCallbackData(callback(element))
     }
 }
-
 fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int) {
     check(length > 0) { "length must be greater then 0" }
     if (keyboard == null)

@@ -3,7 +3,7 @@ package org.order.data.entities
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
-import org.order.code
+import org.order.bot.send.code
 import org.order.data.tables.Dishes
 import org.order.data.tables.Menus
 
