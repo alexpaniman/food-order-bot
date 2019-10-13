@@ -9,10 +9,14 @@ class CallbackHandler(private val marker: String, private val body: Sender.(User
     override fun matches(user: User, update: Update) = update.callbackQuery?.data
             ?.substringBefore(':') == marker
 
-    override fun process(sender: Sender, user: User, update: Update) = sender.body(
-            user,
-            update.callbackQuery!!.data!!
-                    .substringAfter(':')
-                    .split(":")
-    )
+    override fun process(sender: Sender, user: User, update: Update): Boolean {
+        sender.body(
+                user,
+                update.callbackQuery!!.data!!
+                        .substringAfter(':')
+                        .split(":")
+        )
+
+        return true
+    }
 }

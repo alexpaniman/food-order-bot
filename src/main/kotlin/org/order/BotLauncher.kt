@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.order.bot.FoodOrderBot
+import org.order.bot.CommandsBot
 import org.order.bot.send.Sender
 import org.order.data.tables.*
 import org.telegram.telegrambots.ApiContextInitializer
@@ -34,7 +34,7 @@ fun main() {
     val options = DefaultBotOptions()
     val sender = Sender(token, options)
 
-    val bot = FoodOrderBot(sender, username, token)
+    val bot = CommandsBot(sender, username, token)
 
     // Launch bot
     TelegramBotsApi().registerBot(bot)

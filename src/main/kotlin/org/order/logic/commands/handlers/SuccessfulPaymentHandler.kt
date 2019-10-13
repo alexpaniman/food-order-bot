@@ -8,5 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.payments.SuccessfulPayment
 
 class SuccessfulPaymentHandler(val body: Sender.(User, SuccessfulPayment) -> Unit): Command {
     override fun matches(user: User, update: Update) = update.message?.successfulPayment != null
-    override fun process(sender: Sender, user: User, update: Update) = sender.body(user, update.message!!.successfulPayment!!)
+    override fun process(sender: Sender, user: User, update: Update): Boolean {
+        sender.body(user, update.message!!.successfulPayment!!)
+        return true
+    }
 }
