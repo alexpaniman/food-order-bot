@@ -8,5 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.payments.PreCheckoutQuery
 
 class PreCheckoutQueryHandler(val body: Sender.(User, PreCheckoutQuery) -> Unit): Command {
     override fun matches(user: User, update: Update) = update.preCheckoutQuery != null
-    override fun process(sender: Sender, user: User, update: Update) = sender.body(user, update.preCheckoutQuery!!)
+    override fun process(sender: Sender, user: User, update: Update): Boolean {
+        sender.body(user, update.preCheckoutQuery!!)
+        return true
+    }
 }

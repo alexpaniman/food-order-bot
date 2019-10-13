@@ -8,5 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.Update
 
 class ContactReader(private val body: Sender.(User, Contact) -> Unit): Command {
     override fun matches(user: User, update: Update) = update.message?.contact != null
-    override fun process(sender: Sender, user: User, update: Update) = sender.body(user, update.message!!.contact!!)
+    override fun process(sender: Sender, user: User, update: Update): Boolean {
+        sender.body(user, update.message!!.contact!!)
+        return true
+    }
 }
