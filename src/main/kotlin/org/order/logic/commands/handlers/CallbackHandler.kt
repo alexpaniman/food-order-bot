@@ -6,17 +6,14 @@ import org.order.logic.commands.Command
 import org.telegram.telegrambots.meta.api.objects.Update
 
 class CallbackHandler(private val marker: String, private val body: Sender.(User, List<String>) -> Unit): Command {
-    override fun matches(user: User, update: Update) = update.callbackQuery?.data
-            ?.substringBefore(':') == marker
-
-    override fun process(sender: Sender, user: User, update: Update): Boolean {
-        sender.body(
-                user,
-                update.callbackQuery!!.data!!
-                        .substringAfter(':')
-                        .split(":")
-        )
-
+    override fun Sender.process(user: User, update: Update): Boolean {
+        val data = update.callbackQuery?.data ?: return false
+        if (data.substringBefore(':') != marker)
+            return false
+        val args = data
+                .substringAfter(':')
+                .split(":")
+        body(user, args)
         return true
     }
 }

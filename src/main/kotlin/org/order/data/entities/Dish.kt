@@ -8,6 +8,6 @@ import org.order.data.tables.Dishes
 class Dish(id: EntityID<Int>): IntEntity(id) {
     companion object: IntEntityClass<Dish>(Dishes)
 
-    var name by Dishes.name
+    var name by                   Dishes.name
     var menu by Menu referencedOn Dishes.menu
 }

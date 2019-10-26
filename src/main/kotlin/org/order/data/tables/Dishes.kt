@@ -4,5 +4,5 @@ import org.jetbrains.exposed.dao.IntIdTable
 
 object Dishes: IntIdTable() {
     val menu = reference("menu_id", Menus)
-    val name =   varchar("name", 255)
+    val name = varchar ("name", 255)
 }

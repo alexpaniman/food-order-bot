@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.order.bot.CommandsBot
 import org.order.bot.send.Sender
 import org.order.data.tables.*
+import org.order.logic.impl.bot.FoodOrderBot
 import org.telegram.telegrambots.ApiContextInitializer
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.meta.TelegramBotsApi
@@ -34,7 +35,7 @@ fun main() {
     val options = DefaultBotOptions()
     val sender = Sender(token, options)
 
-    val bot = CommandsBot(sender, username, token)
+    val bot = FoodOrderBot(sender, username, token)
 
     // Launch bot
     TelegramBotsApi().registerBot(bot)
