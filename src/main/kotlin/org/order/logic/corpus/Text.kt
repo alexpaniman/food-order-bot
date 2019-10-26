@@ -1,9 +1,11 @@
-package org.order.logic.text
+package org.order.logic.corpus
 
-object TextCorpus {
-    private val corpus = TextCorpus::class.java.getResource("text-corpus.txt")
+import java.io.File
+
+object Text {
+    private val corpus = File("src/main/resources/text-corpus.txt")
             .readText().lines()
-            .filter { it.isNotBlank() }
+            .filter { it.isNotBlank() && !it.startsWith("#") }
             .map { it.substringBefore(":") to it.substringAfter(":") }
             .toMap()
 
