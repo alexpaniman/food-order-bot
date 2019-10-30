@@ -6,15 +6,14 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.order.data.tables.Admins
 import org.order.data.tables.Users
 
-class User(id: EntityID<Int>): IntEntity(id) {
+class User(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<User>(Users)
 
-    var chat  by Users.chat
+    var chat     by Users.chat
 
     var name  by Users.name
     var phone by Users.phone
 
-    var state by Users.state
-
+    var state   by Users.state
     var valid by Users.valid
 }

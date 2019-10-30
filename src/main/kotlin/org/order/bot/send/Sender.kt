@@ -23,7 +23,7 @@ class Sender(private val token: String, options: DefaultBotOptions): DefaultAbsS
         return execute(send)
     }
 
-    fun User.send(text: String, markdown: Boolean = true, init: SendMessage.() -> Unit = {}): Message = chat.send(text, markdown, init)
+    fun User.send(text: String, markdown: Boolean = true, init: SendMessage.() -> Unit = {}): Message = chat!!.send(text, markdown, init)
 
     private fun Message.edit(text: String, markdown: Boolean = true, init: InlineKeyboardMarkup.() -> Unit = {}) {
         val send = EditMessageText().apply {

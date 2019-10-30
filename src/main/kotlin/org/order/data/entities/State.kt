@@ -3,6 +3,8 @@ package org.order.data.entities
 enum class State {
     NEW, // State which gives to new users
 
+    IMAGINE, // State for children created by their parents
+
     COMMAND, // Waiting for regular command
 
     READ_NAME,  // Waiting for user name  when user isn't valid
@@ -13,5 +15,6 @@ enum class State {
     READ_GRADE, // Waiting for grade input (for not valid 'client' only)
 
     READ_CHILD_NAME,  // Waiting for user name  provider by parent
-    READ_CHILD_GRADE; // Waiting for user grade provided by parent
+    READ_CHILD_LINK,  // Waiting for student string in "name, grade" format for linking
+    READ_CHILD_GRADE, // Waiting for user grade provided by parent
 }
