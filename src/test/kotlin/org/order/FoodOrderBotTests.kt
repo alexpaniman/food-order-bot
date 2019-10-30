@@ -124,7 +124,7 @@ class FoodOrderBotTests {
             val init: SendMessage.() -> Unit = arg(3)
 
             val send = SendMessage().apply(init).apply {
-                this.chatId = user.chat.toString()
+                this.chatId = user.chat!!.toString()
                 this.text = text
 
                 this.enableMarkdown(mark)
