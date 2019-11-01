@@ -171,10 +171,10 @@ class FoodOrderBotTests {
 
     private val bot = FoodOrderBot(sender, "", "")
 
-    private fun sendText(text: String, id: Int = 0) {
+    private fun Int.sendText(text: String) {
         val update = mockk<Update>(relaxed = true) {
             every { message.text } returns text
-            every { message.from.id } returns id
+            every { message.from.id } returns this@sendText
         }
 
         bot.onUpdateReceived(update)
@@ -195,12 +195,12 @@ class FoodOrderBotTests {
         bot.onUpdateReceived(update)
     }
 
-    private fun ReplyButton.answer() = sendText(text, message.chatId)
+    private fun ReplyButton.answer() = message.chatId.sendText(text)
 
     private val Message.inline get() = (this.keyboard as Inline).buttons
     private val Message.reply get() = (this.keyboard as Reply).buttons
 
-    private fun chat(num: Int) = chats.computeIfAbsent(num) { QueueList() }
+    private val Int.chat get() = chats.computeIfAbsent(this) { QueueList() }
 
     private fun mockText(vararg links: Pair<String, String>) { // TODO?
         mockkObject(Text)
@@ -212,9 +212,10 @@ class FoodOrderBotTests {
     @Before
     fun unMock() = unmockkAll()
 
+    private fun chat(num: Int, run: Int.() -> Unit) = num.run(run)
+
     @Test
-    fun `test bot greeting when new user is come`() {
-        val chat = chat(0)
+    fun `test bot when new user is come`() = chat(0) {
         sendText("/start")
 
         assertTrue { chat[-2].text == Text["greeting"] }
@@ -253,5 +254,16 @@ class FoodOrderBotTests {
         assertTrue { chat.last().text == Text["register-grade"] }
 
         chat.last().reply[0][0].answer()
+    }
+
+    @Test
+    fun `test bot when new teacher is come`() = chat(1) {
+        sendText("some initial text")
+        sendText("***REMOVED*** ***REMOVED***")
+        sendText("+000000000000")
+
+        chat.last().reply[2][0].answer()
+
+        assertTrue { chat.last().text == Text["register-child-name"] }
     }
 }

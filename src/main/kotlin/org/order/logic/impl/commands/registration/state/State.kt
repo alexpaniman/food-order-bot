@@ -31,7 +31,7 @@ val READ_STATE = TextReader(State.READ_STATE) reader@ { user, text ->
     when (values().singleOrNull { it.button == text }) {
         null     -> {
             user.send(Text["wrong-grade"])
-            return@reader true
+            return@reader true // Break flow and wait for next response
         }
         STUDENT  -> {
             Student.new {
@@ -63,6 +63,6 @@ val READ_STATE = TextReader(State.READ_STATE) reader@ { user, text ->
         }
     }
 
-    user.state = State.COMMAND
+    user.state = State.CHOOSES_ROLES // Start flow processing user roles
     return@reader false
 }

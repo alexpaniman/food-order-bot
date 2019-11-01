@@ -24,7 +24,19 @@ fun main() {
     )
     transaction {
         addLogger(StdOutSqlLogger)
-        SchemaUtils.create(Users, Grades, Dishes, Menus, Orders)
+        SchemaUtils.create(
+                Admins,
+                Clients,
+                Dishes,
+                Grades,
+                Menus,
+                Orders,
+                Parents,
+                Payments,
+                Producers,
+                Relations,
+                Users
+        )
     }
 
     // Fetch token and username from the environment
