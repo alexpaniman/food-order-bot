@@ -9,6 +9,6 @@ import org.order.data.tables.Relations
 class Parent(id: EntityID<Int>): IntEntity(id) {
     companion object: IntEntityClass<Parent>(Parents)
 
-    var user  by User referencedOn Parents.user
-    val child by Client via Relations
+    var user     by User    referencedOn Parents.user
+    val children by Student via          Relations
 }

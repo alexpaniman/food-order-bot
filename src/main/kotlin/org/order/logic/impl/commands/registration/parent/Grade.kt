@@ -24,19 +24,20 @@ fun Sender.readChildGrade(user: User) = user.run {
 }
 
 val READ_CHILD_GRADE = TextReader(State.READ_CHILD_GRADE) reader@ { user, text ->
-    val parent = Parent
-            .find   { Parents.user eq user.id }
+    val userAsParent = Parent
+            .find { Parents.user eq user.id }
             .single()
 
     val child = Student
             .find   { Students.grade.isNull() }
-            .single { parent in it.parents    }
+            .single { userAsParent in it.parents }
+    // FIXME move filter to database
 
     val grade = Grade.all()
-            .singleOrNull {  it.name == text  }
+            .singleOrNull { it.name == text }
 
     if (grade != null) {
-        user .state = State.COMMAND
+        user .state = State.CHOOSES_ROLES
         child.grade = grade
     } else user.send(Text["wrong-grade"])
 
