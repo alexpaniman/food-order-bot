@@ -32,6 +32,9 @@ dependencies {
     // Use the postgresql DB as main DB
     implementation("org.postgresql:postgresql:42.2.6")
 
+    // Use google library for phone validation
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.10.22")
+
     // Use the h2 database for testing
     testImplementation("com.h2database:h2:1.4.199")
 

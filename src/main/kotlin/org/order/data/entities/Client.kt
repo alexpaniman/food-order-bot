@@ -2,12 +2,29 @@ package org.order.data.entities
 
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
+import org.order.data.Role
+import org.order.data.RoleClass
 import org.order.data.tables.Clients
+import org.order.data.tables.Orders
+import org.order.logic.corpus.Text
 
-class Client(id: EntityID<Int>): IntEntity(id) {
-    companion object: IntEntityClass<Client>(Clients)
+class Client(id: EntityID<Int>) : Role(id) {
+    companion object : RoleClass<Client>(Clients) {
+        @JvmStatic
+        override val roleName
+            get() = Text["client"]
+        @JvmStatic
+        override val userLink
+            get() = Clients.user
+    }
 
-    val user    by User  referencedOn Clients.user
-    var balance by                    Clients.balance
+    var user by User referencedOn Clients.user
+    var balance by Clients.balance
+
+    val orders by Order referrersOn Orders.client
+
+    override val description
+        get() = Text.get("client-description") {
+            it["balance"] = balance.toString()
+        }
 }
