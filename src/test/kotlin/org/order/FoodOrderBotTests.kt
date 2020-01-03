@@ -2,21 +2,18 @@ package org.order
 
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.order.FoodOrderBotTests.Keyboard.*
-import org.order.bot.send.Sender
-import org.order.data.entities.Grade
+import org.order.bot.send.SenderContext
 import org.order.data.entities.User
 import org.order.data.tables.*
 import org.order.logic.corpus.Text
-import org.order.logic.impl.bot.FoodOrderBot
+import org.order.logic.impl.FoodOrderBot
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -24,8 +21,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
-import org.telegram.telegrambots.meta.api.objects.Message as TMessage
 import kotlin.test.assertTrue
+import org.telegram.telegrambots.meta.api.objects.Message as TMessage
 
 @Suppress("unused", "SameParameterValue")
 
@@ -39,19 +36,14 @@ class FoodOrderBotTests {
                     driver = System.getenv("DATABASE_DRIVER")
             )
             transaction {
-                SchemaUtils.create(
-                        Admins,
-                        Clients,
-                        Dishes,
-                        Grades,
-                        Menus,
-                        Orders,
-                        Parents,
-                        Payments,
-                        Producers,
-                        Relations,
-                        Users
+                SchemaUtils.create(Admins, Clients, Dishes,
+                        Grades, Menus, Orders, Parents,
+                        Payments, Producers, Relations, Users
                 )
+
+                Grades.batchInsert(listOf("7", "8", "9", "10", "11", "12")) { // Create grades
+                    this[Grades.name] = it
+                }
             }
         }
     }
@@ -115,7 +107,7 @@ class FoodOrderBotTests {
         else -> None
     }
 
-    private val sender: Sender = mockk {
+    private val senderContext: SenderContext = mockk {
         every { any<User>().send(any(), any(), any()) } answers {
 
             val user: User = arg(0)
@@ -142,7 +134,7 @@ class FoodOrderBotTests {
             mockk()
         }
 
-        every { any<TMessage>().safeEdit(any(), any(), any()) } answers {
+        every { any<TMessage>().edit(any(), any(), any()) } answers {
             val message: TMessage = arg(0)
             val text: String = arg(1)
             val mark: Boolean = arg(2)
@@ -169,7 +161,7 @@ class FoodOrderBotTests {
         }
     }
 
-    private val bot = FoodOrderBot(sender, "", "")
+    private val bot = FoodOrderBot(senderContext, "", "")
 
     private fun Int.sendText(text: String) {
         val update = mockk<Update>(relaxed = true) {
@@ -202,30 +194,20 @@ class FoodOrderBotTests {
 
     private val Int.chat get() = chats.computeIfAbsent(this) { QueueList() }
 
-    private fun mockText(vararg links: Pair<String, String>) { // TODO?
-        mockkObject(Text)
-
-        for ((key, value) in links)
-            every { Text.get(key, any()) } returns value
-    }
-
-    @Before
-    fun unMock() = unmockkAll()
-
     private fun chat(num: Int, run: Int.() -> Unit) = num.run(run)
 
     @Test
-    fun `test bot when new user is come`() = chat(0) {
+    fun `a new student has come`() = chat(0) {
         sendText("/start")
 
-        assertTrue { chat[-2].text == Text["greeting"] }
+        assertTrue { chat[-2].text    == Text["greeting"] }
         assertTrue { chat.last().text == Text["register-name"] }
 
-        sendText("Invalid")
+        sendText("three words")
 
         assertTrue { chat.last().text == Text["wrong-name"] }
 
-        sendText("И Ф")
+        sendText("WRONG WRONG")
 
         assertTrue { chat.last().text == Text["wrong-name"] }
 
@@ -233,21 +215,15 @@ class FoodOrderBotTests {
 
         assertTrue { chat.last().text == Text["register-phone"] }
 
-        sendText("000")
+        sendText("+000000000000")
 
         assertTrue { chat.last().text == Text["wrong-phone"] }
 
-        sendText("+0000000000")
+        sendText("+380500000000")
 
-        assertTrue { chat.last().text == Text["register-state"] }
-        assertTrue { chat.last().reply.flatten().size == 5 }
+        assertTrue { chat.last().text == Text["register-role"] }
+        assertTrue { chat.last().reply.size == 5 }
         assertTrue { chat.last().reply[0][0].text == Text["student"] }
-
-        transaction {
-            Grade.new {
-                this.name = "10"
-            }
-        }
 
         chat.last().reply[0][0].answer()
 

@@ -62,6 +62,7 @@ fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback:
         keyboard.last() += InlineKeyboardButton(element.toString()).setCallbackData(callback(element))
     }
 }
+
 fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int) {
     check(length > 0) { "length must be greater then 0" }
     if (keyboard == null)
@@ -75,6 +76,3 @@ fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int) {
         keyboard.last() += KeyboardButton(element.toString())
     }
 }
-
-fun String.bold() = "***$this***"
-fun String.code() = "`$this`"

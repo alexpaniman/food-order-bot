@@ -1,14 +1,13 @@
 package org.order
 
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.order.bot.CommandsBot
-import org.order.bot.send.Sender
+import org.order.bot.send.SenderContext
+import org.order.data.entities.Admin
+import org.order.data.entities.State
+import org.order.data.entities.User
 import org.order.data.tables.*
-import org.order.logic.impl.bot.FoodOrderBot
+import org.order.logic.impl.FoodOrderBot
 import org.telegram.telegrambots.ApiContextInitializer
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.meta.TelegramBotsApi
@@ -25,6 +24,7 @@ fun main() {
     transaction {
         addLogger(StdOutSqlLogger)
         SchemaUtils.create(
+                Teachers,
                 Admins,
                 Clients,
                 Dishes,
@@ -35,8 +35,24 @@ fun main() {
                 Payments,
                 Producers,
                 Relations,
+                Coordinators,
                 Users
         )
+    }
+
+    transaction { // TODO remove it
+        Grades.batchInsert(listOf("10-Ф", "11-Ф", "5", "11-ХБ", "7-М", "9-Ф")) {
+            this[Grades.name] = it
+        }
+        val admin = User.new {
+            name = "***REMOVED*** ***REMOVED***"
+            chat = 637833277
+            phone = "+380669362726"
+            state = State.COMMAND
+        }
+        Admin.new {
+            user = admin
+        }
     }
 
     // Fetch token and username from the environment
@@ -45,7 +61,7 @@ fun main() {
 
     // Use the default bot options to create sender that the bot will use to execute telegram api methods
     val options = DefaultBotOptions()
-    val sender = Sender(token, options)
+    val sender = SenderContext(token, options)
 
     val bot = FoodOrderBot(sender, username, token)
 

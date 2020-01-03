@@ -7,9 +7,7 @@ object Users: IntIdTable() {
     val chat = integer("chat").nullable()
 
     val name  = varchar("name", 255).nullable()
-    val phone = varchar("phone", 15).nullable()
+    val phone = varchar("phone", 255).nullable()
 
     val state = enumeration("state_id", State::class)
-
-    var valid = bool("is_valid")
 }

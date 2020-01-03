@@ -13,13 +13,13 @@ import org.telegram.telegrambots.util.WebhookUtils
 import org.telegram.telegrambots.meta.api.objects.User as TUser
 
 open class CommandsBot(
-        private val sender: Sender,
+        private val senderContext: SenderContext,
 
         private val username: String,
         private val token: String
 ) : LongPollingBot {
-    override fun getOptions() = sender.options!!
-    override fun clearWebhook() = WebhookUtils.clearWebhook(sender)
+    override fun getOptions() = senderContext.options!!
+    override fun clearWebhook() = WebhookUtils.clearWebhook(senderContext)
 
     override fun getBotUsername() = username
     override fun getBotToken() = token
@@ -28,11 +28,6 @@ open class CommandsBot(
     private fun fetchOrCreateUser(rawUser: TUser) =
             User.find { Users.chat eq rawUser.id }.firstOrNull() ?: User.new {
                 chat  = rawUser.id
-
-                name  = null
-                phone = null
-
-                valid = false
                 state = State.NEW
             }
 
@@ -45,7 +40,7 @@ open class CommandsBot(
         )
 
         for (command in handlers)
-            if (command.run { sender.process(user, update) })
+            if (command.run { senderContext.process(user, update) })
                 return@transaction
     }
 
