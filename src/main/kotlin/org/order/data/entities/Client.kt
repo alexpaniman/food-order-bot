@@ -6,6 +6,7 @@ import org.order.data.Role
 import org.order.data.RoleClass
 import org.order.data.tables.Clients
 import org.order.data.tables.Orders
+import org.order.data.tables.Payments
 import org.order.logic.corpus.Text
 
 class Client(id: EntityID<Int>) : Role(id) {
@@ -22,6 +23,7 @@ class Client(id: EntityID<Int>) : Role(id) {
     var balance by Clients.balance
 
     val orders by Order referrersOn Orders.client
+    val payments by Payment referrersOn Payments.client
 
     override val description
         get() = Text.get("client-description") {

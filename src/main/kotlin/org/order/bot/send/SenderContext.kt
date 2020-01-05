@@ -1,27 +1,34 @@
 package org.order.bot.send
 
 import org.order.data.entities.User
+import org.order.logic.impl.commands.CURRENCY
+import org.order.logic.impl.commands.INVOICE_START_PARAMETER
+import org.order.logic.impl.commands.PAYMENTS_TOKEN
 import org.telegram.telegrambots.bots.DefaultAbsSender
 import org.telegram.telegrambots.bots.DefaultBotOptions
+import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery
+import org.telegram.telegrambots.meta.api.methods.send.SendInvoice
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Message
+import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
+import kotlin.math.truncate
 
 class SenderContext(private val token: String, options: DefaultBotOptions): DefaultAbsSender(options) {
     override fun getBotToken() = token
 
     private fun Int.send(text: String, markdown: Boolean = true, init: SendMessage.() -> Unit = {}): Message {
-        val send = SendMessage().apply {
+        val sendText = SendMessage().apply {
             this.text = text
             this.chatId = this@send.toString()
 
             this.enableMarkdown(markdown)
         }.apply(init)
 
-        return execute(send)
+        return execute(sendText)
     }
 
     fun User.send(text: String, markdown: Boolean = true, init: SendMessage.() -> Unit = {}) {
@@ -29,7 +36,7 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
     }
 
     fun Message.edit(text: String, markdown: Boolean = true, init: InlineKeyboardMarkup.() -> Unit = {}) = try {
-        val send = EditMessageText().apply {
+        val sendText = EditMessageText().apply {
             this.text = text
             this.chatId = this@edit.chatId.toString()
             this.messageId = this@edit.messageId
@@ -37,9 +44,9 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
             this.enableMarkdown(markdown)
         }
 
-        send.replyMarkup = InlineKeyboardMarkup().apply(init)
+        sendText.replyMarkup = InlineKeyboardMarkup().apply(init)
 
-        execute(send)!!
+        execute(sendText)!!
     } catch (exc: TelegramApiException) {
         chatId.toInt().send(text) { inline(init) }
     }
@@ -51,5 +58,35 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
         }
 
         return execute(delete)!!
+    }
+
+    fun User.sendInvoice(title: String, amount: Float, description: String, payload: String) {
+        val realAmount = (amount * 100).toInt()
+        val sendInvoice = SendInvoice().also {
+            it.chatId = chat
+
+            it.title = title
+            it.prices = listOf(LabeledPrice(title, realAmount))
+            it.description = description
+
+            it.payload = payload
+
+            it.currency = CURRENCY
+            it.providerToken = PAYMENTS_TOKEN
+            it.startParameter = INVOICE_START_PARAMETER
+        }
+
+        execute(sendInvoice)
+    }
+
+    fun answerPreCheckoutQuery(id: String, ok: Boolean, errorMessage: String? = null) {
+        val answerPreCheckoutQuery = AnswerPreCheckoutQuery().apply {
+            this.preCheckoutQueryId = id
+
+            this.ok = ok
+            this.errorMessage = errorMessage
+        }
+
+        execute(answerPreCheckoutQuery)
     }
 }

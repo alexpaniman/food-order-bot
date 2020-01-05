@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.order.data.Role
 import org.order.data.RoleClass
+import org.order.data.tables.Payments
 import org.order.data.tables.Users
 import org.order.logic.corpus.Text
 
@@ -15,6 +16,8 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     var name by Users.name
     var phone by Users.phone
     var state by Users.state
+
+    val payments by Payment referrersOn Payments.madeBy
 
     fun <T : Role> linked(roleClass: RoleClass<T>) = roleClass
             .find { roleClass.userLink eq id }
