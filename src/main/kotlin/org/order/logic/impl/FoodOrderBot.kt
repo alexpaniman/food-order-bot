@@ -9,8 +9,10 @@ import org.order.logic.impl.commands.orders.CANCEL_ORDER
 import org.order.logic.impl.commands.orders.MAKE_ORDER
 import org.order.logic.impl.commands.orders.ORDER_CANCELLATION_WINDOW
 import org.order.logic.impl.commands.orders.ORDER_WINDOW
+import org.order.logic.impl.commands.payments.*
 import org.order.logic.impl.commands.registration.*
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
+import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 import org.telegram.telegrambots.meta.api.objects.Update
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
@@ -30,10 +32,7 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         // --------------------------
 
         // ---- Validation Filter ----
-        this += object : Command {
-            override fun SenderContext.process(user: User, update: Update) =
-                    user.state != VALIDATION
-        }
+        this += VALIDATION_FILTER
         // ---------------------------
 
         // ----- Message Remover -----
@@ -46,6 +45,21 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
 
         this += ORDER_CANCELLATION_WINDOW
         this += CANCEL_ORDER
+        // --------------------------
+
+        // ----- Client Payment -----
+        this += CLIENT_PAYMENT
+        // --------------------------
+
+        // ----- Parent Payment -----
+        this += PARENT_PAYMENT
+        this += UPDATE_PARENT_PAYMENT_WINDOW
+        this += CANCEL_PARENT_PAYMENT
+        // --------------------------
+
+        // - Another Payments Stuff -
+        this += PAYMENT_CONFIRMATION
+        this += PROCESS_SUCCESSFUL_PAYMENT
         // --------------------------
     }
 }

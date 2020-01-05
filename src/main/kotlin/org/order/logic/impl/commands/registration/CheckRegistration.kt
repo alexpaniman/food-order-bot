@@ -8,7 +8,7 @@ import org.order.data.entities.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Relations
 import org.order.data.tables.Students
-import org.order.logic.commands.callback.CallbackProcessor
+import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.corpus.Text

@@ -10,6 +10,7 @@ import org.joda.time.LocalTime
 import org.order.data.tables.Dishes
 import org.order.data.tables.Menus
 import org.order.logic.corpus.Text
+import org.order.logic.impl.commands.LAST_ORDER_TIME
 
 class Menu(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Menu>(Menus)
@@ -23,10 +24,7 @@ class Menu(id: EntityID<Int>) : IntEntity(id) {
     fun isAvailableNow(): Boolean {
         val now = LocalDate.now()
 
-        val bound = LocalDate.now().toDateTime(
-                // Last order time
-                LocalTime(System.getProperty("LAST_ORDER_TIME"))
-        )
+        val bound = LocalDate.now().toDateTime(LAST_ORDER_TIME)
 
         val weekSkip = schedule / 7 // Number of weeks that this menu skips
         val dayOfWeek = schedule % 7 // Day of week when this menu is active

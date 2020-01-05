@@ -4,5 +4,5 @@ import org.jetbrains.exposed.dao.IntIdTable
 
 object Clients: IntIdTable() {
     val user    = reference("user_id" , Users )
-    val balance = integer("balance").default(0)
+    val balance = float("balance").default(0f)
 }

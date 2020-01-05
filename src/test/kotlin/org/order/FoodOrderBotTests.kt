@@ -14,6 +14,8 @@ import org.order.data.entities.User
 import org.order.data.tables.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.FoodOrderBot
+import org.order.logic.impl.commands.DATABASE_DRIVER
+import org.order.logic.impl.commands.JDBC_DATABASE_URL
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -31,10 +33,8 @@ class FoodOrderBotTests {
         @BeforeClass
         @JvmStatic
         fun connectToDB() {
-            Database.connect(
-                    url = System.getenv("JDBC_DATABASE_URL"),
-                    driver = System.getenv("DATABASE_DRIVER")
-            )
+            Database.connect(url = JDBC_DATABASE_URL, driver = DATABASE_DRIVER)
+
             transaction {
                 SchemaUtils.create(Admins, Clients, Dishes,
                         Grades, Menus, Orders, Parents,

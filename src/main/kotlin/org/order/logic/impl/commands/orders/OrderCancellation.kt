@@ -7,16 +7,14 @@ import org.order.data.entities.Client
 import org.order.data.entities.Order
 import org.order.data.entities.Parent
 import org.order.data.entities.State.COMMAND
-import org.order.logic.commands.callback.CallbackProcessor
+import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.commands.triggers.or
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
-import java.util.*
-
-private val locale = Locale("ru")
+import org.order.logic.impl.commands.LOCALE
 
 private val ORDER_CANCELLATION_WINDOW_TRIGGER = StateTrigger(COMMAND) and (RoleTrigger(Client) or RoleTrigger(Parent))
 val ORDER_CANCELLATION_WINDOW = Window(
@@ -56,7 +54,7 @@ val ORDER_CANCELLATION_WINDOW = Window(
                 val order = orders.singleOrNull { it.orderDate.dayOfWeek == dayOfWeek }
                 if (order != null) {
                     val day = base.plusDays(dayOfWeek)
-                    val dayOfWeekName = day.dayOfWeek().getAsShortText(locale)
+                    val dayOfWeekName = day.dayOfWeek().getAsShortText(LOCALE)
 
                     button(dayOfWeekName, "cancel-order:${order.id.value}")
                 } else
@@ -64,7 +62,7 @@ val ORDER_CANCELLATION_WINDOW = Window(
             }
         }
 
-        button(Text["cancel-order-cancel"], "remove-window")
+        button(Text["cancel"], "remove-window")
     }
 }
 

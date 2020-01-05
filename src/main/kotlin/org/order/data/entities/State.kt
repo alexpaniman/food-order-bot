@@ -29,5 +29,6 @@ enum class State {
 
     VALIDATION, // User registration is done and user validation request was sent to the admin or to corresponding coordinators
 
-    READ_PAYMENT_AMOUNT;
+    READ_PARENT_PAYMENT_AMOUNT,
+    READ_CLIENT_PAYMENT_AMOUNT;
 }

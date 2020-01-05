@@ -9,15 +9,13 @@ import org.order.data.entities.Menu
 import org.order.data.entities.Order
 import org.order.data.entities.Parent
 import org.order.data.entities.State.COMMAND
-import org.order.logic.commands.callback.CallbackProcessor
+import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
-import java.util.*
+import org.order.logic.impl.commands.LOCALE
 
-private val locale = Locale("ru")
-
-private val ORDER_WINDOW_TRIGGER = TextTrigger(Text["order-command"]) and
+private val ORDER_WINDOW_TRIGGER = CommandTrigger(Text["order-command"]) and
         StateTrigger(COMMAND) and
         (RoleTrigger(Client) or RoleTrigger(Parent))
 
@@ -55,12 +53,12 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER, listOf("0", "0",
 
     show(message) {
         if (child != null) {
-            row {
-                when {
-                    children.size == 1 -> button(child.user.name!!)
-                    childNum == children.size - 1 -> button(child.user.name!!, "order-window:$day:$num:0")
-                    childNum <  children.size - 1 -> button(child.user.name!!, "order-window:$day:$num:${childNum + 1}")
-                }
+            val name = child.user.name!!
+
+            when {
+                children.size == 1 -> button(name)
+                childNum == children.size - 1 -> button(name, "order-window:$day:$num:0")
+                childNum <  children.size - 1 -> button(name, "order-window:$day:$num:${childNum + 1}")
             }
         }
 
@@ -70,7 +68,7 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER, listOf("0", "0",
             else
                 button(Text["inactive"])
 
-            button(active[day].first.dayOfWeek().getAsShortText(locale))
+            button(active[day].first.dayOfWeek().getAsShortText(LOCALE))
 
             if (day + 1 < active.size)
                 button(Text["next-day"], "order-window:${day + 1}:$num:$childNum")
@@ -96,11 +94,11 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER, listOf("0", "0",
 
         button(Text["make-order"], "make-order:${currentMenu.id.value}:${client.id.value}")
 
-        button(Text["cancel-order"], "remove-message")
+        button(Text["cancel"], "remove-message")
     }
 }
 
-val MAKE_ORDER = CallbackProcessor("make-order") make_order@ { user, src, (menuIdStr, clientIdStr) ->
+val MAKE_ORDER = CallbackProcessor("make-order") make_order@{ user, src, (menuIdStr, clientIdStr) ->
     val menuId = menuIdStr.toInt()
 
     val menu = Menu.findById(menuId)

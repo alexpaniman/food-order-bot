@@ -1,4 +1,4 @@
-package org.order.logic.commands.callback
+package org.order.logic.commands.processors
 
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.order.bot.send.SenderContext
