@@ -20,6 +20,7 @@ import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.triggers.Trigger
+import org.order.logic.commands.triggers.and
 
 import org.order.logic.corpus.Text
 
@@ -124,5 +125,5 @@ object AddAnotherChildQuestion: Question(CONFIRM_CHILD_ADDING) {
 
 val PARENT_REGISTRATION = QuestionSet(
         ChildNameQuestion, ChildGradeQuestion, AddAnotherChildQuestion,
-        trigger = StateTrigger(CHOOSE_ROLE) + RoleTrigger(Parent)
+        trigger = StateTrigger(CHOOSE_ROLE) and RoleTrigger(Parent)
 )

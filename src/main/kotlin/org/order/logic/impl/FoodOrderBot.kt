@@ -2,9 +2,9 @@ package org.order.logic.impl
 
 import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
-import org.order.data.entities.State.VALIDATION
-import org.order.data.entities.User
-import org.order.logic.commands.Command
+import org.order.logic.impl.commands.display.HELP
+import org.order.logic.impl.commands.display.ORDERS_LIST_WINDOW
+import org.order.logic.impl.commands.display.PAYMENTS_LIST_WINDOW
 import org.order.logic.impl.commands.orders.CANCEL_ORDER
 import org.order.logic.impl.commands.orders.MAKE_ORDER
 import org.order.logic.impl.commands.orders.ORDER_CANCELLATION_WINDOW
@@ -13,7 +13,6 @@ import org.order.logic.impl.commands.payments.*
 import org.order.logic.impl.commands.registration.*
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
-import org.telegram.telegrambots.meta.api.objects.Update
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
@@ -61,5 +60,11 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += PAYMENT_CONFIRMATION
         this += PROCESS_SUCCESSFUL_PAYMENT
         // --------------------------
+
+        // --------- Display ---------
+        this += HELP
+        this += ORDERS_LIST_WINDOW
+        this += PAYMENTS_LIST_WINDOW
+        // ---------------------------
     }
 }

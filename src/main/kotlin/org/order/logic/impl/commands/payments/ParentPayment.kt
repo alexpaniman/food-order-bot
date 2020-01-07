@@ -25,6 +25,8 @@ private fun WindowContext.showParentPaymentWindow(user: User, childNum: Int) {
     val children = user.linked(Parent).children.toList()
     val child = children[childNum]
 
+    // TODO consider when parent is also teacher
+
     val client = child.user.linked(Client)
 
     val name = client.user.name!!

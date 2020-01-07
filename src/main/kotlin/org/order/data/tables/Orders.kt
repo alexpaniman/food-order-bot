@@ -7,7 +7,7 @@ object Orders: IntIdTable() {
     val orderDate = varchar("order_date", 255)
 
     val client = reference("client_id", Clients)
+    val madeBy = reference("made_by_id", Users)
 
-    val user = reference("user_id", Users)
     val menu = reference("menu_id", Menus)
 }

@@ -12,6 +12,6 @@ class Order(id: EntityID<Int>) : IntEntity(id) {
     var orderDate by Orders.orderDate.transform({ it.toString() }) { LocalDate.parse(it)!! }
     var registered by Orders.registered
     var client by Client referencedOn Orders.client
-    var user by User referencedOn Orders.user
+    var madeBy by User referencedOn Orders.madeBy
     var menu by Menu referencedOn Orders.menu
 }

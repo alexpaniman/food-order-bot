@@ -17,7 +17,7 @@ class Menu(id: EntityID<Int>) : IntEntity(id) {
 
     var name by Menus.name
     var cost by Menus.cost
-    var schedule by Menus.schedule
+    private var schedule by Menus.schedule
     private var active by Menus.active
     private val dishes by Dish referrersOn Dishes.menu
 

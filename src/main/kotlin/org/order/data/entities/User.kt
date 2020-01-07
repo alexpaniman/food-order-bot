@@ -23,6 +23,10 @@ class User(id: EntityID<Int>) : IntEntity(id) {
             .find { roleClass.userLink eq id }
             .first()
 
+    fun <T : Role> linkedOrNull(roleClass: RoleClass<T>) = roleClass
+            .find { roleClass.userLink eq id }
+            .firstOrNull()
+
     fun hasLinked(roleClass: RoleClass<*>) = !roleClass
             .find { roleClass.userLink eq id }
             .empty()
