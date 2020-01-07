@@ -33,9 +33,14 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER, listOf("0", "0",
             .sortedBy { it.first }
 
     val day = dayStr.toInt()
-    val num = numStr.toInt()
+
+    val numInt = numStr.toInt()
 
     val activeToday = active[day].second
+
+    val num = if (numInt in activeToday.indices)
+        numInt
+    else 0
     val currentMenu = activeToday[num]
 
     val message = Text.get("suggest-menu") {
@@ -58,7 +63,7 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER, listOf("0", "0",
             when {
                 children.size == 1 -> button(name)
                 childNum == children.size - 1 -> button(name, "order-window:$day:$num:0")
-                childNum <  children.size - 1 -> button(name, "order-window:$day:$num:${childNum + 1}")
+                childNum < children.size - 1 -> button(name, "order-window:$day:$num:${childNum + 1}")
             }
         }
 
@@ -113,7 +118,7 @@ val MAKE_ORDER = CallbackProcessor("make-order") make_order@{ user, src, (menuId
     Order.new {
         registered = DateTime.now() // Date and time when the order created
         orderDate = menu.nextActiveDate() // Date when the order will be completed
-        this.user = user // The user who ordered this order
+        this.madeBy = user // The user who ordered this order
         this.menu = menu // The menu that was ordered
         this.client = client // A client that will get the order.
     }

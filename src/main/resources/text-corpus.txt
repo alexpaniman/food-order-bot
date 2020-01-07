@@ -80,18 +80,18 @@
 [validation-confirm] Разрешить
 [validation-dismiss] Отклонить
 
-[validationuser-is-confirmed]
+[validation:user-is-confirmed]
     Вы успешно прошли регистрацию,
     в ближайшее время вы пройдёте ручную валидацию,
     после чего вы сможете пользоваться ботом.
     [br] Ваши данные [br][br]
     [description]
 
-[validationuser-is-dismissed]
+[validation:user-is-dismissed]
     В ваши данный была найдена ошибка.
     Пожалуйста пройдите регистрацию ещё раз.
 
-[validationuser-is-banned]
+[validation:user-is-banned]
     Администраторы посчитали некоторые ваши
     действия недопустимыми. Вы были забанены.
 
@@ -121,9 +121,6 @@
     Пользуйтесь ботом, используя кнопки снизу
 # -- [Валидация] -- #
 
-# --- Названия команд --- #
-[order-command] заказать обед
-# -- [Названия команд] -- #
 
 # --- Заказы --- #
 # Описание одного блюда, используется для описания меню
@@ -155,9 +152,9 @@
     Этот заказ уже был отменён!
 # -- [Заказы] -- #
 
-# --- Оплата --- #
-[pay-command] оплатить
 
+
+# --- Оплата --- #
 [ask-payment-amount]
     Ваш баланс: [balance] [br]
     Сколько вы хотите оплатить?
@@ -176,4 +173,57 @@
     Пополнение счета на сумму [amount].
 # -- [Оплата] -- #
 
+
+
+# -- [Помощь] -- #
+[student-help] Вы ученик.
+[producer-help] Вы работник столовой
+[parent-teacher-help] Вы учитель и родитель
+[parent-help] Вы родитель
+[teacher-help] Вы учитель
+# --- Помощь --- #
+
+
+
+# --- Список заказов --- #
+# Корнь списка заказов
+[orders-list] [orders]
+
+# Этим классом обозначаются учителя
+[empty-grade] —
+
+# Информация для построения [orders] из [orders-list] выше
+[grade-display]           **[grade] [[orders-count]]:**
+[menu-display]  [tab] **[menu-name] [[orders-count]]:**
+[user-display]  [tab] [tab] `[user-name]`
+# -- [Список заказов] -- #
+
+
+
+# --- Список платежей --- #
+[payments-list] [payments]
+
+# Информация для построения [payments] из [payments-list] выше
+[payment-display] [date] : [amount]
+[payments-date-format] dd-MM-yyyy
+# -- [Список платежей] -- #
+
+
+
+# --- Список комманд --- #
+[order-command] заказать обед
+[pay-command] оплатить
+
+[orders-list-command] список заказов
+[help-command] помощь
+# -- [Список комманд] -- #
+
+
+
+# --- Общее --- #
+[previous-button] <
+[next-button] >
+
+[update-window] ↺
 [cancel] отменить
+# -- [Общее] -- #

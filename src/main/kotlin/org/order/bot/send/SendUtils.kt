@@ -1,5 +1,6 @@
 package org.order.bot.send
 
+import org.order.logic.corpus.Text
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
@@ -13,12 +14,12 @@ fun reply(init: ReplyKeyboardMarkup.() -> Unit) = ReplyKeyboardMarkup().apply {
         this.resizeKeyboard = true
     }.apply(init)
 
+private fun SendMessage.keyboard(markup: ReplyKeyboard) {
+    replyMarkup = markup
+}
 fun SendMessage.inline(init: InlineKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.inline(init))
 fun SendMessage.reply(init: ReplyKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.reply(init))
 
-fun SendMessage.keyboard(markup: ReplyKeyboard) {
-    replyMarkup = markup
-}
 
 fun InlineKeyboardMarkup.row(init: MutableList<InlineKeyboardButton>.() -> Unit) {
     if (keyboard == null)
@@ -37,17 +38,34 @@ fun ReplyKeyboardMarkup.row(init: KeyboardRow.() -> Unit) {
 
 fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) {
     this += InlineKeyboardButton(text).apply {
-        this.callbackData = callback
+        this.callbackData = callback // TODO replace with text with key
     }.apply(init)
 }
 fun KeyboardRow.button(text: String, init: KeyboardButton.() -> Unit = {}) {
-    this += KeyboardButton(text).apply(init)
+    this += KeyboardButton(text).apply(init) // TODO replace with text with key
 }
 
 fun ReplyKeyboardMarkup.button(text: String, init: KeyboardButton.() -> Unit = {}) =
-        row { button(text, init) }
+        row { button(text, init) } // TODO replace with text with key
 fun InlineKeyboardMarkup.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) =
-        row { button(text, callback, init) }
+        row { button(text, callback, init) } // TODO replace with text with key
+
+
+// ---------------------------------- Deactivatable Buttons ---------------------------------- //
+fun MutableList<InlineKeyboardButton>.deactivatableButton(text: String, callback: String, activate: () -> Boolean) {
+    if (activate())
+        button(text, callback)
+    else
+        button(Text["inactive"])
+}
+fun InlineKeyboardMarkup.deactivatableButton(text: String, callback: String, activate: () -> Boolean) =
+        row { deactivatableButton(text, callback, activate) }
+
+fun MutableList<InlineKeyboardButton>.deactivatableKeyButton(key: String, callback: String, activate: () -> Boolean) =
+        deactivatableButton(Text[key], callback, activate)
+fun InlineKeyboardMarkup.deactivatableKeyButton(key: String, callback: String, activate: () -> Boolean) =
+        row { deactivatableKeyButton(key, callback, activate) }
+// --------------------------------- [Deactivatable Buttons] --------------------------------- //
 
 fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback: (T) -> String = { it.toString() }) {
     check(length > 0) { "length must be greater then 0" }
