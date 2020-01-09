@@ -35,11 +35,18 @@ dependencies {
     // Use google library for phone validation
     implementation("com.googlecode.libphonenumber:libphonenumber:8.10.22")
 
+    // ----------- testing -----------
+
     // Use the h2 database for testing
-    testImplementation("com.h2database:h2:1.4.199")
+    implementation("com.h2database:h2:1.4.199")
 
     // Use the mockk library for testing
-    testImplementation("io.mockk:mockk:1.9.3")
+    implementation("io.mockk:mockk:1.9.3")
+
+    // Library for building text tables
+    implementation("com.jakewharton.picnic:picnic:0.2.0")
+
+    // -------------------------------
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
