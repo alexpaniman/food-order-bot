@@ -16,6 +16,10 @@ import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
+        // ---- Validation Filter ----
+        this += VALIDATION_FILTER
+        // ---------------------------
+
         // ------ Registration ------
         this += USER_REGISTRATION
         this += ROLE_REGISTRATION
@@ -25,14 +29,10 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         // --------------------------
 
         // ------- Validation -------
-        this += CHECK_REGISTRATION
         this += REGISTRATION_PROCESSOR
         this += VALIDATION_PROCESSOR
+        this += CHECK_REGISTRATION
         // --------------------------
-
-        // ---- Validation Filter ----
-        this += VALIDATION_FILTER
-        // ---------------------------
 
         // ----- Message Remover -----
         this += MESSAGE_REMOVER

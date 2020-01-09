@@ -14,7 +14,6 @@ import org.order.logic.commands.questions.Question
 import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.StateTrigger
-import org.order.logic.commands.triggers.Trigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.corpus.Text
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -51,6 +50,6 @@ object GradeQuestion : Question(READ_GRADE) {
 
 val STUDENT_REGISTRATION = QuestionSet(
         GradeQuestion,
-        conclusion = { it.state = VALIDATION },
+        conclusion = { it.state = REGISTRATION_FINISHED },
         trigger    = StateTrigger(CHOOSE_ROLE) and RoleTrigger(Student)
 )

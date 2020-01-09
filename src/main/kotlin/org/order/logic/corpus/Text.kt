@@ -47,12 +47,9 @@ object Text {
         val map = mutableMapOf<String, String>()
         init(map)
 
-        for ((textKey, text) in corpus)
-            println("$textKey \n  $text \n\n")
-
         var text = corpus[key] ?: error("illegal key: $key")
         for ((occurrence, value) in map)
-            text = text.replace("`$occurrence`", value)
+            text = text.replace("[$occurrence]", value)
 
         return text
     }

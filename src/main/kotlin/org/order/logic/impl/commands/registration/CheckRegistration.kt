@@ -4,6 +4,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.order.bot.send.button
 import org.order.bot.send.inline
+import org.order.bot.send.reply
 import org.order.data.entities.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Relations
@@ -13,20 +14,23 @@ import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.corpus.Text
 
-val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(VALIDATION)) { user, _ ->
+val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINISHED)) { user, _ ->
     user.send(Text.get("registration-summary") {
         it["description"] = user.buildDescription(Student, Teacher, Parent, Producer)
     }) {
-        inline {
-            button(Text["registration-confirm-button"], "registration:confirm")
-            button(Text["registration-dismiss-button"], "registration:dismiss")
+        reply {
+            button(Text["registration-confirm-button"])
+            button(Text["registration-dismiss-button"])
         }
     }
+    user.state = CONFIRM_REGISTRATION
 }
 
-val REGISTRATION_PROCESSOR = CallbackProcessor("registration") { user, src, (action) ->
-    when (action) {
-        "confirm" -> {
+
+private val REGISTRATION_PROCESSOR_TRIGGER = StateTrigger(CONFIRM_REGISTRATION)
+val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { user, update ->
+    when (update.message?.text) {
+        Text["registration-confirm-button"] -> {
             val description = user.buildDescription(Student, Teacher, Parent, Producer)
 
             val targets = Admin.all().map { it.user } + when {
@@ -59,22 +63,26 @@ val REGISTRATION_PROCESSOR = CallbackProcessor("registration") { user, src, (act
                     }
                 }
 
-            src.edit(Text.get("registration-confirmed") {
+            user.send(Text.get("registration-confirmed") {
                 it["description"] = description
             })
         }
 
-        "dismiss" -> {
+        Text["registration-dismiss-button"] -> {
             user.clear()
 
             user.send(Text["registration-dismissed"])
 
             user.state = READ_NAME
             user.send(Text["register-name"])
+
+            return@TriggerCommand
         }
 
-        else -> error("illegal action: $action")
+        else -> user.send(Text["wrong-registration-confirmation"])
     }
+
+    user.state = VALIDATION
 }
 
 private fun Student.findSameStudent(imagine: Boolean): Student? = Student.find { Students.grade eq grade!!.id }

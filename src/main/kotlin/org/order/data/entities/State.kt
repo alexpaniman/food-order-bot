@@ -27,7 +27,9 @@ enum class State {
     READ_CHILD_GRADE, // Waiting for user grade provided by parent
     CONFIRM_CHILD_ADDING, // Waiting for confirmation or dismissing add yet child suggestion
 
-    VALIDATION, // User registration is done and user validation request was sent to the admin or to corresponding coordinators
+    REGISTRATION_FINISHED, // User registration is done and user validation request was sent to the admin or to corresponding coordinators
+    CONFIRM_REGISTRATION,
+    VALIDATION,
 
     READ_PARENT_PAYMENT_AMOUNT,
     READ_CLIENT_PAYMENT_AMOUNT;
