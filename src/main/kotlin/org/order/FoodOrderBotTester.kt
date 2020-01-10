@@ -9,7 +9,9 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.order.FoodOrderBotTester.Keyboard.*
 import org.order.bot.send.SenderContext
+import org.order.data.entities.Admin
 import org.order.data.entities.Grade
+import org.order.data.entities.State
 import org.order.data.entities.User
 import org.order.data.tables.*
 import org.order.logic.impl.FoodOrderBot
@@ -222,16 +224,19 @@ class FoodOrderBotTester {
     private val bot = FoodOrderBot(senderContext, "", "")
 
     private fun Int.sendText(text: String) {
-        val update = mockk<Update>(relaxed = true) {
+        val update = mockk<Update> {
             every { message.text } returns text
             every { message.from.id } returns this@sendText
+
+            every { callbackQuery } returns null
+            every { preCheckoutQuery } returns null
         }
 
         bot.onUpdateReceived(update)
     }
 
     private fun InlineButton.answer() {
-        val update = mockk<Update>(relaxed = true) {
+        val update = mockk<Update> {
             every { callbackQuery.data } returns callback
             every { callbackQuery.from.id } returns this@answer.message.chatId
 
@@ -240,6 +245,9 @@ class FoodOrderBotTester {
                 every { messageId } returns chats[this@answer.message.chatId]!!
                         .indexOf(this@answer.message)
             }
+
+            every { message } returns null
+            every { preCheckoutQuery } returns null
         }
 
         bot.onUpdateReceived(update)
@@ -420,6 +428,14 @@ fun main() {
 
         Grade.new {
             name = "10-Ф"
+        }
+        Admin.new {
+            this.user = User.new {
+                chat = 1
+                name = "Александр Паниман"
+                phone = "+380669362726"
+                state = State.COMMAND
+            }
         }
     }
 

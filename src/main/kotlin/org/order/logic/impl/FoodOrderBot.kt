@@ -11,6 +11,7 @@ import org.order.logic.impl.commands.orders.ORDER_CANCELLATION_WINDOW
 import org.order.logic.impl.commands.orders.ORDER_WINDOW
 import org.order.logic.impl.commands.payments.*
 import org.order.logic.impl.commands.registration.*
+import org.order.logic.impl.commands.tools.BAN_FILTER
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 
@@ -19,6 +20,10 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         // ---- Validation Filter ----
         this += VALIDATION_FILTER
         // ---------------------------
+
+        // ------- Ban Filter -------
+        this += BAN_FILTER
+        // --------------------------
 
         // ------ Registration ------
         this += USER_REGISTRATION

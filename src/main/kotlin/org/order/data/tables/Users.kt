@@ -6,8 +6,9 @@ import org.order.data.entities.State
 object Users: IntIdTable() {
     val chat = integer("chat").nullable()
 
-    val name  = varchar("name", 255).nullable()
+    val name  = varchar("name" , 255).nullable()
     val phone = varchar("phone", 255).nullable()
 
-    val state = enumeration("state_id", State::class)
+    val valid = bool("is_valid").default(false)
+    val state = enumerationByName("state_id", 255, State::class)
 }
