@@ -30,11 +30,26 @@ object RoleQuestion : Question(READ_ROLE) {
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
         when (update.message?.text) {
-            Text["parent"] -> Parent.new { this.user = user }
-            Text["producer"] -> Producer.new { this.user = user }
+            Text["parent"] -> {
+                Parent.new {
+                    this.user = user
+                }
+                user.state = CHOOSE_ROLE
+            }
+            Text["producer"] -> {
+                Producer.new {
+                    this.user = user
+                }
+                user.state = REGISTRATION_FINISHED
+            }
             Text["student"] -> {
-                Student.new { this.user = user }
-                Client.new { this.user = user }
+                Student.new {
+                    this.user = user
+                }
+                Client.new {
+                    this.user = user
+                }
+                user.state = CHOOSE_ROLE
             }
             Text["teacher"] -> {
                 Teacher.new {
@@ -43,11 +58,19 @@ object RoleQuestion : Question(READ_ROLE) {
                 Client.new {
                     this.user = user
                 }
+                user.state = REGISTRATION_FINISHED
             }
             Text["parent-and-teacher"] -> {
-                Teacher.new { this.user = user }
-                Parent.new { this.user = user }
-                Client.new { this.user = user }
+                Teacher.new {
+                    this.user = user
+                }
+                Parent.new {
+                    this.user = user
+                }
+                Client.new {
+                    this.user = user
+                }
+                user.state = CHOOSE_ROLE
             }
             else -> {
                 user.send(Text["wrong-role"])
@@ -61,6 +84,5 @@ object RoleQuestion : Question(READ_ROLE) {
 
 val ROLE_REGISTRATION = QuestionSet(
         RoleQuestion,
-        conclusion = { it.state = CHOOSE_ROLE },
         trigger = StateTrigger(NEW) or StateTrigger(READ_ROLE)
 )

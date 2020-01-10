@@ -17,7 +17,7 @@
 [teacher-description] Учитель
 [student-description]
     [name][br]
-    Ученик(ца) [grade] класса
+    Ученик(ца) [grade] класса[br]
 [parent-description]
     Родитель. Ребёнок\Дети:[br][br]
     [children]
@@ -109,6 +109,11 @@
 [validation-ban] Забанить
 [validation-confirm] Разрешить
 [validation-dismiss] Отклонить
+
+# TODO Кто-то уже валидировал этого пользователя
+[user-was-processed-by-another-coordinator]
+    Пользователь уже был обработан другим[space]
+    координатором до вас.
 
 # TODO Сообщение об успешном завершении регистрации
 [validation:user-is-confirmed]

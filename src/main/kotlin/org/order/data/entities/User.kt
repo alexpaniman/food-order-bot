@@ -20,6 +20,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     var name by Users.name
     var phone by Users.phone
     var state by Users.state
+    var valid by Users.valid
 
     val payments by Payment referrersOn Payments.madeBy
 
@@ -46,7 +47,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
                 appendln(linked(role).description)
     }
 
-    private fun clearRoles(vararg roles: RoleClass<*>) {
+    private fun unlinkRoles(vararg roles: RoleClass<*>) {
         for (role in roles)
             role.find { role.userLink eq id }
                     .forEach { it.delete() }
@@ -60,20 +61,43 @@ class User(id: EntityID<Int>) : IntEntity(id) {
                     Relations.child eq children.id
                 }.count()
 
-                if (links == 1) // This user was created by this parent
+                if (links == 1) { // This user was created by this parent
+                    Relations.deleteWhere { // Unlink this child
+                        Relations.child eq children.id
+                    }
                     children.delete()
+                }
             }
 
-        Relations.deleteWhere {
+        Relations.deleteWhere { // Unlink parent from all children he linked with
             Relations.parent eq parent.id
         }
         parent.delete()
     }
 
+    private fun unlinkStudent() {
+        val student = linkedOrNull(Student) ?: return
+        Relations.deleteWhere {
+            Relations.child eq student.id
+        }
+        student.delete()
+    }
+
+    private fun unlinkAll() {
+        unlinkRoles(Admin, Client, Coordinator, Producer, Student, Teacher)
+        unlinkStudent() // Unlink parents and then delete student
+        unlinkParent() // Unlink children and then delete parent
+
+    }
+
     fun clear() {
-        clearRoles(Admin, Client, Coordinator, Producer, Student, Teacher)
-        unlinkParent()
+        unlinkAll()
         name  = null
         phone = null
+    }
+
+    fun safeDelete() {
+        unlinkAll()
+        delete()
     }
 }

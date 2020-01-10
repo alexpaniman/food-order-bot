@@ -1,7 +1,8 @@
 package org.order.logic.impl.commands.registration
 
-import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.order.bot.send.button
 import org.order.bot.send.inline
 import org.order.bot.send.reply
@@ -66,6 +67,8 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
             user.send(Text.get("registration-confirmed") {
                 it["description"] = description
             })
+
+            user.state = VALIDATION
         }
 
         Text["registration-dismiss-button"] -> {
@@ -75,59 +78,69 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
 
             user.state = READ_NAME
             user.send(Text["register-name"])
-
-            return@TriggerCommand
         }
 
         else -> user.send(Text["wrong-registration-confirmation"])
     }
-
-    user.state = VALIDATION
 }
 
-private fun Student.findSameStudent(imagine: Boolean): Student? = Student.find { Students.grade eq grade!!.id }
-        .singleOrNull {
-            it.user.name == user.name && // Student has same name
-                    it != this && // Student isn't this student
-                    (it.user.state == IMAGINE) xor imagine
+private fun Student.findSameStudent(imagine: Boolean) = Student
+        .find { Students.grade eq grade!!.id }
+        .firstOrNull {
+            it.user.name == user.name && // The student has the same name
+                    it.grade == grade && // The student is in the same grade
+                    user.valid && // User has passed validation
+                    it != this && // The student isn't this student
+                    (it.user.state != IMAGINE) xor imagine // According to imagine variable student imagine or not
         }
 
-private fun Student.linkStudent() {
-    val sameStudent = findSameStudent(true)
+private fun linkStudent(realStudent: Student) {
+    val imagineStudent = realStudent.findSameStudent(true)
 
-    if (sameStudent != null) {
-        val sameUser = sameStudent.user
+    if (imagineStudent != null) {
+        val parents = Relations.select {
+            Relations.child eq imagineStudent.id
+        }.map {
+            val parentId = it[Relations.parent]
+            Parent.findById(parentId) ?: error("Broken link from Parent(id = $parentId)")
+        }
 
-        sameUser.chat  = user.chat // Linking this chat to same user
-        sameUser.state = COMMAND
+        Relations.batchInsert(parents) {
+            this[Relations.child] = realStudent.id
+            this[Relations.parent] = it.id
+        }
 
-        user.delete() // Remove old user
+        imagineStudent.user.safeDelete()
     }
 }
 
-private fun Parent.linkParent() {
-    for (child in children) {
-        val same = child.findSameStudent(false)
+private fun linkParent(parent: Parent) {
+    for (child in parent.children) {
+        check(child.user.state == IMAGINE) {
+            "Unexpected real Student(id = ${child.id})"
+        }
 
-        if (same != null) {
+        val student = child.findSameStudent(false)
+                ?: child.findSameStudent(true)
+
+        if (student != null) {
             Relations.insert {
-                // Link with already exists user
-                it[this.parent] = id
-                it[this.child] = same.id
+                it[this.parent] = parent.id
+                it[this.child] = student.id
             }
 
-            Relations.deleteWhere {
-                Relations.child eq child.id // Remove relation with this child
-            }
-
-            child.user.delete() // Delete old child
-            child.delete()
+            child.user.safeDelete()
         }
     }
 }
 
-val VALIDATION_PROCESSOR = CallbackProcessor("validation") { _, _, (action, id) ->
-    val user = User.findById(id.toInt()) ?: error("user not found") // TODO: user could be removed by another coordinator
+val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ coordinator, _, (action, id) ->
+    val user = User.findById(id.toInt()) ?: error("User doesn't exist!")
+
+    if (user.valid) {
+        coordinator.send(Text["user-was-processed-by-another-coordinator"])
+        return@validation
+    }
 
     when (action) {
         "ban" -> {
@@ -146,17 +159,16 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") { _, _, (action, id) 
 
         "confirm" -> {
             when {
-                user.hasLinked(Student) -> user.linked(Student).linkStudent()
+                user.hasLinked(Student) ->
+                    linkStudent(user.linked(Student))
 
-                user.hasLinked(Parent) -> {
-                    user.linked(Parent).linkParent()
-                    user.state = COMMAND
-                }
-
-                else -> user.state = COMMAND
+                user.hasLinked(Parent) ->
+                    linkParent(user.linked(Parent))
             }
+            user.state = COMMAND
+            user.valid = true
         }
 
-        else -> error("illegal action: $action")
+        else -> error("Action(name = $action) is illegal!")
     }
 }

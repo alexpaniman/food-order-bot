@@ -1,7 +1,20 @@
 mkchat 0
-.
-***REMOVED*** ***REMOVED***
+\start
+Фамилия Ученик
 +380669362726
 ученик
 10-Ф
+reply 0
+chchat 0
+inline 1
+mkchat 2
+\start
+Фамилия Родитель
++380669362726
+родитель
+Фамилия Ученик
+10-Ф
 reply 1
+reply 0
+chchat 1
+inline 1
