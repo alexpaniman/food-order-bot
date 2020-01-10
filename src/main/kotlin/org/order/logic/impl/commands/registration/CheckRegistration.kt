@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.select
 import org.order.bot.send.button
 import org.order.bot.send.inline
 import org.order.bot.send.reply
+import org.order.bot.send.row
 import org.order.data.entities.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Relations
@@ -27,13 +28,12 @@ val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINI
     user.state = CONFIRM_REGISTRATION
 }
 
+private fun User.descriptionForValidation() = buildDescription(Student, Teacher, Parent, Producer)
 
 private val REGISTRATION_PROCESSOR_TRIGGER = StateTrigger(CONFIRM_REGISTRATION)
 val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { user, update ->
     when (update.message?.text) {
         Text["registration-confirm-button"] -> {
-            val description = user.buildDescription(Student, Teacher, Parent, Producer)
-
             val targets = Admin.all().map { it.user } + when {
                 user.hasLinked(Student) -> user.linked(Student).coordinators
                         .map { it.user }
@@ -50,6 +50,8 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
 
                 else -> error("user has no appropriate linked role")
             }
+
+            val description = user.descriptionForValidation()
 
             val message = Text.get("validation") {
                 it["description"] = description
@@ -134,11 +136,15 @@ private fun linkParent(parent: Parent) {
     }
 }
 
-val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ coordinator, _, (action, id) ->
+val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, (action, id) ->
     val user = User.findById(id.toInt()) ?: error("User doesn't exist!")
 
+    val description = user.descriptionForValidation()
+
     if (user.valid) {
-        coordinator.send(Text["user-was-processed-by-another-coordinator"])
+        src.edit(Text.get("coordinator-notification:user-was-processed-by-another-coordinator") {
+            it["description"] = description
+        })
         return@validation
     }
 
@@ -146,15 +152,25 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ coordina
         "ban" -> {
             user.clear()
             user.state = BANNED
+
+            user.send(Text["validation:user-is-banned"])
+
+            src.edit(Text.get("coordinator-notification:user-is-banned") {
+                it["description"] = description
+            })
         }
 
         "dismiss" -> {
             user.clear()
 
-            user.send(Text["registration-dismissed"])
+            user.send(Text["validation:user-is-dismissed"])
 
             user.state = READ_NAME
             user.send(Text["register-name"])
+
+            src.edit(Text.get("coordinator-notification:user-is-dismissed") {
+                it["description"] = description
+            })
         }
 
         "confirm" -> {
@@ -167,6 +183,24 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ coordina
             }
             user.state = COMMAND
             user.valid = true
+
+            user.send(Text["validation:user-is-confirmed"]) {
+                reply {
+                    row {
+                        button(Text["order-command"])
+                        button(Text["pay-command"])
+                    }
+                    row {
+                        button(Text["orders-list-command"])
+                        button(Text["payments-list-command"])
+                    }
+                    button(Text["help-command"])
+                }
+            }
+
+            src.edit(Text.get("coordinator-notification:user-is-confirmed") {
+                it["description"] = description
+            })
         }
 
         else -> error("Action(name = $action) is illegal!")
