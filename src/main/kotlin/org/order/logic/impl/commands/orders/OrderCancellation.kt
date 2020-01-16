@@ -2,77 +2,107 @@ package org.order.logic.impl.commands.orders
 
 import org.joda.time.LocalDate
 import org.order.bot.send.button
+import org.order.bot.send.deactivatableButton
 import org.order.bot.send.row
 import org.order.data.entities.Client
 import org.order.data.entities.Order
 import org.order.data.entities.Parent
 import org.order.data.entities.State.COMMAND
 import org.order.logic.commands.processors.CallbackProcessor
-import org.order.logic.commands.triggers.RoleTrigger
-import org.order.logic.commands.triggers.StateTrigger
-import org.order.logic.commands.triggers.and
-import org.order.logic.commands.triggers.or
+import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LOCALE
+import org.order.logic.impl.utils.clients
+import org.order.logic.impl.utils.orZero
 
-private val ORDER_CANCELLATION_WINDOW_TRIGGER = StateTrigger(COMMAND) and (RoleTrigger(Client) or RoleTrigger(Parent))
-val ORDER_CANCELLATION_WINDOW = Window(
-        "order-cancellation-window",
-        ORDER_CANCELLATION_WINDOW_TRIGGER,
-        listOf("0")) { user, (childNumStr) ->
+private const val WINDOW_MARKER = "order-cancellation-window"
 
-    val childNum = childNumStr.toInt()
-    val children = if (user.hasLinked(Parent))
-        user.linked(Parent)
-            .children
-            .sortedBy { it.id.value }
-    else null
-    val child = children?.get(childNum)
+private val ORDER_CANCELLATION_WINDOW_TRIGGER = CommandTrigger(Text["order-cancellation-command"]) and
+        StateTrigger(COMMAND) and (RoleTrigger(Client) or RoleTrigger(Parent))
 
-    val client = child?.user?.linked(Client) ?: user.linked(Client)
+val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_TRIGGER,
+        args = listOf("0")) { user, (clientNumStr) ->
+
+    // ----------- Clients List -----------
+    val clients = user.clients()
+    // ------------------------------------
+
+    // ---------- Current Client ----------
+    val clientNum = clientNumStr.toInt()
+            .coerceIn(clients.indices)
+
+    val client = clients[clientNum]
+    // ------------------------------------
+
+    // -------- List of Done Orders --------
+    val now = LocalDate.now()
+
+    val ordersAfterNow = client.orders.filter { it.orderDate.isAfter(now) }
+
+    val ordersWithDate = (1..5)
+            .fold(mutableMapOf<LocalDate, MutableList<Order>>()) { map, dayOfWeek ->
+                val day = now.plusDays(dayOfWeek - now.dayOfWeek)
+                map.apply {
+                    computeIfAbsent(day) {
+                        mutableListOf()
+                    } += ordersAfterNow.filter { order -> order.orderDate == day }
+                }
+            }
+    // -------------------------------------
 
     show(Text["suggest-order-cancellation"]) {
-        if (child != null) {
-            when {
-                children.size == 1 -> button(child.user.name!!)
-                childNum == children.size - 1 -> button(child.user.name!!, "order-cancellation-window:0")
-                childNum <  children.size - 1 -> button(child.user.name!!, "order-cancellation-window:${childNum + 1}")
-            }
-        }
+        // ------------ Button with Client name for Parents ------------
+        if (user.hasLinked(Parent))
+            button(
+                    client.user.name!!,
+                    "$WINDOW_MARKER:${(clientNum + 1).orZero(clients.indices)}"
+            )
+        // -------------------------------------------------------------
 
+        // ----- List with Days of Week When the Order Was Ordered -----
         row {
-            val now = LocalDate.now()
+            for ((date, orders) in ordersWithDate) {
+                val dateDisplay = date.dayOfWeek().getAsShortText(LOCALE)
+                val joinedOrders = orders.joinToString(":")
 
-            val orders = client.orders
-                    .filter { it.orderDate.isAfter(now) }
-                    .sortedBy { it.orderDate.dayOfWeek }
-
-            val base = LocalDate.now().minusDays(now.dayOfWeek)
-
-            for (dayOfWeek in 1..5) {
-                val order = orders.singleOrNull { it.orderDate.dayOfWeek == dayOfWeek }
-                if (order != null) {
-                    val day = base.plusDays(dayOfWeek)
-                    val dayOfWeekName = day.dayOfWeek().getAsShortText(LOCALE)
-
-                    button(dayOfWeekName, "cancel-order:${order.id.value}")
-                } else
-                    button(Text["inactive"])
+                deactivatableButton(dateDisplay, "cancel-orders:$date:$joinedOrders") {
+                    orders.isNotEmpty()
+                }
             }
         }
+        // -------------------------------------------------------------
 
-        button(Text["cancel"], "remove-window")
+        // ------------------ Button to Update Window ------------------
+        button(Text["update-button"], "$WINDOW_MARKER:$clientNum")
+        // -------------------------------------------------------------
+
+        // ------------------ Button to Remove Window ------------------
+        button(Text["cancel-button"], "remove-message")
+        // -------------------------------------------------------------
     }
 }
 
-val CANCEL_ORDER = CallbackProcessor("cancel-order") cancel_order@ { _, src, (orderIdStr) ->
-    val orderId = orderIdStr.toInt()
-    val order = Order.findById(orderId)
-    if (order == null) {
-        src.edit(Text["this-order-was-already-cancelled"])
-        return@cancel_order
+val CANCEL_ORDER = CallbackProcessor("cancel-orders") { _, src, args ->
+    val date = LocalDate.parse(args.first())
+    val orders = args.drop(1)
+
+    // ------- Find Order to Cancel -------
+    var canceled = 0
+    for (orderIdStr in orders) {
+        val order = Order.findById(orderIdStr.toInt()) ?: continue
+
+        // ----------- Remove Order -----------
+        order.client.balance += order.menu.cost
+        order.delete()
+        // ------------------------------------
+
+        canceled ++
     }
 
-    order.delete()
+    src.edit(Text.get("successful-order-cancellation") {
+        it["date"] = date.dayOfWeek().getAsShortText(LOCALE)
+        it["amount"] = canceled.toString()
+    })
+    // ------------------------------------
 }

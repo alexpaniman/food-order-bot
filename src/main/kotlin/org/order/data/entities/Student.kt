@@ -25,7 +25,6 @@ class Student(id: EntityID<Int>) : Role(id) {
 
     override val description
         get() = Text.get("student-description") {
-            it["name"] = user.name!!
             it["grade"] = grade!!.name
         }
 

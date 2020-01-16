@@ -1,5 +1,7 @@
 package org.order.data.entities
 
+import com.jakewharton.picnic.TextAlignment
+import com.jakewharton.picnic.table
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -9,7 +11,6 @@ import org.order.data.Role
 import org.order.data.RoleClass
 import org.order.data.tables.Payments
 import org.order.data.tables.Users
-import org.order.logic.corpus.Text
 import org.order.data.entities.State.IMAGINE
 import org.order.data.tables.Relations
 
@@ -36,16 +37,23 @@ class User(id: EntityID<Int>) : IntEntity(id) {
             .find { roleClass.userLink eq id }
             .empty()
 
-    fun buildDescription(vararg roles: RoleClass<*>) = buildString {
-        appendln(Text.get("user-description") {
-            it["name"] = name!!
-            it["phone"] = phone!!
-        })
+    fun buildDescription(vararg roles: RoleClass<*>) = table {
+        cellStyle {
+            border = true
+            alignment = TextAlignment.MiddleCenter
+            paddingRight = 1; paddingLeft = 1
+        }
+
+        if (name != null)
+            row(name)
+
+        if (phone != null)
+            row(phone)
 
         for (role in roles)
             if (hasLinked(role))
-                appendln(linked(role).description)
-    }
+                row(linked(role).description)
+    }.toString()
 
     private fun unlinkRoles(vararg roles: RoleClass<*>) {
         for (role in roles)

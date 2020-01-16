@@ -3,7 +3,6 @@ package org.order.logic.impl.commands.orders
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.order.bot.send.button
-import org.order.bot.send.row
 import org.order.data.entities.Client
 import org.order.data.entities.Menu
 import org.order.data.entities.Order
@@ -14,114 +13,89 @@ import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LOCALE
+import org.order.logic.impl.utils.availableList
+import org.order.logic.impl.utils.clients
+import org.order.logic.impl.utils.orZero
+import org.order.logic.impl.utils.switcherIn
+
+private const val WINDOW_MARKER = "order-window"
 
 private val ORDER_WINDOW_TRIGGER = CommandTrigger(Text["order-command"]) and
         StateTrigger(COMMAND) and
         (RoleTrigger(Client) or RoleTrigger(Parent))
 
-val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER, listOf("0", "0", "0")) { user, (dayStr, numStr, childNumStr) ->
+val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
+        args = listOf("0", "0", "0")) { user, (dayNumStr, menuNumStr, clientNumStr) ->
+
     val active = Menu.all()
-            .filter { it.isAvailableNow() }
-            .fold(mutableMapOf<LocalDate, MutableList<Menu>>()) { map, menu ->
-                map.apply {
-                    computeIfAbsent(menu.nextActiveDate()) {
-                        mutableListOf()
-                    } += menu
+            .map { menu ->
+                menu.availableList().map { date ->
+                    date to menu
                 }
             }
-            .toList()
-            .sortedBy { it.first }
+            .flatten()
+            .groupBy { (date, _) -> date }
+            .mapValues { (_, values) ->
+                values.map { (_, menu) ->
+                    menu
+                }
+            }
+            .toSortedMap(compareBy { it })
 
-    val day = dayStr.toInt()
+    val dayNum = dayNumStr.toInt().coerceIn(active.values.indices)
+    val (day, activeToday) = active.entries.elementAt(dayNum)
 
-    val numInt = numStr.toInt()
+    val menuNum = menuNumStr.toInt().coerceIn(activeToday.indices)
+    val currentMenu = activeToday[menuNum]
 
-    val activeToday = active[day].second
-
-    val num = if (numInt in activeToday.indices)
-        numInt
-    else 0
-    val currentMenu = activeToday[num]
+    val clients = user.clients()
+    val clientNum = clientNumStr.toInt().coerceIn(clients.indices)
+    val client = clients[clientNum]
 
     val message = Text.get("suggest-menu") {
         it["menu"] = currentMenu.buildDescription()
     }
 
-    val childNum = childNumStr.toInt()
-    val children = if (user.hasLinked(Parent))
-        user.linked(Parent).children
-                .sortedBy { it.id } // Exact same order guaranteed
-    else null
-    val child = children?.get(childNum)
-
-    val client = child?.user?.linked(Client) ?: user.linked(Client)
+    val activeList = active.values.toList()
+    val orderDayDisplay = day.dayOfWeek().getAsShortText(LOCALE)
 
     show(message) {
-        if (child != null) {
-            val name = child.user.name!!
+        if (user.hasLinked(Parent))
+            button(client.user.name!!, "$WINDOW_MARKER:$dayNum:$menuNum:${(clientNum + 1).orZero(clients.indices)}")
 
-            when {
-                children.size == 1 -> button(name)
-                childNum == children.size - 1 -> button(name, "order-window:$day:$num:0")
-                childNum < children.size - 1 -> button(name, "order-window:$day:$num:${childNum + 1}")
-            }
-        }
+        switcherIn(activeList, dayNum, { orderDayDisplay }, { "$WINDOW_MARKER:$it:$menuNum:$clientNum" })
 
-        row {
-            if (day - 1 >= 0)
-                button(Text["previous-day"], "order-window:${day - 1}:$num:$childNum")
-            else
-                button(Text["inactive"])
+        switcherIn(activeToday, menuNum, { it }, { "$WINDOW_MARKER:$dayNum:$it:$clientNum" })
 
-            button(active[day].first.dayOfWeek().getAsShortText(LOCALE))
+        button(Text["make-order"], "make-order:${currentMenu.id.value}:$day:${client.id.value}")
 
-            if (day + 1 < active.size)
-                button(Text["next-day"], "order-window:${day + 1}:$num:$childNum")
-            else
-                button(Text["inactive"])
-        }
-
-        row {
-            if (num - 1 >= 0)
-                button(Text["previous-menu"], "order-window:$day:${num - 1}:$childNum")
-            else
-                button(Text["inactive"])
-
-            button("$num")
-
-            if (num + 1 < activeToday.size)
-                button(Text["next-menu"], "order-window:$day${num + 1}:$childNum")
-            else
-                button(Text["inactive"])
-        }
-
-        // TODO deny ordering more then one menu
-
-        button(Text["make-order"], "make-order:${currentMenu.id.value}:${client.id.value}")
-
-        button(Text["cancel"], "remove-message")
-    }
+        button(Text["cancel-button"], "remove-message")
+    } // TODO Add information about order amount
 }
 
-val MAKE_ORDER = CallbackProcessor("make-order") make_order@{ user, src, (menuIdStr, clientIdStr) ->
+val MAKE_ORDER = CallbackProcessor("make-order") { _, src, (menuIdStr, dayStr, clientIdStr) ->
     val menuId = menuIdStr.toInt()
 
-    val menu = Menu.findById(menuId)
-    if (menu == null || !menu.isAvailableNow()) {
+    val menu = Menu.findById(menuId) ?: error("There's no menu with id: $menuId!")
+    if (LocalDate.now() !in menu.availableList())
         src.edit(Text["menu-is-not-available-now"])
-        return@make_order
+    else {
+        val orderDate = LocalDate.parse(dayStr)
+
+        val clientId = clientIdStr.toInt()
+        val client = Client.findById(clientId) ?: error("There's no client with id: $clientId!")
+
+        val now = DateTime.now()
+
+        Order.new {
+            this.registered = now // Date and time when the order created
+            this.orderDate = orderDate
+            this.menu = menu // The menu that was ordered
+            this.client = client // A client that will get the order.
+        }
+
+        client.balance -= menu.cost
+
+        // TODO add message about order
     }
-
-    val clientId = clientIdStr.toInt()
-    val client = Client.findById(clientId) ?: error("There's no client with id: $clientId")
-
-    Order.new {
-        registered = DateTime.now() // Date and time when the order created
-        orderDate = menu.nextActiveDate() // Date when the order will be completed
-        this.madeBy = user // The user who ordered this order
-        this.menu = menu // The menu that was ordered
-        this.client = client // A client that will get the order.
-    }
-
-    user.linked(Client).balance -= menu.cost
 }

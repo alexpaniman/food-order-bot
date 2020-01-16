@@ -12,7 +12,7 @@ class CallbackProcessor(private val marker: String,
     override fun SenderContext.process(user: User, update: Update): Boolean {
         val callback = update.callbackQuery?.data
 
-        if (callback != null && callback.startsWith("$marker:")) {
+        if (callback != null && callback.startsWith("$marker:") || callback == marker) {
             val args = callback
                     .substringAfter(':')
                     .split(":")

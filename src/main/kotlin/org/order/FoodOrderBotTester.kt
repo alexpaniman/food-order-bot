@@ -9,10 +9,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.order.FoodOrderBotTester.Keyboard.*
 import org.order.bot.send.SenderContext
-import org.order.data.entities.Admin
-import org.order.data.entities.Grade
-import org.order.data.entities.State
-import org.order.data.entities.User
+import org.order.data.entities.*
 import org.order.data.tables.*
 import org.order.logic.impl.FoodOrderBot
 import org.order.logic.impl.commands.DATABASE_DRIVER
@@ -25,9 +22,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import java.io.File
-import java.lang.Exception
 import java.lang.Thread.sleep
-import kotlin.concurrent.thread
 import org.telegram.telegrambots.meta.api.objects.Message as TMessage
 
 @Suppress("unused", "SameParameterValue")
@@ -122,6 +117,9 @@ class FoodOrderBotTester {
             }
 
             val asArray = keyboard.asArray()
+            val maxLength = asArray
+                    .map { it.size }
+                    .max() ?: 1
 
             row {
                 val coloredText = text.replace("([*_]{2}|```|`).*?\\1".toRegex()) {
@@ -138,15 +136,25 @@ class FoodOrderBotTester {
                 }
 
                 cell(coloredText) {
-                    border     = false
-                    columnSpan = asArray
-                            .map { it.size }
-                            .max() ?: 1
+                    border = false
+                    columnSpan = maxLength
                 }
             }
 
-            for (row in asArray)
-                row(*row)
+            for (row in asArray) {
+                val perCell = maxLength / row.size
+                val withoutLast = row.dropLast(1)
+                row {
+                    for (content in withoutLast)
+                        cell(content) {
+                            columnSpan = perCell
+                        }
+
+                    cell(row.last()) {
+                        columnSpan = maxLength - perCell * withoutLast.size
+                    }
+                }
+            }
         }.toString()
 
         val lines = table.lines()
@@ -219,6 +227,20 @@ class FoodOrderBotTester {
 
             mockk()
         }
+
+        every { any<TMessage>().delete() } answers {
+            val message: TMessage = arg(0)
+
+            val chatId = message.chatId.toInt()
+            val messageId = message.messageId.toInt()
+
+            chats[chatId]!!.removeAt(messageId)
+
+            if (displayMessages && active == chatId)
+                print("Message [$messageId] in chat [$chatId] was deleted!")
+
+            true
+        }
     }
 
     private val bot = FoodOrderBot(senderContext, "", "")
@@ -228,6 +250,7 @@ class FoodOrderBotTester {
             every { message.text } returns text
             every { message.from.id } returns this@sendText
 
+            every { message.successfulPayment } returns null
             every { callbackQuery } returns null
             every { preCheckoutQuery } returns null
         }
@@ -297,7 +320,7 @@ class FoodOrderBotTester {
         }
         "last" -> activeChat { chat ->
             val messageId = -(args.getOrNull(0)?.toInt() ?: 1)
-            "Message [$messageId] in active chat [$active]:\n" +
+            "Message [${chat.lastIndex + messageId + 1}] in active chat [$active]:\n" +
                     chat[messageId].asString()
         }
         "display" -> activeChat { chat ->
@@ -429,14 +452,8 @@ fun main() {
         Grade.new {
             name = "10-Ф"
         }
-        Admin.new {
-            this.user = User.new {
-                chat = 1
-                name = "Александр Паниман"
-                phone = "+380669362726"
-                state = State.COMMAND
-            }
-        }
+
+        createData()
     }
 
     FoodOrderBotTester().apply {
