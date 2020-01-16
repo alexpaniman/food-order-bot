@@ -63,7 +63,7 @@ private object PhoneQuestion : Question(READ_PHONE) {
         if (isValid)
             user.phone = phoneUtils.format(
                     phoneNumber,
-                    PhoneNumberUtil.PhoneNumberFormat.RFC3966
+                    PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL
             )
         else
             user.send(Text["wrong-phone"])

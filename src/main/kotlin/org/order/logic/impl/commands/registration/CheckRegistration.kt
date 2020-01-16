@@ -188,10 +188,11 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, 
                 reply {
                     row {
                         button(Text["order-command"])
-                        button(Text["pay-command"])
+                        button(Text["orders-list-command"])
+                        button(Text["order-cancellation-command"])
                     }
                     row {
-                        button(Text["orders-list-command"])
+                        button(Text["pay-command"])
                         button(Text["payments-list-command"])
                     }
                     button(Text["help-command"])

@@ -1,7 +1,6 @@
 package org.order.data.entities
 
 import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.dao.IntEntity
 import org.order.data.Role
 import org.order.data.RoleClass
 import org.order.data.tables.Parents
@@ -21,9 +20,8 @@ class Parent(id: EntityID<Int>): Role(id) {
 
     override val description
         get() = Text.get("parent-description") {
-            it["children"] = buildString {
-                for (child in children)
-                    appendln(child.description)
+            it["children"] = children.joinToString("\n") { child ->
+                child.user.buildDescription(Student)
             }
         }
 }

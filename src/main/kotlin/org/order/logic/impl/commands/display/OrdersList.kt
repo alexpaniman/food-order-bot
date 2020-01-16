@@ -1,9 +1,9 @@
 package org.order.logic.impl.commands.display
 
-import org.joda.time.DateTimeConstants.FRIDAY
-import org.joda.time.DateTimeConstants.MONDAY
+import org.joda.time.DateTimeConstants.*
 import org.joda.time.LocalDate
 import org.order.bot.send.button
+import org.order.bot.send.deactivatableKeyButton
 import org.order.bot.send.row
 import org.order.data.entities.Order
 import org.order.data.entities.State.COMMAND
@@ -17,22 +17,36 @@ import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LOCALE
 
 private val ORDERS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["orders-list-command"]) and StateTrigger(COMMAND)
-val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER, listOf("0")) { user, (numStr) ->
+val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER,
+        args = listOf("0")) { user, (dayNumStr) ->
     val now = LocalDate.now()
 
-    val numInt = numStr.toInt()
-    val num = if (numInt + now.dayOfWeek <= FRIDAY)
-        numInt
-    else 0
+    val days = when (now.dayOfWeek) {
+        // In sunday and saturday you can see entire next week
+        SATURDAY, SUNDAY -> {
+            val nextMonday = now.plusWeeks(1)
+                    .plusDays(MONDAY - now.dayOfWeek)
 
-    val bound = now.plusDays(num)
+            (0..4).map { nextMonday.plusDays(it) }
+        }
+        // Else you can see orders from today and until the Friday inclusive
+        else -> {
+            (0..(FRIDAY - now.dayOfWeek))
+                    .map { now.plusDays(it) }
+        }
+    }
+    val dayNum = dayNumStr.toInt()
+            .coerceIn(days.indices)
 
-    val orders = buildString {
-        val groupedByGrade = Order.find { Orders.orderDate eq "$bound" }
+    val chosenDate = days[dayNum]
+    val orders = Order.find { Orders.orderDate eq chosenDate.toString() }
+
+    val ordersDisplay = buildString {
+        val groupedByGrade = orders
                 .groupBy {
                     if (user.hasLinked(Student))
                         user.linked(Student).grade!!.name
-                    else Text["empty-class"]
+                    else Text["empty-grade"]
                 }
 
         for ((grade, byGrade) in groupedByGrade) {
@@ -58,29 +72,28 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
         }
     }
 
-    val message = Text.get("orders-list") {
-        it["orders"] = orders
-    }
-
-    val dayOfWeek = now.dayOfWeek
+    val message = if (ordersDisplay.isNotBlank())
+        Text.get("orders-list") {
+            it["orders"] = ordersDisplay
+        }
+    else
+        Text["there-were-no-orders-made-yet"]
 
     show(message) {
         row {
-            if (dayOfWeek > MONDAY)
-                button(Text["previous-order-day"], "orders-list-window:${num - 1}")
-            else
-                button(Text["inactive"])
+            deactivatableKeyButton("previous-button", "orders-list-window:${dayNum - 1}") {
+                dayNum - 1 >= 0
+            }
 
-            button(now.dayOfWeek().getAsShortText(LOCALE))
+            button(chosenDate.dayOfWeek().getAsShortText(LOCALE))
 
-            if (dayOfWeek < FRIDAY)
-                button(Text["next-order-day"], "orders-list-window:${num + 1}")
-            else
-                button(Text["inactive"])
+            deactivatableKeyButton("next-button", "orders-list-window:${dayNum + 1}") {
+                dayNum + 1 < days.size
+            }
         }
 
-        button(Text["update-order-window"], "orders-list-window:$num")
+        button(Text["update-button"], "orders-list-window:$dayNum")
 
-        button(Text["cancel"], "remove-window")
+        button(Text["cancel-button"], "remove-message") // TODO some weird stuff happens with this button fix it
     }
 }

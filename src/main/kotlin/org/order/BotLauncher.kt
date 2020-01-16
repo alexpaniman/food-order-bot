@@ -2,7 +2,10 @@ package org.order
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
+import org.joda.time.LocalDate
 import org.order.bot.send.SenderContext
+import org.order.data.entities.*
 import org.order.data.tables.*
 import org.order.logic.impl.FoodOrderBot
 import org.order.logic.impl.commands.BOT_TOKEN
@@ -37,11 +40,51 @@ fun main() {
                 Coordinators,
                 Users
         )
+
+        val user = User.new {
+            this.chat = 505120843
+            this.name = "***REMOVED*** ***REMOVED***"
+            this.valid = true
+            this.state = State.COMMAND
+            this.phone = "+380669362726"
+        }
+
+        val grade = Grade.new {
+            this.name = "10-Ф"
+        }
+
+        Student.new {
+            this.user = user
+            this.grade = grade
+        }
+
+        val client = Client.new {
+            this.user = user
+            this.balance = 0f
+        }
+
+        val menu = Menu.new {
+            this.name = "menu"
+            this.active = true
+            this.schedule = Menu.Schedule.parse("15-02-2019:2")
+            this.cost = 100f
+        }
+
+        Order.new {
+            this.menu = menu
+            this.orderDate = LocalDate.now()
+            this.registered = DateTime.now()
+            this.madeBy = user
+            this.client = client
+        }
+
+        createData() // TODO remove
     }
 
     // Use the default bot options to create sender that the bot will use to execute telegram api methods
     val options = DefaultBotOptions()
     val sender = SenderContext(BOT_TOKEN, options)
+
 
     val bot = FoodOrderBot(sender, BOT_USERNAME, BOT_TOKEN)
 

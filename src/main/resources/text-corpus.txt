@@ -1,3 +1,20 @@
+# --- Список комманд --- # TODO список названий комманд бота
+[order-command] заказать обед
+[pay-command] оплатить
+[order-cancellation-command] отменить заказ
+[orders-list-command] список заказов
+[payments-list-command] список платежей
+[help-command] помощь
+# -- [Список комманд] -- #
+
+# --- Общее --- # TODO текст, используемый во многих местах сразу
+[previous-button] <
+[next-button] >
+[update-button] ↺
+[cancel-button] отменить
+[inactive-button] ∅
+# -- [Общее] -- #
+
 # --- Названия ролей --- # TODO Используются при выборе роли.
 [parent-and-teacher] родитель и учитель
 [producer] работник столовой
@@ -15,12 +32,10 @@
     [phone]
 [producer-description] Работник столовой
 [teacher-description] Учитель
-[student-description]
-    [name][br]
-    Ученик(ца) [grade] класса[br]
+[student-description] Ученик(ца) [grade] класса
 [parent-description]
-    Родитель. Ребёнок\Дети:[br][br]
-    [children]
+    Родитель. Ребёнок\Дети:
+    [br][br][children]
 [admin-description] Администратор
 [coordinator-description] Координатор [grade] класса
 [client-description] Клиент
@@ -83,7 +98,7 @@
     Проверьте их правильность, если вы ошиблись,[space]
     то нажмите кнопку 'пройти заново'.[space]
     Иначе нажмите 'подтвердить'.[space]
-[registration-confirm-button] подвердить
+[registration-confirm-button] подтвердить
 [registration-dismiss-button] пройти заново
 [wrong-registration-confirmation] Неверный ответ, пожалуйста используйте кнопки снизу:
 
@@ -169,9 +184,30 @@
 [suggest-order-cancellation] Выберите заказ, который хотите отменить:
 
 # TODO Сообщение об отстутствии данного заказа
-[this-order-was-already-cancelled] Этот заказ уже был отменён!
+[these-orders-were-already-canceled]
+    Заказы в этот день уже были отменены!
+
+[successful-order-cancellation]
+    В [date] [amount] заказов были успешно отменены
 # -- [Отмены заказов] -- #
 
+# --- Список платежей --- # TODO Список изменений баланса (заказ — -, оплата — +)
+[payments-list] [payments]
+
+# TODO Информация для построения [payments] из [payments-list] выше
+[payment-display] [date] : [amount]
+[payments-date-format] dd-MM-yyyy
+# -- [Список платежей] -- #
+
+# --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
+[my-orders-list:day-of-week]
+    **В [name]:**
+[my-orders-list:order]
+    [tab][description]
+[my-orders-list:list]
+    **Список ваших заказов на этой неделе:**[br]
+    [orders]
+# -- [Список моих заказов] -- #
 
 # TODO ...
 
@@ -193,6 +229,9 @@
 [payment-title] Пополнение счета.
 [payment-description]
     Пополнение счета на сумму [amount].
+
+[there-were-no-payments-made-yet]
+    Ещё не было сделано не одной операции со счетом!
 # -- [Оплата] -- #
 
 
@@ -218,31 +257,12 @@
 [grade-display]           **[grade] [[orders-count]]:**
 [menu-display]  [tab] **[menu-name] [[orders-count]]:**
 [user-display]  [tab] [tab] `[user-name]`
+
+[there-were-no-orders-made-yet]
+    На данный момент нет заказов!
 # -- [Список заказов] -- #
 
 
 
-# --- Список платежей --- #
-[payments-list] [payments]
 
-# Информация для построения [payments] из [payments-list] выше
-[payment-display] [date] : [amount]
-[payments-date-format] dd-MM-yyyy
-# -- [Список платежей] -- #
 
-# --- Список комманд --- #
-[order-command] заказать обед
-[pay-command] оплатить
-
-[orders-list-command] список заказов
-[payments-list-command] список платежей
-[help-command] помощь
-# -- [Список комманд] -- #
-
-# --- Общее --- #
-[previous-button] <
-[next-button] >
-
-[update-window] ↺
-[cancel] отменить
-# -- [Общее] -- #

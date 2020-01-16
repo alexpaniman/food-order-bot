@@ -56,7 +56,7 @@ fun MutableList<InlineKeyboardButton>.deactivatableButton(text: String, callback
     if (activate())
         button(text, callback)
     else
-        button(Text["inactive"])
+        button(Text["inactive-button"])
 }
 fun InlineKeyboardMarkup.deactivatableButton(text: String, callback: String, activate: () -> Boolean) =
         row { deactivatableButton(text, callback, activate) }
