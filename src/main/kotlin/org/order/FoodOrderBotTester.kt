@@ -14,6 +14,7 @@ import org.order.data.tables.*
 import org.order.logic.impl.FoodOrderBot
 import org.order.logic.impl.commands.DATABASE_DRIVER
 import org.order.logic.impl.commands.JDBC_DATABASE_URL
+import org.order.logic.impl.utils.Schedule
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -439,6 +440,39 @@ class FoodOrderBotTester {
 
 const val PRE_TEST_SCRIPT = "src/main/resources/pre-test.bt"
 
+private fun createMenu(name: String, cost: Float, schedule: String, vararg dishes: String) {
+    val menu = Menu.new {
+        this.name = name
+        this.cost = cost
+        this.schedule = Schedule.parse(schedule)
+    }
+
+    for (dish in dishes)
+        Dish.new {
+            this.menu = menu
+            this.name = dish
+        }
+}
+
+private fun createGrades(vararg grades: String) {
+    for (grade in grades)
+        Grade.new {
+            this.name = grade
+        }
+}
+
+private fun createAdmin(chat: Int, name: String, phone: String) {
+    Admin.new {
+        this.user = User.new {
+            this.name = name
+            this.phone = phone
+            this.state = State.COMMAND
+            this.valid = true
+            this.chat = chat
+        }
+    }
+}
+
 fun main() {
     Database.connect(url = JDBC_DATABASE_URL, driver = DATABASE_DRIVER)
 
@@ -449,11 +483,11 @@ fun main() {
                 Relations, Coordinators, Users
         )
 
-        Grade.new {
-            name = "10-Ф"
-        }
+        createAdmin(0, "Александр Паниман", "+380669362726")
 
-        createData()
+        createGrades("9-Ф", "10-Ф")
+
+        createMenu("1", 10.0f, "2020-01-20:3", "каша", "котлета", "салат")
     }
 
     FoodOrderBotTester().apply {

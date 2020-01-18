@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 
 class Window(private val marker: String,
              private val trigger: Trigger,
-             private val args: List<String>,
+             private val args: List<String> = listOf(),
              private val window: WindowContext.(User, List<String>) -> Unit): Command {
 
     override fun SenderContext.process(user: User, update: Update): Boolean {

@@ -3,6 +3,7 @@ package org.order.logic.impl.commands.orders
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.order.bot.send.button
+import org.order.bot.send.switcherIn
 import org.order.data.entities.Client
 import org.order.data.entities.Menu
 import org.order.data.entities.Order
@@ -16,7 +17,6 @@ import org.order.logic.impl.commands.LOCALE
 import org.order.logic.impl.utils.availableList
 import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.orZero
-import org.order.logic.impl.utils.switcherIn
 
 private const val WINDOW_MARKER = "order-window"
 
@@ -53,7 +53,7 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
     val client = clients[clientNum]
 
     val message = Text.get("suggest-menu") {
-        it["menu"] = currentMenu.buildDescription()
+        it["menu-description"] = currentMenu.buildDescription()
     }
 
     val activeList = active.values.toList()
@@ -73,15 +73,15 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
     } // TODO Add information about order amount
 }
 
-val MAKE_ORDER = CallbackProcessor("make-order") { _, src, (menuIdStr, dayStr, clientIdStr) ->
+val MAKE_ORDER = CallbackProcessor("make-order") { user, src, (menuIdStr, dayStr, clientIdStr) ->
+    val orderDate = LocalDate.parse(dayStr)
+
     val menuId = menuIdStr.toInt()
 
     val menu = Menu.findById(menuId) ?: error("There's no menu with id: $menuId!")
-    if (LocalDate.now() !in menu.availableList())
+    if (orderDate !in menu.availableList())
         src.edit(Text["menu-is-not-available-now"])
     else {
-        val orderDate = LocalDate.parse(dayStr)
-
         val clientId = clientIdStr.toInt()
         val client = Client.findById(clientId) ?: error("There's no client with id: $clientId!")
 
@@ -89,6 +89,7 @@ val MAKE_ORDER = CallbackProcessor("make-order") { _, src, (menuIdStr, dayStr, c
 
         Order.new {
             this.registered = now // Date and time when the order created
+            this.madeBy = user
             this.orderDate = orderDate
             this.menu = menu // The menu that was ordered
             this.client = client // A client that will get the order.

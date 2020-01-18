@@ -2,14 +2,15 @@ package org.order.logic.impl
 
 import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
-import org.order.logic.impl.commands.display.HELP
-import org.order.logic.impl.commands.display.ORDERS_LIST_WINDOW
-import org.order.logic.impl.commands.display.PAYMENTS_LIST_WINDOW
+import org.order.logic.impl.commands.TIME_TO_SEND_POLL
+import org.order.logic.impl.commands.display.*
 import org.order.logic.impl.commands.orders.CANCEL_ORDER
 import org.order.logic.impl.commands.orders.MAKE_ORDER
 import org.order.logic.impl.commands.orders.ORDER_CANCELLATION_WINDOW
 import org.order.logic.impl.commands.orders.ORDER_WINDOW
 import org.order.logic.impl.commands.payments.*
+import org.order.logic.impl.commands.polls.RATE_PROCESSOR
+import org.order.logic.impl.commands.polls.launchPollSender
 import org.order.logic.impl.commands.registration.*
 import org.order.logic.impl.commands.tools.BAN_FILTER
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
@@ -17,6 +18,8 @@ import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
+        senderContext.launchPollSender()
+
         // ---- Validation Filter ----
         this += VALIDATION_FILTER
         // ---------------------------
@@ -70,6 +73,12 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += HELP
         this += ORDERS_LIST_WINDOW
         this += PAYMENTS_LIST_WINDOW
+        this += MY_ORDERS_LIST_WINDOW
+        this += HISTORY_WINDOW
+        // ---------------------------
+
+        // ---------- Polls ----------
+        this += RATE_PROCESSOR
         // ---------------------------
     }
 }
