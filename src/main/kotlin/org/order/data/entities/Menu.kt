@@ -23,8 +23,7 @@ class Menu(id: EntityID<Int>) : IntEntity(id) {
                     { Schedule.parse(it) }
             )
 
-    var active by Menus.active
-    private val dishes by Dish referrersOn Dishes.menu
+    val dishes by Dish referrersOn Dishes.menu
 
     fun buildDescription(): String {
         val dishes = buildString {

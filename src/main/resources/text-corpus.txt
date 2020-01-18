@@ -3,8 +3,10 @@
 [pay-command] оплатить
 [order-cancellation-command] отменить заказ
 [orders-list-command] список заказов
+[my-orders-command] мои заказы
 [payments-list-command] список платежей
 [help-command] помощь
+[history-command] история
 # -- [Список комманд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
@@ -208,6 +210,54 @@
     **Список ваших заказов на этой неделе:**[br]
     [orders]
 # -- [Список моих заказов] -- #
+
+# --- История --- # TODO Список всех действий человека
+[history]
+    История ваших действий:[br]
+    [actions]
+
+[history-date] [date]
+
+# TODO Каждый блок отражает одно действие в истории
+# TODO Блоки разделены символом \n
+# TODO Смена дня обозначается блоком [history-date] выше
+
+[history:parent:order]
+    [tab]Заказ [menu:name]
+    [space]на [order-date]
+    [space]для [client:name]
+
+[history:parent:payment]
+    [tab]Пополнение счета [client:name]
+    [space]на [amount]
+
+[history:parent:order-cancellation]
+    [tab]Отмена заказа [order:menu:name]
+    [space]для [order:client:name]
+    [space]на [order:order-date]
+
+[history:other:order]
+    [tab]Заказ [menu:name]
+    [space]на [order-date]
+
+[history:other:payment]
+    [tab]Пополнение счета
+    [space]на [amount]
+
+[history:other:order-cancellation]
+    [tab]Отмена заказа [order:menu:name]
+    [space]на [order:order-date]
+# -- [История] -- #
+
+# --- Опросы --- #
+[poll]
+    Вы заказывали меню [order:menu:name]
+    [space]на сегодня, [order:order-date].[br]
+    Оцените его:
+
+[poll-unfilled-star] ☆
+[poll-filled-star] ★
+# -- [Опросы] -- #
 
 # TODO ...
 

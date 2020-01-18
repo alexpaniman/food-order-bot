@@ -22,8 +22,7 @@ private fun createClient(user: User) = Client.new {
 }
 
 private fun createMenu() = Menu.new {
-    this.active = true
-    this.schedule = Schedule.parse("15-01-2020:1")
+    this.schedule = Schedule.parse("2020-01-15:1")
     this.name = (0..1000).random().toString()
     this.cost = (0..1000).random().toFloat()
 }

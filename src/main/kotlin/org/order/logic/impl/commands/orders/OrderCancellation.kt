@@ -1,11 +1,13 @@
 package org.order.logic.impl.commands.orders
 
+import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.order.bot.send.button
 import org.order.bot.send.deactivatableButton
 import org.order.bot.send.row
 import org.order.data.entities.Client
 import org.order.data.entities.Order
+import org.order.data.entities.OrderCancellation
 import org.order.data.entities.Parent
 import org.order.data.entities.State.COMMAND
 import org.order.logic.commands.processors.CallbackProcessor
@@ -38,7 +40,9 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     // -------- List of Done Orders --------
     val now = LocalDate.now()
 
-    val ordersAfterNow = client.orders.filter { it.orderDate.isAfter(now) }
+    val ordersAfterNow = client.orders
+            .filter { !it.canceled }
+            .filter { it.orderDate.isAfter(now) }
 
     val ordersWithDate = (1..5)
             .fold(mutableMapOf<LocalDate, MutableList<Order>>()) { map, dayOfWeek ->
@@ -83,26 +87,31 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     }
 }
 
-val CANCEL_ORDER = CallbackProcessor("cancel-orders") { _, src, args ->
+val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->
     val date = LocalDate.parse(args.first())
     val orders = args.drop(1)
 
     // ------- Find Order to Cancel -------
-    var canceled = 0
+    var canceledCount = 0
     for (orderIdStr in orders) {
         val order = Order.findById(orderIdStr.toInt()) ?: continue
 
-        // ----------- Remove Order -----------
+        // ----------- Cancel Order -----------
         order.client.balance += order.menu.cost
-        order.delete()
+        OrderCancellation.new {
+            this.canceledBy = user
+            this.canceled = DateTime.now()
+            this.order = order
+        }
+        order.canceled = true
         // ------------------------------------
 
-        canceled ++
+        canceledCount ++
     }
 
     src.edit(Text.get("successful-order-cancellation") {
         it["date"] = date.dayOfWeek().getAsShortText(LOCALE)
-        it["amount"] = canceled.toString()
+        it["amount"] = canceledCount.toString()
     })
     // ------------------------------------
 }

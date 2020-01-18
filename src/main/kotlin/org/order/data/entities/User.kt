@@ -9,10 +9,8 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.select
 import org.order.data.Role
 import org.order.data.RoleClass
-import org.order.data.tables.Payments
-import org.order.data.tables.Users
 import org.order.data.entities.State.IMAGINE
-import org.order.data.tables.Relations
+import org.order.data.tables.*
 
 class User(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<User>(Users)
@@ -23,7 +21,9 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     var state by Users.state
     var valid by Users.valid
 
+    val orders by Order referrersOn Orders.madeBy
     val payments by Payment referrersOn Payments.madeBy
+    val cancellations by OrderCancellation referrersOn OrderCancellations.canceledBy
 
     fun <T : Role> linked(roleClass: RoleClass<T>) = roleClass
             .find { roleClass.userLink eq id }

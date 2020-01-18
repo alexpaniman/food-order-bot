@@ -3,6 +3,8 @@ package org.order.data.tables
 import org.jetbrains.exposed.dao.IntIdTable
 
 object Orders: IntIdTable() {
+    val canceled = bool("is_canceled").default(false)
+
     val registered = datetime("registered")
     val orderDate = varchar("order_date", 255)
 

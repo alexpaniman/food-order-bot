@@ -12,6 +12,7 @@ import org.order.logic.impl.commands.BOT_TOKEN
 import org.order.logic.impl.commands.BOT_USERNAME
 import org.order.logic.impl.commands.DATABASE_DRIVER
 import org.order.logic.impl.commands.JDBC_DATABASE_URL
+import org.order.logic.impl.utils.Schedule
 import org.telegram.telegrambots.ApiContextInitializer
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.meta.TelegramBotsApi
@@ -65,8 +66,7 @@ fun main() {
 
         val menu = Menu.new {
             this.name = "menu"
-            this.active = true
-            this.schedule = Menu.Schedule.parse("15-02-2019:2")
+            this.schedule = Schedule.parse("15-02-2019:2")
             this.cost = 100f
         }
 

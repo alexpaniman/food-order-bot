@@ -39,7 +39,9 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
             .coerceIn(days.indices)
 
     val chosenDate = days[dayNum]
-    val orders = Order.find { Orders.orderDate eq chosenDate.toString() }
+    val orders = Order
+            .find { Orders.orderDate eq chosenDate.toString() }
+            .filter { !it.canceled }
 
     val ordersDisplay = buildString {
         val groupedByGrade = orders
