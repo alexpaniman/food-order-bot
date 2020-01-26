@@ -19,6 +19,7 @@ private fun User.descriptionForValidation() = buildDescription(Student, Teacher,
         .replace('─', '-')
         .replace('│', '|')
         .replace("[┼┐┌└┘┤├]".toRegex(), " ")
+        .lines().joinToString("\n") { "`$it`" }
 
 val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINISHED)) { user, _ ->
     user.send(Text.get("registration-summary") {
@@ -95,7 +96,7 @@ private fun Student.findSameStudent(imagine: Boolean) = Student
         .firstOrNull {
             it.user.name == user.name && // The student has the same name
                     it.grade == grade && // The student is in the same grade
-                    user.valid && // User has passed validation
+                    it.user.valid && // User has passed validation
                     it != this && // The student isn't this student
                     (it.user.state != IMAGINE) xor imagine // According to imagine variable student imagine or not
         }
