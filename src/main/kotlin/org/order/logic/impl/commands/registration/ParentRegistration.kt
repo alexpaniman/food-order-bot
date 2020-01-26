@@ -1,12 +1,9 @@
 package org.order.logic.impl.commands.registration
 
 import org.jetbrains.exposed.sql.insert
+import org.order.bot.send.*
 import org.telegram.telegrambots.meta.api.objects.Update
 
-import org.order.bot.send.SenderContext
-import org.order.bot.send.button
-import org.order.bot.send.reply
-import org.order.bot.send.show
 import org.order.data.entities.*
 import org.order.data.entities.State.*
 
@@ -39,7 +36,9 @@ private fun Parent.createChild(): Student {
 private const val NAME_VALIDATOR = "^[А-ЯЁ][а-яё]+(-[А-ЯЁ][а-яё]+)? [А-ЯЁ][а-яё]+\$"
 
 object ChildNameQuestion : Question(READ_CHILD_NAME) {
-    override fun SenderContext.ask(user: User) = user.send(Text["register-child-name"])
+    override fun SenderContext.ask(user: User) = user.send(Text["register-child-name"]) {
+        removeReply()
+    }
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
         val inputChildName = update.message?.text

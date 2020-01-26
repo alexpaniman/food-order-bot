@@ -42,6 +42,10 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += CHECK_REGISTRATION
         // --------------------------
 
+        // ---- Keyboard Resender ----
+        this += RESEND_BUTTONS
+        // ---------------------------
+
         // ----- Message Remover -----
         this += MESSAGE_REMOVER
         // ---------------------------

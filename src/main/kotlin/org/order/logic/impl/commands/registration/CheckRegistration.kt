@@ -3,10 +3,7 @@ package org.order.logic.impl.commands.registration
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.order.bot.send.button
-import org.order.bot.send.inline
-import org.order.bot.send.reply
-import org.order.bot.send.row
+import org.order.bot.send.*
 import org.order.data.entities.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Relations
@@ -14,7 +11,9 @@ import org.order.data.tables.Students
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.TriggerCommand
+import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.corpus.Text
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 
 val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINISHED)) { user, _ ->
     user.send(Text.get("registration-summary") {
@@ -48,7 +47,7 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
 
                 user.hasLinked(Teacher) -> listOf()
 
-                else -> error("user has no appropriate linked role")
+                else -> error("This user has no appropriate linked role!")
             }
 
             val description = user.descriptionForValidation()
@@ -68,7 +67,7 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
 
             user.send(Text.get("registration-confirmed") {
                 it["description"] = description
-            })
+            }) { removeReply() }
 
             user.state = VALIDATION
         }
@@ -76,7 +75,9 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
         Text["registration-dismiss-button"] -> {
             user.clear()
 
-            user.send(Text["registration-dismissed"])
+            user.send(Text["registration-dismissed"]) {
+                removeReply()
+            }
 
             user.state = READ_NAME
             user.send(Text["register-name"])
@@ -136,6 +137,29 @@ private fun linkParent(parent: Parent) {
     }
 }
 
+fun SendMessage.mainKeyboard() = reply {
+    row {
+        button(Text["order-command"])
+//                        button(Text["orders-list-command"])
+        button(Text["order-cancellation-command"])
+    }
+    row {
+        button(Text["orders-list-command"])
+        button(Text["my-orders-command"])
+    }
+//                    row {
+//                        button(Text["pay-command"])
+//                        button(Text["payments-list-command"])
+//                    }
+//                    button(Text["help-command"])
+}
+
+val RESEND_BUTTONS = TriggerCommand(CommandTrigger(Text["resend-buttons-command"])) { user, _ ->
+    user.send(Text["resend-buttons-message"]) {
+        mainKeyboard()
+    }
+}
+
 val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, (action, id) ->
     val user = User.findById(id.toInt()) ?: error("User doesn't exist!")
 
@@ -184,20 +208,7 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, 
             user.state = COMMAND
             user.valid = true
 
-            user.send(Text["validation:user-is-confirmed"]) {
-                reply {
-                    row {
-                        button(Text["order-command"])
-                        button(Text["orders-list-command"])
-                        button(Text["order-cancellation-command"])
-                    }
-                    row {
-                        button(Text["pay-command"])
-                        button(Text["payments-list-command"])
-                    }
-                    button(Text["help-command"])
-                }
-            }
+            user.send(Text["validation:user-is-confirmed"]) { mainKeyboard() }
 
             src.edit(Text.get("coordinator-notification:user-is-confirmed") {
                 it["description"] = description

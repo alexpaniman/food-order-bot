@@ -48,7 +48,7 @@ private object PhoneQuestion : Question(READ_PHONE) {
             }
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
-        val inputPhone = update.message?.text ?: update.message?.contact?.phoneNumber
+        val inputPhone = update.message?.text ?: "+" + update.message?.contact?.phoneNumber
 
         val phoneUtils = PhoneNumberUtil.getInstance()
         val phoneNumber =
