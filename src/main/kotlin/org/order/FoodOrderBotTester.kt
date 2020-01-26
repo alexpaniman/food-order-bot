@@ -4,9 +4,15 @@ import com.jakewharton.picnic.TextAlignment
 import com.jakewharton.picnic.table
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
+import org.joda.time.LocalDate
+import org.joda.time.LocalTime
+import org.joda.time.format.DateTimeFormat
 import org.order.FoodOrderBotTester.Keyboard.*
 import org.order.bot.send.SenderContext
 import org.order.data.entities.*
@@ -381,6 +387,28 @@ class FoodOrderBotTester {
                 "Message sent to active chat [$active]."
             }
         }
+        "setTime" -> {
+            if (args.isEmpty()) {
+                unmockkStatic(LocalDate::class, DateTime::class, LocalTime::class)
+                "Time line restored!"
+            }
+            else {
+                val time = DateTime.parse(
+                        args.joinToString(" "),
+                        DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")
+                )
+                val millis = System.currentTimeMillis()
+
+                fun newTime() = time.plusMillis((System.currentTimeMillis() - millis).toInt())
+
+                mockkStatic(LocalDate::class, DateTime::class, LocalTime::class)
+                every { DateTime.now() } answers { newTime() }
+                every { LocalDate.now() } answers { newTime().toLocalDate() }
+                every { LocalTime.now() } answers { newTime().toLocalTime() }
+                "Current time was shifted to ${newTime()}"
+            }
+
+        }
         else -> {
             val builder = StringBuilder((listOf(name) + args).joinToString(" "))
             while (true) {
@@ -425,7 +453,7 @@ class FoodOrderBotTester {
         displayMessages = true
         while (true) try {
             sleep(20)
-            print("[chat : ${active?.toString() ?: "-"}] $ ")
+            print("[time : ${DateTime.now().toString("yyyy-MM-dd HH:mm:ss")}, chat : ${active?.toString() ?: "-"}] $ ")
             val read = readLine()!!
             if (read.isBlank())
                 continue
@@ -454,11 +482,10 @@ private fun createMenu(name: String, cost: Float, schedule: String, vararg dishe
         }
 }
 
-private fun createGrades(vararg grades: String) {
-    for (grade in grades)
-        Grade.new {
-            this.name = grade
-        }
+private fun createGrades(vararg grades: String) = grades.map { grade ->
+    Grade.new {
+        this.name = grade
+    }
 }
 
 private fun createAdmin(chat: Int, name: String, phone: String) {
@@ -473,6 +500,20 @@ private fun createAdmin(chat: Int, name: String, phone: String) {
     }
 }
 
+private fun createCoordinator(grade: Grade, chat: Int, name: String, phone: String) {
+    Coordinator.new {
+        this.user = User.new {
+            this.name = name
+            this.phone = phone
+            this.state = State.COMMAND
+            this.valid = true
+            this.chat = chat
+        }
+
+        this.grade = grade
+    }
+}
+
 fun main() {
     Database.connect(url = JDBC_DATABASE_URL, driver = DATABASE_DRIVER)
 
@@ -480,14 +521,37 @@ fun main() {
         SchemaUtils.create(
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
-                Relations, Coordinators, Users
+                Relations, Coordinators, Users,
+                OrdersCancellations
         )
 
-        createAdmin(0, "Александр Паниман", "+380669362726")
+        createAdmin(0, "Александр Паниман", "+380669360000")
+        createAdmin(1, "Абырвалг Абырвалгович", "+380669361111")
+        createAdmin(2, "Абвгд Арбывыффв", "+380669362222")
 
-        createGrades("9-Ф", "10-Ф")
+        val grades = createGrades("9-Ф", "10-Ф", "11-ИКТ", "8-Б")
+        createCoordinator(grades[0], 3, "Абв Авб", "+380669363333")
+        createCoordinator(grades[1], 4, "Абгв Авб", "+380669364444")
+        createCoordinator(grades[2], 5, "Абв Агвб", "+380669365555")
+        createCoordinator(grades[3], 6, "Абв Авбг", "+380669366666")
 
-        createMenu("1", 10.0f, "2020-01-20:3", "каша", "котлета", "салат")
+        createMenu("1", 55.0f, "2020-01-27:14", "Меню 1:1:1", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-01-28:14", "Меню 1:1:2", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-01-29:14", "Меню 1:1:3", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-01-30:14", "Меню 1:1:4", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-01-31:14", "Меню 1:1:5", "блюдо 1", "блюдо 2")
+
+        createMenu("1", 55.0f, "2020-02-03:14", "Меню 1:2:1", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-02-04:14", "Меню 1:2:2", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-02-05:14", "Меню 1:2:3", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-02-06:14", "Меню 1:2:4", "блюдо 1", "блюдо 2")
+        createMenu("1", 55.0f, "2020-02-07:14", "Меню 1:2:5", "блюдо 1", "блюдо 2")
+
+        createMenu("2", 42.0f, "2020-01-27:7", "Меню 1:1", "блюдо 1")
+        createMenu("2", 42.0f, "2020-01-28:7", "Меню 1:2", "блюдо 1")
+        createMenu("2", 41.0f, "2020-01-29:7", "Меню 1:3", "блюдо 1")
+        createMenu("2", 43.0f, "2020-01-30:7", "Меню 1:4", "блюдо 1")
+        createMenu("2", 43.0f, "2020-01-31:7", "Меню 1:5", "блюдо 1")
     }
 
     FoodOrderBotTester().apply {

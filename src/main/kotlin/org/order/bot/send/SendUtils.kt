@@ -46,9 +46,9 @@ fun KeyboardRow.button(text: String, init: KeyboardButton.() -> Unit = {}) {
 }
 
 fun ReplyKeyboardMarkup.button(text: String, init: KeyboardButton.() -> Unit = {}) =
-        row { button(text, init) } // TODO replace with text with key
+        row { button(text, init) }
 fun InlineKeyboardMarkup.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) =
-        row { button(text, callback, init) } // TODO replace with text with key
+        row { button(text, callback, init) }
 
 
 // ---------------------------------- Deactivatable Buttons ---------------------------------- //
