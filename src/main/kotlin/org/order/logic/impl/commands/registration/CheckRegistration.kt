@@ -15,9 +15,14 @@ import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.corpus.Text
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 
+private fun User.descriptionForValidation() = buildDescription(Student, Teacher, Parent, Producer)
+        .replace('─', '-')
+        .replace('│', '|')
+        .replace("[┼┐┌└┘┤├]".toRegex(), " ")
+
 val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINISHED)) { user, _ ->
     user.send(Text.get("registration-summary") {
-        it["description"] = user.buildDescription(Student, Teacher, Parent, Producer)
+        it["description"] = user.descriptionForValidation()
     }) {
         reply {
             button(Text["registration-confirm-button"])
@@ -26,8 +31,6 @@ val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINI
     }
     user.state = CONFIRM_REGISTRATION
 }
-
-private fun User.descriptionForValidation() = buildDescription(Student, Teacher, Parent, Producer)
 
 private val REGISTRATION_PROCESSOR_TRIGGER = StateTrigger(CONFIRM_REGISTRATION)
 val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { user, update ->

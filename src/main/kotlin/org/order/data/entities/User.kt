@@ -52,11 +52,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
         for (role in roles)
             if (hasLinked(role))
                 row(linked(role).description)
-    }.toString()
-            .replace('─', '-')
-            .replace('│', '|')
-            .replace("[┼┐┌└┘┤├]".toRegex(), " ")
-            .lines().joinToString("\n") { "`$it`" }
+    }.toString().lines().joinToString("\n") { "`$it`" }
 
     private fun unlinkRoles(vararg roles: RoleClass<*>) {
         for (role in roles)
