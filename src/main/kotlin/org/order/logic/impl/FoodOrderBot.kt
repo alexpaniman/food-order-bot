@@ -18,7 +18,7 @@ import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
-        senderContext.launchPollSender()
+        //senderContext.launchPollSender()
 
         // ---- Validation Filter ----
         this += VALIDATION_FILTER
