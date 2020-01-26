@@ -91,7 +91,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     }
 
     private fun unlinkAll() {
-        unlinkRoles(Admin, Client, Coordinator, Producer, Student, Teacher)
+        unlinkRoles(Admin, Client, Coordinator, Producer, Teacher)
         unlinkStudent() // Unlink parents and then delete student
         unlinkParent() // Unlink children and then delete parent
 

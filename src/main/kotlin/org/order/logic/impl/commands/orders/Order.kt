@@ -46,7 +46,6 @@ private fun WindowContext.suggestMakingOrder (user: User, dayNumStr: String, men
     val clientNum = clientNumStr.toInt().coerceIn(clients.indices)
     val client = clients[clientNum]
 
-    val now = LocalDate.now()
     val ordersToday = client.orders
             .filter { it.orderDate == day }
             .count()

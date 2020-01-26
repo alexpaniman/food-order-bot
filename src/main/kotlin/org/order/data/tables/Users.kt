@@ -10,5 +10,5 @@ object Users: IntIdTable() {
     val phone = varchar("phone", 255).nullable()
 
     val valid = bool("is_valid").default(false)
-    val state = enumerationByName("state_id", 255, State::class)
+    val state = enumerationByName("state", 255, State::class)
 }
