@@ -4,19 +4,15 @@ import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.order.bot.send.button
 import org.order.bot.send.switcherIn
-import org.order.data.entities.Client
-import org.order.data.entities.Menu
-import org.order.data.entities.Order
-import org.order.data.entities.Parent
+import org.order.data.entities.*
 import org.order.data.entities.State.COMMAND
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
+import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LOCALE
-import org.order.logic.impl.utils.availableList
-import org.order.logic.impl.utils.clients
-import org.order.logic.impl.utils.orZero
+import org.order.logic.impl.utils.*
 
 private const val WINDOW_MARKER = "order-window"
 
@@ -24,9 +20,7 @@ private val ORDER_WINDOW_TRIGGER = CommandTrigger(Text["order-command"]) and
         StateTrigger(COMMAND) and
         (RoleTrigger(Client) or RoleTrigger(Parent))
 
-val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
-        args = listOf("0", "0", "0")) { user, (dayNumStr, menuNumStr, clientNumStr) ->
-
+private fun WindowContext.suggestMakingOrder (user: User, dayNumStr: String, menuNumStr: String, clientNumStr: String) {
     val active = Menu.all()
             .map { menu ->
                 menu.availableList().map { date ->
@@ -52,9 +46,18 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
     val clientNum = clientNumStr.toInt().coerceIn(clients.indices)
     val client = clients[clientNum]
 
+    val now = LocalDate.now()
+    val ordersToday = client.orders
+            .filter { it.orderDate == day }
+            .count()
+
     val message = Text.get("suggest-menu") {
         it["menu-description"] = currentMenu.buildDescription()
-    }
+    } + "\n" + if (ordersToday > 0)
+        Text.get("order-amount") {
+            it["amount"] = ordersToday.toString()
+        }
+    else ""
 
     val activeList = active.values.toList()
     val orderDayDisplay = day.dayOfWeek().getAsShortText(LOCALE)
@@ -67,13 +70,24 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
 
         switcherIn(activeToday, menuNum, { it }, { "$WINDOW_MARKER:$dayNum:$it:$clientNum" })
 
-        button(Text["make-order"], "make-order:${currentMenu.id.value}:$day:${client.id.value}")
+        val makeOrderText = if (ordersToday > 0)
+            Text["make-another-order"]
+        else
+            Text["make-order"]
+
+        button(makeOrderText, "make-order:${currentMenu.id.value}:$day:${client.id.value}:$dayNum:$menuNum:$clientNum")
 
         button(Text["cancel-button"], "remove-message")
-    } // TODO Add information about order amount
+    }
 }
 
-val MAKE_ORDER = CallbackProcessor("make-order") { user, src, (menuIdStr, dayStr, clientIdStr) ->
+val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
+        args = listOf("0", "0", "0")) { user, (dayNumStr, menuNumStr, clientNumStr) ->
+
+    suggestMakingOrder(user, dayNumStr, menuNumStr, clientNumStr)
+}
+
+val MAKE_ORDER = CallbackProcessor("make-order") { user, src, (menuIdStr, dayStr, clientIdStr, dayNumStr, menuNumStr, clientNumStr) ->
     val orderDate = LocalDate.parse(dayStr)
 
     val menuId = menuIdStr.toInt()
@@ -97,6 +111,7 @@ val MAKE_ORDER = CallbackProcessor("make-order") { user, src, (menuIdStr, dayStr
 
         client.balance -= menu.cost
 
-        // TODO add message about order
+        WindowContext(this, src, user)
+                .suggestMakingOrder(user, dayNumStr, menuNumStr, clientNumStr)
     }
 }

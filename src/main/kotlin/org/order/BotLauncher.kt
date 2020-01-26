@@ -39,7 +39,8 @@ fun main() {
                 Producers,
                 Relations,
                 Coordinators,
-                Users
+                Users,
+                OrdersCancellations
         )
 
         val user = User.new {

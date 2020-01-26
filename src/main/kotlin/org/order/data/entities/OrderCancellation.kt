@@ -3,13 +3,13 @@ package org.order.data.entities
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
-import org.order.data.tables.OrderCancellations
+import org.order.data.tables.OrdersCancellations
 
 class OrderCancellation(id: EntityID<Int>): IntEntity(id) {
-    companion object: IntEntityClass<OrderCancellation>(OrderCancellations)
+    companion object: IntEntityClass<OrderCancellation>(OrdersCancellations)
 
-    var order by Order referencedOn OrderCancellations.order
+    var order by Order referencedOn OrdersCancellations.order
 
-    var canceled by OrderCancellations.canceled
-    var canceledBy by User referencedOn OrderCancellations.canceledBy
+    var canceled by OrdersCancellations.canceled
+    var canceledBy by User referencedOn OrdersCancellations.canceledBy
 }

@@ -176,7 +176,11 @@
 
 # TODO Предложение заказать меню
 [suggest-menu] [menu-description]
+[order-amount] Заказано: [amount]
+
+# TODO Кнопки отличаются в зависимости от количества заказов
 [make-order] заказать
+[make-another-order] заказать ещё
 
 # TODO сообщение об отсутствии данного меню
 [menu-is-not-available-now] В данный момент это меню недоступно.
@@ -222,32 +226,45 @@
 # TODO Блоки разделены символом \n
 # TODO Смена дня обозначается блоком [history-date] выше
 
-[history:parent:order]
-    [tab]Заказ [menu:name]
-    [space]на [order-date]
-    [space]для [client:name]
-
-[history:parent:payment]
-    [tab]Пополнение счета [client:name]
-    [space]на [amount]
-
-[history:parent:order-cancellation]
-    [tab]Отмена заказа [order:menu:name]
-    [space]для [order:client:name]
-    [space]на [order:order-date]
-
 [history:other:order]
-    [tab]Заказ [menu:name]
+    [tab] [ordered-by]
+    [space]заказал [menu:name]
     [space]на [order-date]
 
 [history:other:payment]
-    [tab]Пополнение счета
+    [tab] [paid-by]
+    [space]пополнил счёт
     [space]на [amount]
 
 [history:other:order-cancellation]
-    [tab]Отмена заказа [order:menu:name]
+    [tab] [canceled-by]
+    [space]отменил заказ [order:menu:name]
     [space]на [order:order-date]
 # -- [История] -- #
+
+# --- Список заказов --- # TODO Список заказов всей школы сгрупированый по дням
+# TODO Корнь списка заказов
+[orders-list] [orders]
+
+# TODO Этим классом обозначаются учителя
+[empty-grade] —
+
+# TODO Информация для построения [orders] из [orders-list] выше
+[grade-display]           **[grade] [[orders-count]]:**
+[menu-display]  [tab] **[menu-name] [[orders-count]]:**
+[user-display]  [tab] [tab] `[user-name]`
+
+[there-were-no-orders-made-yet]
+    На данный момент нет заказов!
+# -- [Список заказов] -- #
+
+# -- [Помощь] -- # TODO Сообщение, которое выводиться после нажатия "Помощь"
+[student-help] Вы ученик.
+[producer-help] Вы работник столовой
+[parent-teacher-help] Вы учитель и родитель
+[parent-help] Вы родитель
+[teacher-help] Вы учитель
+# --- Помощь --- #
 
 # --- Опросы --- #
 [poll]
@@ -283,36 +300,3 @@
 [there-were-no-payments-made-yet]
     Ещё не было сделано не одной операции со счетом!
 # -- [Оплата] -- #
-
-
-
-# -- [Помощь] -- #
-[student-help] Вы ученик.
-[producer-help] Вы работник столовой
-[parent-teacher-help] Вы учитель и родитель
-[parent-help] Вы родитель
-[teacher-help] Вы учитель
-# --- Помощь --- #
-
-
-
-# --- Список заказов --- #
-# Корнь списка заказов
-[orders-list] [orders]
-
-# Этим классом обозначаются учителя
-[empty-grade] —
-
-# Информация для построения [orders] из [orders-list] выше
-[grade-display]           **[grade] [[orders-count]]:**
-[menu-display]  [tab] **[menu-name] [[orders-count]]:**
-[user-display]  [tab] [tab] `[user-name]`
-
-[there-were-no-orders-made-yet]
-    На данный момент нет заказов!
-# -- [Список заказов] -- #
-
-
-
-
-

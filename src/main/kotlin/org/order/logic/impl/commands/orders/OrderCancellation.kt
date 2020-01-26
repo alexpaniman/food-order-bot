@@ -1,7 +1,10 @@
 package org.order.logic.impl.commands.orders
 
 import org.joda.time.DateTime
+import org.joda.time.DateTimeConstants.SATURDAY
+import org.joda.time.DateTimeConstants.SUNDAY
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.order.bot.send.button
 import org.order.bot.send.deactivatableButton
 import org.order.bot.send.row
@@ -14,6 +17,7 @@ import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
+import org.order.logic.impl.commands.LAST_ORDER_TIME
 import org.order.logic.impl.commands.LOCALE
 import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.orZero
@@ -38,15 +42,24 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     // ------------------------------------
 
     // -------- List of Done Orders --------
-    val now = LocalDate.now()
+    val nowDate = LocalDate.now()
+    val nowTime = LocalTime.now()
+
+    val weekStart = when (nowDate.dayOfWeek) {
+        SUNDAY, SATURDAY -> nowDate.plusWeeks(1)
+        else -> nowDate
+    }
 
     val ordersAfterNow = client.orders
             .filter { !it.canceled }
-            .filter { it.orderDate.isAfter(now) }
+            .filter { !it.orderDate.isBefore(nowDate) }
+            .filter {
+                it.orderDate != nowDate || LAST_ORDER_TIME.isAfter(nowTime)
+            }
 
     val ordersWithDate = (1..5)
             .fold(mutableMapOf<LocalDate, MutableList<Order>>()) { map, dayOfWeek ->
-                val day = now.plusDays(dayOfWeek - now.dayOfWeek)
+                val day = weekStart.plusDays(dayOfWeek - weekStart.dayOfWeek)
                 map.apply {
                     computeIfAbsent(day) {
                         mutableListOf()
@@ -68,7 +81,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         row {
             for ((date, orders) in ordersWithDate) {
                 val dateDisplay = date.dayOfWeek().getAsShortText(LOCALE)
-                val joinedOrders = orders.joinToString(":")
+                val joinedOrders = orders.joinToString(":") { it.id.value.toString() }
 
                 deactivatableButton(dateDisplay, "cancel-orders:$date:$joinedOrders") {
                     orders.isNotEmpty()

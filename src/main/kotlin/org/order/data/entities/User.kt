@@ -23,7 +23,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
 
     val orders by Order referrersOn Orders.madeBy
     val payments by Payment referrersOn Payments.madeBy
-    val cancellations by OrderCancellation referrersOn OrderCancellations.canceledBy
+    val cancellations by OrderCancellation referrersOn OrdersCancellations.canceledBy
 
     fun <T : Role> linked(roleClass: RoleClass<T>) = roleClass
             .find { roleClass.userLink eq id }
