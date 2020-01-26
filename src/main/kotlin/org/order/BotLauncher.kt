@@ -27,65 +27,16 @@ fun main() {
     transaction {
         addLogger(StdOutSqlLogger)
         SchemaUtils.create(
-                Teachers,
-                Admins,
-                Clients,
-                Dishes,
-                Grades,
-                Menus,
-                Orders,
-                Parents,
-                Payments,
-                Producers,
-                Relations,
-                Coordinators,
-                Users,
+                Teachers, Admins, Clients, Dishes, Grades,
+                Menus, Orders, Parents, Payments, Producers,
+                Relations, Coordinators, Users,
                 OrdersCancellations
         )
-
-        val user = User.new {
-            this.chat = 505120843
-            this.name = "Паниман Александр"
-            this.valid = true
-            this.state = State.COMMAND
-            this.phone = "+380669362726"
-        }
-
-        val grade = Grade.new {
-            this.name = "10-Ф"
-        }
-
-        Student.new {
-            this.user = user
-            this.grade = grade
-        }
-
-        val client = Client.new {
-            this.user = user
-            this.balance = 0f
-        }
-
-        val menu = Menu.new {
-            this.name = "menu"
-            this.schedule = Schedule.parse("15-02-2019:2")
-            this.cost = 100f
-        }
-
-        Order.new {
-            this.menu = menu
-            this.orderDate = LocalDate.now()
-            this.registered = DateTime.now()
-            this.madeBy = user
-            this.client = client
-        }
-
-        createData() // TODO remove
     }
 
     // Use the default bot options to create sender that the bot will use to execute telegram api methods
     val options = DefaultBotOptions()
     val sender = SenderContext(BOT_TOKEN, options)
-
 
     val bot = FoodOrderBot(sender, BOT_USERNAME, BOT_TOKEN)
 
