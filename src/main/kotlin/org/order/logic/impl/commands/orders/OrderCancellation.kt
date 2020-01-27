@@ -19,6 +19,7 @@ import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
 import org.order.logic.impl.utils.clients
+import org.order.logic.impl.utils.dayOfWeekAsLongText
 import org.order.logic.impl.utils.dayOfWeekAsShortText
 import org.order.logic.impl.utils.orZero
 
@@ -123,7 +124,7 @@ val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->
     }
 
     src.edit(Text.get("successful-order-cancellation") {
-        it["date"] = date.dayOfWeekAsShortText
+        it["date"] = date.dayOfWeekAsLongText.toLowerCase()
         it["amount"] = canceledCount.toString()
     })
     // ------------------------------------

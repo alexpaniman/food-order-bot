@@ -31,7 +31,7 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
             .mapValues { (_, values) ->
                 values.map { (_, menu) ->
                     menu
-                }
+                }.sortedBy { it.name }
             }
             .toSortedMap(compareBy { it })
 
