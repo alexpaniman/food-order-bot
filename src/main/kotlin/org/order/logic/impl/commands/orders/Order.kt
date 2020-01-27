@@ -19,7 +19,7 @@ private val ORDER_WINDOW_TRIGGER = CommandTrigger(Text["order-command"]) and
         StateTrigger(COMMAND) and
         (RoleTrigger(Client) or RoleTrigger(Parent))
 
-private fun WindowContext.suggestMakingOrder (user: User, dayNumStr: String, menuNumStr: String, clientNumStr: String) {
+private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menuNumStr: String, clientNumStr: String) {
     val active = Menu.all()
             .map { menu ->
                 menu.availableList().map { date ->
@@ -46,7 +46,7 @@ private fun WindowContext.suggestMakingOrder (user: User, dayNumStr: String, men
     val client = clients[clientNum]
 
     val ordersToday = client.orders
-            .filter { it.orderDate == day }
+            .filter { it.orderDate == day && !it.canceled }
             .count()
 
     val message = Text.get("suggest-menu") {
@@ -66,7 +66,11 @@ private fun WindowContext.suggestMakingOrder (user: User, dayNumStr: String, men
 
         switcherIn(activeList, dayNum, { orderDayDisplay }, { "$WINDOW_MARKER:$it:$menuNum:$clientNum" })
 
-        switcherIn(activeToday, menuNum, { it }, { "$WINDOW_MARKER:$dayNum:$it:$clientNum" })
+        switcherIn(activeToday, menuNum, { num ->
+            Text.get("menu-label") {
+                it["name"] = activeToday[num].name
+            }
+        }, { "$WINDOW_MARKER:$dayNum:$it:$clientNum" })
 
         val makeOrderText = if (ordersToday > 0)
             Text["make-another-order"]

@@ -184,6 +184,8 @@
 [suggest-menu] [menu-description]
 [order-amount] *Заказано:* `[amount]`
 
+[menu-label] Меню [name]
+
 # TODO Кнопки отличаются в зависимости от количества заказов
 [make-order] заказать
 [make-another-order] заказать ещё
@@ -213,7 +215,7 @@
 
 # --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
 [my-orders-list:day-of-week]
-    [tab]*[name]:*
+    [space]   *[name]:*
 [my-orders-list:order]
     [description]
 [my-orders-list:list]
@@ -226,31 +228,31 @@
     На данный момент ваша история пуста!
 
 [history-balance]
-    [tab][tab]*Баланс*`[delta]` = `[balance]`
+    [space]       *Баланс*`[delta]` = `[balance]`
 
 [history]
     *История ваших действий:*[br]
     [actions]
 
-[history-date] [space]  *[date]*:
+[history-date] [space]   *[date]*:
 
 # TODO Каждый блок отражает одно действие в истории
 # TODO Блоки разделены символом \n
 # TODO Смена дня обозначается блоком [history-date] выше
 
 [history:order]
-    [tab][tab]*([ordered-by])*[br]
-    [tab][tab]Заказать меню [menu:name]
+    [space]       *([ordered-by])*[br]
+    [space]       Заказать меню [menu:name]
     [space]на `[order-date]`
 
 [history:payment]
-    [tab][tab]*([paid-by])*[br]
-    [tab][tab]Пополнить счёт
+    [space]       *([paid-by])*[br]
+    [space]       Пополнить счёт
     [space]на `[amount]`
 
 [history:order-cancellation]
-    [tab][tab]*([canceled-by])*[br]
-    [tab][tab]Отменить меню [order:menu:name]
+    [space]       ([canceled-by])*[br]
+    [space]       Отменить меню [order:menu:name]
     [space]на `[order:order-date]`
 # -- [История] -- #
 
@@ -262,9 +264,9 @@
 [empty-grade] —
 
 # TODO Информация для построения [orders] из [orders-list] выше
-[grade-display]           *[grade] [[orders-count]]:*
-[menu-display]  [tab] *Меню [menu-name] [[orders-count]]:*
-[user-display]  [tab] [tab] `[user-name]`
+[grade-display] *[grade] [[orders-count]]:*
+[menu-display]  [space]   *Меню [menu-name] [[orders-count]]:*
+[user-display]  [space]       `[user-name]`
 
 [there-were-no-orders-made-yet]
     На данный момент нет заказов!
