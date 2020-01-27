@@ -151,6 +151,9 @@ fun SendMessage.mainKeyboard() = reply {
         button(Text["orders-list-command"])
         button(Text["my-orders-command"])
     }
+    row {
+        button(Text["history-command"])
+    }
 //                    row {
 //                        button(Text["pay-command"])
 //                        button(Text["payments-list-command"])

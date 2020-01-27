@@ -11,7 +11,6 @@ import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
-import org.order.logic.impl.commands.LOCALE
 import org.order.logic.impl.utils.*
 
 private const val WINDOW_MARKER = "order-window"
@@ -59,7 +58,7 @@ private fun WindowContext.suggestMakingOrder (user: User, dayNumStr: String, men
     else ""
 
     val activeList = active.values.toList()
-    val orderDayDisplay = day.dayOfWeek().getAsShortText(LOCALE)
+    val orderDayDisplay = day.dayOfWeekAsShortText
 
     show(message) {
         if (user.hasLinked(Parent))

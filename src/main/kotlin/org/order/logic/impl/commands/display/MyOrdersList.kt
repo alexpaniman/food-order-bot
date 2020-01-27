@@ -1,18 +1,23 @@
 package org.order.logic.impl.commands.display
 
 import org.order.bot.send.button
+import org.order.data.entities.Client
+import org.order.data.entities.Parent
 import org.order.data.entities.State.COMMAND
-import org.order.logic.commands.triggers.CommandTrigger
-import org.order.logic.commands.triggers.StateTrigger
-import org.order.logic.commands.triggers.and
+import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.clients
-import org.order.logic.impl.utils.dayOfWeekAsText
+import org.order.logic.impl.utils.dayOfWeekAsLongText
+import org.order.logic.impl.utils.dayOfWeekAsShortText
 
 private const val WINDOW_MARKER = "my-orders-list-window"
 
-private val MY_ORDERS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["my-orders-command"]) and StateTrigger(COMMAND)
+private val MY_ORDERS_LIST_WINDOW_TRIGGER =
+        CommandTrigger(Text["my-orders-command"]) and
+                StateTrigger(COMMAND) and
+                (RoleTrigger(Client) or RoleTrigger(Parent))
+
 val MY_ORDERS_LIST_WINDOW = Window(
         WINDOW_MARKER,
         MY_ORDERS_LIST_WINDOW_TRIGGER,
@@ -28,18 +33,18 @@ val MY_ORDERS_LIST_WINDOW = Window(
     val ordersGroupedByDay = orders
             .groupBy { order -> order.orderDate }
 
-    val ordersDisplay = buildString {
-        for ((day, byDay) in ordersGroupedByDay) {
-            appendln(Text.get("my-orders-list:day-of-week") {
-                it["name"] = day.dayOfWeekAsText
-            })
-
-            for (order in byDay)
-                appendln(Text.get("my-orders-list:order") {
-                    it["description"] = order.menu.buildDescription()
-                })
-        }
-    }
+    val ordersDisplay = ordersGroupedByDay.toList()
+            .joinToString("\n\n") { (day, byDay) ->
+                Text.get("my-orders-list:day-of-week") {
+                    it["name"] = day.dayOfWeekAsLongText
+                } + "\n" +
+                        byDay.joinToString("\n\n") { order ->
+                            Text.get("my-orders-list:order") {
+                                it["description"] = order.menu.buildDescription().lines()
+                                        .joinToString("\n") { line -> "\t\t$line" }
+                            }
+                        }
+            }
 
     val message = Text.get("my-orders-list:list") {
         it["orders"] = ordersDisplay
