@@ -40,7 +40,7 @@ fun ReplyKeyboardMarkup.row(init: KeyboardRow.() -> Unit) {
     keyboard.last().apply(init)
 }
 
-fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) {
+fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = ":" + System.nanoTime(), init: InlineKeyboardButton.() -> Unit = {}) {
     this += InlineKeyboardButton(text).apply {
         this.callbackData = callback // TODO replace with text with key
     }.apply(init)

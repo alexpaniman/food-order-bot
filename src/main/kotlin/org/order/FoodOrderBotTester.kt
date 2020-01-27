@@ -129,13 +129,13 @@ class FoodOrderBotTester {
                     .max() ?: 1
 
             row {
-                val coloredText = text.replace("([*_]{2}|```|`).*?\\1".toRegex()) {
+                val coloredText = text.replace("([*_]|```|`).*?\\1".toRegex()) {
                     it.value.run {
                         when {
                             startsWith("```") -> cut(3).code()
                             startsWith('`')    -> cut(1).code()
-                            startsWith("**")  -> cut(2).bold()
-                            startsWith("__")  -> cut(2).italic()
+                            startsWith('*')  -> cut(1).bold()
+                            startsWith('_')  -> cut(1).italic()
 
                             else -> error("")
                         }

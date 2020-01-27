@@ -176,13 +176,13 @@
 
 # TODO описание меню, используется для предложения заказать еду
 [menu-description]
-    Меню [name] [br]
+    *Меню [name]* [br]
     [dishes] [br]
-    Цена: [cost] грн.
+    *Цена:* `[cost]` грн.
 
 # TODO Предложение заказать меню
 [suggest-menu] [menu-description]
-[order-amount] Заказано: [amount]
+[order-amount] *Заказано:* `[amount]`
 
 # TODO Кнопки отличаются в зависимости от количества заказов
 [make-order] заказать
@@ -213,11 +213,11 @@
 
 # --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
 [my-orders-list:day-of-week]
-    [tab] **[name]:**
+    [tab] *[name]:*
 [my-orders-list:order]
     [description]
 [my-orders-list:list]
-    **Список ваших заказов на этой неделе:**[br]
+    *Список ваших заказов на этой неделе:*[br]
     [orders]
 # -- [Список моих заказов] -- #
 
@@ -226,13 +226,13 @@
     На данный момент ваша история пуста!
 
 [history-balance]
-    [tab][tab]**Баланс**`[delta]` = `[balance]`
+    [tab][tab]*Баланс*`[delta]` = `[balance]`
 
 [history]
-    **История ваших действий:**[br]
+    *История ваших действий:*[br]
     [actions]
 
-[history-date] [tab] **[date]**:
+[history-date] [tab] *[date]*:
 
 # TODO Каждый блок отражает одно действие в истории
 # TODO Блоки разделены символом \n
@@ -262,8 +262,8 @@
 [empty-grade] —
 
 # TODO Информация для построения [orders] из [orders-list] выше
-[grade-display]           **[grade] [[orders-count]]:**
-[menu-display]  [tab] **[menu-name] [[orders-count]]:**
+[grade-display]           *[grade] [[orders-count]]:*
+[menu-display]  [tab] *[menu-name] [[orders-count]]:*
 [user-display]  [tab] [tab] `[user-name]`
 
 [there-were-no-orders-made-yet]
