@@ -202,7 +202,7 @@
     Заказы в этот день уже были отменены!
 
 [successful-order-cancellation]
-    В [date] [amount] заказов были успешно отменены.
+    Заказы в [date] ([amount] шт.) были успешно отменены.
 # -- [Отмены заказов] -- #
 
 # --- Список платежей --- # TODO Список изменений баланса (заказ — -, оплата — +)
@@ -251,7 +251,7 @@
     [space]на `[amount]`
 
 [history:order-cancellation]
-    [space]       ([canceled-by])*[br]
+    [space]       *([canceled-by])*[br]
     [space]       Отменить меню [order:menu:name]
     [space]на `[order:order-date]`
 # -- [История] -- #
