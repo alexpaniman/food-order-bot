@@ -44,7 +44,7 @@ val HISTORY_WINDOW = Window(WINDOW_MARKER, HISTORY_WINDOW_TRIGGER,
                     it["order-date"] = order.orderDate.toString()
                 }
 
-                HistoryAction(order.registered, - order.menu.cost, description)
+                HistoryAction(order.registered, -order.menu.cost, description)
             }
 
     val payments = client.payments.map { payment ->
@@ -74,7 +74,7 @@ val HISTORY_WINDOW = Window(WINDOW_MARKER, HISTORY_WINDOW_TRIGGER,
 
     val allActions = (orders + payments + cancellations)
             .groupBy { it.time.toLocalDate() }
-            .mapValues {(_, action) ->
+            .mapValues { (_, action) ->
                 action.sortedBy { it.time }
             }
 
@@ -83,13 +83,14 @@ val HISTORY_WINDOW = Window(WINDOW_MARKER, HISTORY_WINDOW_TRIGGER,
             .joinToString("\n\n\n") { (date, actions) ->
                 Text.get("history-date") {
                     it["date"] = date!!.toString("yyyy-MM-dd")
-                } + "\n" + actions.joinToString("\n\n") { action ->
-                    action.description + "\n" + Text.get("history-balance") {
-                        balance += action.balanceChange
-                        it["balance"] = balance.toString()
-                        it["delta"] = (if (action.balanceChange >= 0) " + " else " - ") +
-                                action.balanceChange.absoluteValue.toString()
-                    }
+                } + "\n " + actions.joinToString("\n\n ") { action ->
+                    action.description.lines().joinToString("\n ") + "\n " +
+                            Text.get("history-balance") {
+                                balance += action.balanceChange
+                                it["balance"] = balance.toString()
+                                it["delta"] = (if (action.balanceChange >= 0) " + " else " - ") +
+                                        action.balanceChange.absoluteValue.toString()
+                            }
                 }
             }
 
