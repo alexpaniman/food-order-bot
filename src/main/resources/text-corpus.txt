@@ -263,7 +263,7 @@
 
 # TODO Информация для построения [orders] из [orders-list] выше
 [grade-display]           *[grade] [[orders-count]]:*
-[menu-display]  [tab] *[menu-name] [[orders-count]]:*
+[menu-display]  [tab] *Меню [menu-name] [[orders-count]]:*
 [user-display]  [tab] [tab] `[user-name]`
 
 [there-were-no-orders-made-yet]
