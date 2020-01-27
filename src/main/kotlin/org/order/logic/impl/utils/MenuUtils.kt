@@ -1,6 +1,7 @@
 package org.order.logic.impl.utils
 
 import org.joda.time.DateTimeConstants.*
+import org.joda.time.Days
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.joda.time.Period
@@ -22,7 +23,7 @@ class Schedule(private val start: LocalDate, private val step: Int) {
     }
 
     fun isAvailable(date: LocalDate) =
-            Period.fieldDifference(start, date).days % step == 0
+            Days.daysBetween(start, date).days % step == 0
 
     override fun toString() = "$start:$step"
 }

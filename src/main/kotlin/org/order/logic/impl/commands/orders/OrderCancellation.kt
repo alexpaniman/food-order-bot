@@ -18,8 +18,8 @@ import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
-import org.order.logic.impl.commands.LOCALE
 import org.order.logic.impl.utils.clients
+import org.order.logic.impl.utils.dayOfWeekAsShortText
 import org.order.logic.impl.utils.orZero
 
 private const val WINDOW_MARKER = "order-cancellation-window"
@@ -80,7 +80,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         // ----- List with Days of Week When the Order Was Ordered -----
         row {
             for ((date, orders) in ordersWithDate) {
-                val dateDisplay = date.dayOfWeek().getAsShortText(LOCALE)
+                val dateDisplay = date.dayOfWeekAsShortText
                 val joinedOrders = orders.joinToString(":") { it.id.value.toString() }
 
                 deactivatableButton(dateDisplay, "cancel-orders:$date:$joinedOrders") {
@@ -123,7 +123,7 @@ val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->
     }
 
     src.edit(Text.get("successful-order-cancellation") {
-        it["date"] = date.dayOfWeek().getAsShortText(LOCALE)
+        it["date"] = date.dayOfWeekAsShortText
         it["amount"] = canceledCount.toString()
     })
     // ------------------------------------

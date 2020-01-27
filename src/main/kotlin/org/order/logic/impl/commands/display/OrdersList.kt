@@ -5,18 +5,21 @@ import org.joda.time.LocalDate
 import org.order.bot.send.button
 import org.order.bot.send.deactivatableKeyButton
 import org.order.bot.send.row
+import org.order.data.entities.Client
 import org.order.data.entities.Order
+import org.order.data.entities.Parent
 import org.order.data.entities.State.COMMAND
 import org.order.data.entities.Student
 import org.order.data.tables.Orders
-import org.order.logic.commands.triggers.CommandTrigger
-import org.order.logic.commands.triggers.StateTrigger
-import org.order.logic.commands.triggers.and
+import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
-import org.order.logic.impl.commands.LOCALE
+import org.order.logic.impl.utils.dayOfWeekAsShortText
 
-private val ORDERS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["orders-list-command"]) and StateTrigger(COMMAND)
+private val ORDERS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["orders-list-command"]) and
+        StateTrigger(COMMAND) and
+        (RoleTrigger(Client) or RoleTrigger(Parent))
+
 val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER,
         args = listOf("0")) { user, (dayNumStr) ->
     val now = LocalDate.now()
@@ -68,7 +71,7 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
 
                 for (order in byMenu)
                     appendln(Text.get("user-display") {
-                        it["user-name"] = order.madeBy.name!!
+                        it["user-name"] = order.client.user.name!!
                     })
             }
         }
@@ -87,7 +90,7 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
                 dayNum - 1 >= 0
             }
 
-            button(chosenDate.dayOfWeek().getAsShortText(LOCALE))
+            button(chosenDate.dayOfWeekAsShortText)
 
             deactivatableKeyButton("next-button", "orders-list-window:${dayNum + 1}") {
                 dayNum + 1 < days.size

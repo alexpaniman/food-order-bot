@@ -10,7 +10,7 @@ inline 1
 chchat 7
 echo#last
 mkchat 8
-------------
+--------------
 Яков Паниман
 +380669362726
 родитель
@@ -20,3 +20,28 @@ mkchat 8
 подтвердить
 chchat 0
 inline 1
+chchat 8
+заказать обед
+inline 3
+inline 3
+inline 1 2
+inline 3
+setTime 2020-01-29 8:00
+заказать обед
+inline 1 2
+inline 1 2
+inline 1 2
+inline 3
+inline 3
+отменить заказ
+inline 1 2
+история
+chchat 7
+заказать обед
+inline 0 2
+inline 0 2
+inline 2
+отменить заказ
+inline 0 4
+история
+setTime

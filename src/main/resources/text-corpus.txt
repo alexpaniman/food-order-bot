@@ -176,9 +176,9 @@
 
 # TODO описание меню, используется для предложения заказать еду
 [menu-description]
-    Меню [name] [br] [br]
-    [dishes] [br] [br]
-    Цена: [cost]
+    Меню [name] [br]
+    [dishes] [br]
+    Цена: [cost] грн.
 
 # TODO Предложение заказать меню
 [suggest-menu] [menu-description]
@@ -213,39 +213,45 @@
 
 # --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
 [my-orders-list:day-of-week]
-    **В [name]:**
+    [tab] **[name]:**
 [my-orders-list:order]
-    [tab][description]
+    [description]
 [my-orders-list:list]
     **Список ваших заказов на этой неделе:**[br]
     [orders]
 # -- [Список моих заказов] -- #
 
 # --- История --- # TODO Список всех действий человека
+[history-empty]
+    На данный момент ваша история пуста!
+
+[history-balance]
+    [tab][tab]**Баланс**`[delta]` = `[balance]`
+
 [history]
-    История ваших действий:[br]
+    **История ваших действий:**[br]
     [actions]
 
-[history-date] [date]
+[history-date] [tab] **[date]**:
 
 # TODO Каждый блок отражает одно действие в истории
 # TODO Блоки разделены символом \n
 # TODO Смена дня обозначается блоком [history-date] выше
 
-[history:other:order]
-    [tab] [ordered-by]
-    [space]заказал [menu:name]
-    [space]на [order-date]
+[history:order]
+    [tab][tab][[ordered-by]][br]
+    [tab][tab]Заказать меню [menu:name]
+    [space]на `[order-date]`
 
-[history:other:payment]
-    [tab] [paid-by]
-    [space]пополнил счёт
-    [space]на [amount]
+[history:payment]
+    [tab][tab][[paid-by]][br]
+    [tab][tab]Пополнить счёт
+    [space]на `[amount]`
 
-[history:other:order-cancellation]
-    [tab] [canceled-by]
-    [space]отменил заказ [order:menu:name]
-    [space]на [order:order-date]
+[history:order-cancellation]
+    [tab][tab][[canceled-by]][br]
+    [tab][tab]Отменить меню [order:menu:name]
+    [space]на `[order:order-date]`
 # -- [История] -- #
 
 # --- Список заказов --- # TODO Список заказов всей школы сгрупированый по дням
