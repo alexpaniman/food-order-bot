@@ -83,8 +83,8 @@ val HISTORY_WINDOW = Window(WINDOW_MARKER, HISTORY_WINDOW_TRIGGER,
             .joinToString("\n\n\n") { (date, actions) ->
                 Text.get("history-date") {
                     it["date"] = date!!.toString("yyyy-MM-dd")
-                } + "\n " + actions.joinToString("\n\n ") { action ->
-                    action.description.lines().joinToString("\n ") + "\n " +
+                } + "\n     " + actions.joinToString("\n\n     ") { action ->
+                    action.description.lines().joinToString("\n     ") + "\n     " +
                             Text.get("history-balance") {
                                 balance += action.balanceChange
                                 it["balance"] = balance.toString()

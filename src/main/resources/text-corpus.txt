@@ -213,7 +213,7 @@
 
 # --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
 [my-orders-list:day-of-week]
-    [tab] *[name]:*
+    [tab]*[name]:*
 [my-orders-list:order]
     [description]
 [my-orders-list:list]
@@ -232,24 +232,24 @@
     *История ваших действий:*[br]
     [actions]
 
-[history-date] [tab] *[date]*:
+[history-date] [space]  *[date]*:
 
 # TODO Каждый блок отражает одно действие в истории
 # TODO Блоки разделены символом \n
 # TODO Смена дня обозначается блоком [history-date] выше
 
 [history:order]
-    [tab][tab][[ordered-by]][br]
+    [tab][tab]*([ordered-by])*[br]
     [tab][tab]Заказать меню [menu:name]
     [space]на `[order-date]`
 
 [history:payment]
-    [tab][tab][[paid-by]][br]
+    [tab][tab]*([paid-by])*[br]
     [tab][tab]Пополнить счёт
     [space]на `[amount]`
 
 [history:order-cancellation]
-    [tab][tab][[canceled-by]][br]
+    [tab][tab]*([canceled-by])*[br]
     [tab][tab]Отменить меню [order:menu:name]
     [space]на `[order:order-date]`
 # -- [История] -- #
