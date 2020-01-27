@@ -37,12 +37,11 @@ val MY_ORDERS_LIST_WINDOW = Window(
             .joinToString("\n\n") { (day, byDay) ->
                 Text.get("my-orders-list:day-of-week") {
                     it["name"] = day.dayOfWeekAsLongText
-                } + "\n     " +
-                        byDay.joinToString("\n\n     ") { order ->
+                } + "\n        " +
+                        byDay.joinToString("\n\n        ") { order ->
                             Text.get("my-orders-list:order") {
-                                it["description"] = order.menu.buildDescription().lines()
-                                        .joinToString("\n     ")
-                            }
+                                it["description"] = order.menu.buildDescription()
+                            }.lines().joinToString("\n        ")
                         }
             }
 
