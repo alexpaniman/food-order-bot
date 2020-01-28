@@ -62,17 +62,17 @@ class User(id: EntityID<Int>) : IntEntity(id) {
 
     private fun unlinkParent() {
         val parent = linkedOrNull(Parent) ?: return
-        for (children in parent.children)
-            if (children.user.state == IMAGINE) {
+        for (child in parent.children)
+            if (child.user.state == IMAGINE) {
                 val links = Relations.select {
-                    Relations.child eq children.id
+                    Relations.child eq child.id
                 }.count()
 
                 if (links == 1) { // This user was created by this parent
                     Relations.deleteWhere { // Unlink this child
-                        Relations.child eq children.id
+                        Relations.child eq child.id
                     }
-                    children.delete()
+                    child.user.safeDelete()
                 }
             }
 
