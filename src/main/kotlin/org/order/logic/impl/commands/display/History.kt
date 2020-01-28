@@ -2,7 +2,6 @@ package org.order.logic.impl.commands.display
 
 import org.joda.time.DateTime
 import org.order.bot.send.button
-import org.order.bot.send.switcherIn
 import org.order.data.entities.Client
 import org.order.data.entities.OrderCancellation
 import org.order.data.entities.Parent
@@ -14,6 +13,7 @@ import org.order.logic.commands.triggers.or
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.clients
+import org.order.logic.impl.utils.orZero
 import kotlin.math.absoluteValue
 
 private const val WINDOW_MARKER = "history-window"
@@ -103,7 +103,7 @@ val HISTORY_WINDOW = Window(WINDOW_MARKER, HISTORY_WINDOW_TRIGGER,
 
     show(message) {
         if (user.hasLinked(Parent))
-            switcherIn(clients, clientNum, { clients[it].user.name!! }, { "$WINDOW_MARKER:$it" })
+            button(client.user.name!!, "$WINDOW_MARKER:${(clientNum + 1).orZero(clients.indices)}")
 
         button(Text["update-button"], "$WINDOW_MARKER:$clientNum")
 

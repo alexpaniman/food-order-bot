@@ -12,6 +12,7 @@ import org.order.logic.commands.triggers.and
 import org.order.logic.commands.triggers.or
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.orZero
 
 private const val WINDOW_MARKER = "payments-list-window"
 
@@ -97,7 +98,7 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
         if (children.isNotEmpty())
             button(
                     client.user.name!!,
-                    "$WINDOW_MARKER:$monthNum:${(clientNum + 1).coerceIn(clients.indices)}"
+                    "$WINDOW_MARKER:$monthNum:${(clientNum + 1).orZero(clients.indices)}"
             )
         // -------------------------------------------------------------
 
