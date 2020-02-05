@@ -20,7 +20,7 @@ class SuccessfulPaymentProcessor(private val marker: String,
                     .substringAfter(':')
                     .split(':')
 
-            // TODO let bot make sure that it's right payment
+            // TODO let bot make sure it's right payment
             process(user, telegramId, providerId, args)
             return true
         }

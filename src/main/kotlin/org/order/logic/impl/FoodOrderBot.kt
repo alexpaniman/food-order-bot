@@ -59,18 +59,18 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         // --------------------------
 
         // ----- Client Payment -----
-        // this += CLIENT_PAYMENT
+        this += CLIENT_PAYMENT
         // --------------------------
 
         // ----- Parent Payment -----
-        // this += PARENT_PAYMENT
-        // this += UPDATE_PARENT_PAYMENT_WINDOW
-        // this += CANCEL_PARENT_PAYMENT
+         this += PARENT_PAYMENT
+         this += UPDATE_PARENT_PAYMENT_WINDOW
+         this += CANCEL_PARENT_PAYMENT
         // --------------------------
 
         // - Another Payments Stuff -
-        // this += PAYMENT_CONFIRMATION
-        // this += PROCESS_SUCCESSFUL_PAYMENT
+         this += PAYMENT_CONFIRMATION
+         this += PROCESS_SUCCESSFUL_PAYMENT
         // --------------------------
 
         // --------- Display ---------

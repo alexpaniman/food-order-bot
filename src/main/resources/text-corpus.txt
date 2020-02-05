@@ -210,7 +210,7 @@
 
 # TODO Информация для построения [payments] из [payments-list] выше
 [payment-display] [date] : [amount]
-[payments-date-format] dd-MM-yyyy
+[payments-date-format] dd-MM-yyyy`
 # -- [Список платежей] -- #
 
 # --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
@@ -280,20 +280,7 @@
 [teacher-help] Вы учитель.
 # --- Помощь --- #
 
-# --- Опросы --- #
-[poll]
-    Вы заказывали меню [order:menu:name]
-    [space]на сегодня, [order:order-date].[br]
-    Оцените его:
-
-[poll-unfilled-star] ☆
-[poll-filled-star] ★
-# -- [Опросы] -- #
-
-# TODO ...
-
-
-# --- Оплата --- #
+# --- Оплата --- # TODO Окно пополения счета
 [ask-payment-amount]
     Ваш баланс: [balance] [br]
     Сколько вы хотите оплатить?
@@ -314,3 +301,15 @@
 [there-were-no-payments-made-yet]
     Ещё не было сделано ни одной операции со счетом!
 # -- [Оплата] -- #
+
+# --- Опросы --- #
+[poll]
+    Вы заказывали меню [order:menu:name]
+    [space]на сегодня, [order:order-date].[br]
+    Оцените его:
+
+[poll-unfilled-star] ☆
+[poll-filled-star] ★
+# -- [Опросы] -- #
+
+# TODO ...

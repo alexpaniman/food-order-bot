@@ -24,7 +24,7 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
             reply {
                 if (balance < 0)
                     button(Text["pay-a-debt"])
-                button(Text["cancel-payment"])
+                button(Text["cancel-button"])
             }
         }
     }
@@ -32,7 +32,7 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
     override fun SenderContext.receive(user: User, update: Update): Boolean {
         val answer = update.message?.text
 
-        if (answer == Text["cancel-payment"]) {
+        if (answer == Text["cancel-button"]) {
             user.send(Text["successful-payment-cancellation"])
             user.state = COMMAND
             return true
@@ -64,6 +64,7 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
                 },
                 "account-replenishment:${unfinishedPayment.id.value}"
         )
+        user.state = COMMAND
         return true
     }
 }
