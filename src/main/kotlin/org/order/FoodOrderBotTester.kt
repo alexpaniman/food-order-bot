@@ -18,12 +18,14 @@ import org.order.bot.send.SenderContext
 import org.order.data.entities.*
 import org.order.data.tables.*
 import org.order.logic.impl.FoodOrderBot
+import org.order.logic.impl.commands.CURRENCY
 import org.order.logic.impl.commands.DATABASE_DRIVER
 import org.order.logic.impl.commands.JDBC_DATABASE_URL
 import org.order.logic.impl.utils.Schedule
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
+import org.telegram.telegrambots.meta.api.objects.payments.PreCheckoutQuery
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
@@ -31,6 +33,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import java.io.File
 import java.lang.Thread.sleep
 import org.telegram.telegrambots.meta.api.objects.Message as TMessage
+
+const val PRE_TEST_SCRIPT = "src/main/resources/pre-test.bt"
 
 @Suppress("unused", "SameParameterValue")
 
@@ -244,9 +248,35 @@ class FoodOrderBotTester {
             chats[chatId]!!.removeAt(messageId)
 
             if (displayMessages && active == chatId)
-                print("Message [$messageId] in chat [$chatId] was deleted!")
+                println("\nMessage [$messageId] in chat [$chatId] was deleted!")
 
             true
+        }
+
+        every { any<User>().sendInvoice(any(), any(), any(), any()) } answers {
+            val user: User = arg(0)
+            val title: String = arg(1)
+            val amount: Float = arg(2)
+            val description: String = arg(3)
+            val payload: String = arg(4)
+
+            val payButton = InlineButton("PAY $amount", "payload: $payload")
+            val keyboard = Inline(
+                    listOf(listOf(payButton))
+            )
+
+            val message = Message(user.chat!!, "*$title*\n\n$description", keyboard)
+
+            chats.computeIfAbsent(user.chat!!) {
+                QueueList()
+            } += message.apply {
+                if (displayMessages && active == message.chatId)
+                    println("\nMessage [${message.chatId}] in active chat [$active]:\n" + this.asString())
+            }
+        }
+
+        every { answerPreCheckoutQuery(any(), any(), any()) } answers {
+            println("\nPreCheckoutQuery was answered! ID: ${arg<String>(0)}, OK: ${arg<Boolean>(1)}, Error: ${arg<String?>(2)}")
         }
     }
 
@@ -258,6 +288,43 @@ class FoodOrderBotTester {
             every { message.from.id } returns this@sendText
 
             every { message.successfulPayment } returns null
+            every { callbackQuery } returns null
+            every { preCheckoutQuery } returns null
+        }
+
+        bot.onUpdateReceived(update)
+    }
+
+    private fun Int.sendPreCheckoutQuery(id: String, amount: Float, payload: String) {
+        val preCheckoutQuery = mockk<PreCheckoutQuery> {
+            every { from.id } returns this@sendPreCheckoutQuery
+
+            every { this@mockk.id } returns id
+            every { currency } returns CURRENCY
+            every { totalAmount } returns (amount * 100).toInt()
+            every { invoicePayload } returns payload
+        }
+
+        val update = mockk<Update> {
+            every { this@mockk.preCheckoutQuery } returns preCheckoutQuery
+
+            every { message } returns null
+            every { callbackQuery } returns null
+        }
+
+        bot.onUpdateReceived(update)
+    }
+
+    private fun Int.sendSuccessfulPayment(payload: String, telegramId: String, providerId: String) {
+        val update = mockk<Update> {
+            every { message.successfulPayment } returns mockk {
+                every { invoicePayload } returns payload
+                every { telegramPaymentChargeId } returns telegramId
+                every { providerPaymentChargeId } returns providerId
+            }
+
+            every { message.from.id } returns this@sendSuccessfulPayment
+            every { message.text } returns null
             every { callbackQuery } returns null
             every { preCheckoutQuery } returns null
         }
@@ -300,40 +367,40 @@ class FoodOrderBotTester {
         "list" -> chats.keys.joinToString(" ")
         "mkchat" -> when (val chatId = args[0].toIntOrNull()) {
             null -> "ChatId isn't specified!"
-            in chats -> "Chat [$chatId] already exists!"
+            in chats -> "Chat [id = $chatId] already exists!"
             else -> {
                 chats[chatId] = QueueList()
                 active = chatId
-                "Chat [$chatId] was created and set as active."
+                "Chat [id = $chatId] was created and set as active."
             }
         }
         "rmchat" -> {
             val chatId = args[0].toIntOrNull()
             if (chatId !in chats)
-                "Chat [$chatId] already doesn't exist!"
+                "Chat [id = $chatId] already doesn't exist!"
             else {
                 chats.remove(chatId)
-                "Chat [$chatId] was deleted."
+                "Chat [id = $chatId] was deleted."
             }
         }
         "chchat" -> {
             val chatId = args[0].toIntOrNull()
             if (chatId !in chats)
-                "Chat [$chatId] doesn't exist!"
+                "Chat [id = $chatId] doesn't exist!"
             else {
                 active = chatId
-                "Chat [$chatId] was set as active."
+                "Chat [id = $chatId] was set as active."
             }
         }
         "last" -> activeChat { chat ->
             val messageId = -(args.getOrNull(0)?.toInt() ?: 1)
-            "Message [${chat.lastIndex + messageId + 1}] in active chat [$active]:\n" +
+            "Message [messageId = ${chat.lastIndex + messageId + 1}] in the active chat [$active]:\n" +
                     chat[messageId].asString()
         }
         "display" -> activeChat { chat ->
             buildString {
                 for (messageId in chat.indices) {
-                    appendln("Message [$messageId] in active chat [$active]:")
+                    appendln("Message [messageId = $messageId] in the active chat [$active]:")
                     appendln(chat[messageId].asString())
                     appendln()
                 }
@@ -365,12 +432,12 @@ class FoodOrderBotTester {
 
             val messageId = args.getOrNull(2)?.toIntOrNull() ?: 0
             messages[messageId][pos.first][pos.second].answer()
-            "Button at [row = ${pos.first}, column = ${pos.second}] in $messageId last message with inline was clicked."
+            "Button at [row = ${pos.first}, column = ${pos.second}] in the message [messageId = $messageId] in the active chat [id = $active] was clicked."
         }
         "sendText" -> activeChat {
             if (args.isNotEmpty()) {
                 active!!.sendText(args.joinToString(" "))
-                "Message sent to active chat [$active]."
+                "Message sent to the active chat [id = $active]."
             }
             else {
                 val builder = StringBuilder()
@@ -384,13 +451,13 @@ class FoodOrderBotTester {
                 }
                 val text = builder.trim().toString()
                 active!!.sendText(text)
-                "Message sent to active chat [$active]."
+                "Message sent to the active chat [id = $active]."
             }
         }
         "setTime" -> {
             if (args.isEmpty()) {
                 unmockkStatic(LocalDate::class, DateTime::class, LocalTime::class)
-                "Time line restored!"
+                "Time line restored. Now [time = ${DateTime.now()}]."
             }
             else {
                 val time = DateTime.parse(
@@ -405,9 +472,25 @@ class FoodOrderBotTester {
                 every { DateTime.now() } answers { newTime() }
                 every { LocalDate.now() } answers { newTime().toLocalDate() }
                 every { LocalTime.now() } answers { newTime().toLocalTime() }
-                "Current time was shifted to ${newTime()}"
+                "Current time was shifted to [time = ${newTime()}]."
             }
 
+        }
+        "pay" -> activeChat {
+            val id = args[0]
+            val amount = args[1].toFloat()
+            val payload = args[2]
+
+            active!!.sendPreCheckoutQuery(id, amount, payload)
+            "PreCheckoutQuery [id = $id, amount = $amount, payload = $payload] sent to the active chat [id = $active]."
+        }
+        "successful" -> activeChat {
+            val payload = args[0]
+            val telegramId = args[1]
+            val providerId = args[2]
+
+            active!!.sendSuccessfulPayment(payload, telegramId, providerId)
+            "SuccessfulPayment [payload = $payload, telegramId = $telegramId, providerId = $providerId] was sent to the chat [id = $it]."
         }
         else -> {
             val builder = StringBuilder((listOf(name) + args).joinToString(" "))
@@ -421,7 +504,7 @@ class FoodOrderBotTester {
             }
             val text = builder.trim().toString()
             active!!.sendText(text)
-            "Message sent to active chat [$active]."
+            "Message sent to the active chat [id = $active]."
         }
     }
 
@@ -465,8 +548,6 @@ class FoodOrderBotTester {
         }
     }
 }
-
-const val PRE_TEST_SCRIPT = "src/main/resources/pre-test.bt"
 
 private fun createMenu(name: String, cost: Float, schedule: String, vararg dishes: String) {
     val menu = Menu.new {
