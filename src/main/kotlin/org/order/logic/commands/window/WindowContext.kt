@@ -14,4 +14,8 @@ class WindowContext(private val senderContext: SenderContext,
             senderContext.run {
                 message?.edit(text, markdown, init) ?: user.send(text, markdown) { inline(init) }
             }
+
+    fun safeDelete() = senderContext.run {
+        message?.delete()
+    }
 }

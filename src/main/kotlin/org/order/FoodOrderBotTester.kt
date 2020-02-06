@@ -462,7 +462,7 @@ class FoodOrderBotTester {
             else {
                 val time = DateTime.parse(
                         args.joinToString(" "),
-                        DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")
+                        DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
                 )
                 val millis = System.currentTimeMillis()
 
@@ -490,7 +490,7 @@ class FoodOrderBotTester {
             val providerId = args[2]
 
             active!!.sendSuccessfulPayment(payload, telegramId, providerId)
-            "SuccessfulPayment [payload = $payload, telegramId = $telegramId, providerId = $providerId] was sent to the chat [id = $it]."
+            "SuccessfulPayment [payload = $payload, telegramId = $telegramId, providerId = $providerId] was sent to the chat [id = $active]."
         }
         else -> {
             val builder = StringBuilder((listOf(name) + args).joinToString(" "))
@@ -603,7 +603,7 @@ fun main() {
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
                 Relations, Coordinators, Users,
-                OrdersCancellations
+                OrdersCancellations, PollAnswers
         )
 
         createAdmin(0, "Аоооо Аооо", "+380669360000")

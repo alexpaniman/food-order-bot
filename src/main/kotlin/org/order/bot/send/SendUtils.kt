@@ -71,7 +71,7 @@ fun InlineKeyboardMarkup.deactivatableKeyButton(key: String, callback: String, a
         row { deactivatableKeyButton(key, callback, activate) }
 // --------------------------------- [Deactivatable Buttons] --------------------------------- //
 
-fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback: (T) -> String = { it.toString() }) {
+fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback: (T) -> String = { it.toString() }, show: (T) -> String = { it.toString() }) {
     check(length > 0) { "length must be greater then 0" }
     if (keyboard == null)
         keyboard = mutableListOf()
@@ -81,11 +81,11 @@ fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback:
         if (keyboard.size == 0 || keyboard.last().size == length)
             keyboard.add(mutableListOf())
 
-        keyboard.last() += InlineKeyboardButton(element.toString()).setCallbackData(callback(element))
+        keyboard.last() += InlineKeyboardButton(show(element)).setCallbackData(callback(element))
     }
 }
 
-fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int) {
+fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int, show: (T) -> String = { it.toString() }) {
     check(length > 0) { "length must be greater then 0" }
     if (keyboard == null)
         keyboard = mutableListOf()
@@ -95,7 +95,7 @@ fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int) {
         if (keyboard.size == 0 || keyboard.last().size == length)
             keyboard.add(KeyboardRow())
 
-        keyboard.last() += KeyboardButton(element.toString())
+        keyboard.last() += KeyboardButton(show(element))
     }
 }
 

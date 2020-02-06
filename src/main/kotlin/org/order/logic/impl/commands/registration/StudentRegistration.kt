@@ -24,7 +24,7 @@ object GradeQuestion : Question(READ_GRADE) {
                 reply {
                     val grades = Grade.all().map { it.name } // Get all grade names
 
-                    show(grades, 5) // And show them (5 per row)
+                    show(grades, 5) // Show them (5 per row)
                 }
             }
 
@@ -33,7 +33,7 @@ object GradeQuestion : Question(READ_GRADE) {
         val grade      = if (inputGrade != null)
             Grade.find { Grades.name eq inputGrade }
                     .singleOrNull() // Null if there's no grade with same name
-        else null // Or input doesn't contains text
+        else null // Or input doesn't contain text
 
         val currentStudent = Student
                 .find { Students.user eq user.id }

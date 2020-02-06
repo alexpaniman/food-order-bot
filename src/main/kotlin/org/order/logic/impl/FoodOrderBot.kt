@@ -2,7 +2,8 @@ package org.order.logic.impl
 
 import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
-import org.order.logic.impl.commands.TIME_TO_SEND_POLL
+import org.order.logic.impl.commands.administration.ACCOUNT_REPLENISHMENT
+import org.order.logic.impl.commands.administration.PERFORM_ACCOUNT_REPLENISHMENT
 import org.order.logic.impl.commands.display.*
 import org.order.logic.impl.commands.orders.CANCEL_ORDER
 import org.order.logic.impl.commands.orders.MAKE_ORDER
@@ -18,7 +19,7 @@ import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
-        //senderContext.launchPollSender()
+        senderContext.launchPollSender()
 
         // ---- Validation Filter ----
         this += VALIDATION_FILTER
@@ -73,6 +74,11 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
          this += PROCESS_SUCCESSFUL_PAYMENT
         // --------------------------
 
+        // --- Manual Account Replenishment ---
+        this += ACCOUNT_REPLENISHMENT
+        this += PERFORM_ACCOUNT_REPLENISHMENT
+        // ------------------------------------
+
         // --------- Display ---------
         this += HELP
         this += ORDERS_LIST_WINDOW
@@ -82,7 +88,7 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         // ---------------------------
 
         // ---------- Polls ----------
-        // this += RATE_PROCESSOR
+         this += RATE_PROCESSOR
         // ---------------------------
     }
 }
