@@ -2,7 +2,6 @@ package org.order.logic.impl.commands.payments
 
 import org.order.bot.send.SenderContext
 import org.order.bot.send.button
-import org.order.data.entities.Client
 import org.order.data.entities.Parent
 import org.order.data.entities.Payment
 import org.order.data.entities.State.COMMAND
@@ -17,17 +16,16 @@ import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.clients
+import org.order.logic.impl.utils.orZero
 import org.telegram.telegrambots.meta.api.objects.Update
 
-private const val windowMarker = "read-parent-payment-amount-window"
+private const val WINDOW_MARKER = "read-parent-payment-amount-window"
 
 private fun WindowContext.showParentPaymentWindow(user: User, childNum: Int) {
-    val children = user.linked(Parent).children.toList()
-    val child = children[childNum]
-
-    // TODO consider when parent is also teacher
-
-    val client = child.user.linked(Client)
+    val clients = user.clients()
+    val clientNum = childNum.coerceIn(clients.indices)
+    val client = clients[clientNum]
 
     val name = client.user.name!!
     val balance = client.balance
@@ -42,12 +40,9 @@ private fun WindowContext.showParentPaymentWindow(user: User, childNum: Int) {
     }
 
     show(Text.get("ask-payment-amount") { it["balance"] = "$balance" }) {
-        when {
-            children.size == 1 -> button(name)
-            childNum == children.size - 1 -> button(name, "$windowMarker:0")
-            childNum <  children.size - 1 -> button(name, "$windowMarker:${childNum + 1}")
-        }
-        button(Text["cancel"], "cancel-parent-payment:${unfinishedPayment.id.value}")
+        if (user.hasLinked(Parent))
+            button(name, "$WINDOW_MARKER:${(clientNum + 1).orZero(clients.indices)}")
+        button(Text["cancel-button"], "cancel-parent-payment:${unfinishedPayment.id.value}")
     }
 }
 
@@ -61,7 +56,7 @@ val CANCEL_PARENT_PAYMENT = CallbackProcessor("cancel-parent-payment") { user, s
     src.delete()
 }
 
-val UPDATE_PARENT_PAYMENT_WINDOW = CallbackProcessor(windowMarker) { user, src, (numStr) ->
+val UPDATE_PARENT_PAYMENT_WINDOW = CallbackProcessor(WINDOW_MARKER) { user, src, (numStr) ->
     WindowContext(this, src, user)
             .showParentPaymentWindow(user, numStr.toInt())
 }
@@ -90,6 +85,7 @@ private object ReadParentPaymentAmount: Question(READ_PARENT_PAYMENT_AMOUNT) {
                 },
                 "account-replenishment:${unfinishedPayment.id.value}"
         )
+        user.state = COMMAND
         return true
     }
 }

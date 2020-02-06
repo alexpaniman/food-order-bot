@@ -26,7 +26,7 @@ inline 3
 inline 3
 inline 1 2
 inline 3
-setTime 2020-01-29 8:00
+setTime 2020-01-29 08:00:00
 заказать обед
 inline 1 2
 inline 1 2
@@ -45,3 +45,7 @@ inline 2
 inline 0 4
 история
 setTime
+# ------------
+# заказать обед
+# inline 2
+# setTime 2020-02-07 11:45:00

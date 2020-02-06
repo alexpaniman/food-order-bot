@@ -1,6 +1,7 @@
 package org.order.logic.impl.commands.polls
 
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.order.bot.send.*
@@ -24,26 +25,40 @@ private fun WindowContext.sendPoll(order: Order) {
             .sortedBy { it.id } // Exact same order guarantee
 
     show(message) {
+        var finished = 0
+
         for (dish in dishes) {
             button(dish.name)
 
             row {
-                val rate = PollAnswer
+                val pollAnswer = PollAnswer
                         .find { PollAnswers.order eq order.id and (PollAnswers.dish eq dish.id) }
-                        .firstOrNull()?.rate ?: 0
+                        .firstOrNull()
+
+                if (pollAnswer != null)
+                    finished ++
+
+                val rate = pollAnswer?.rate ?: 0
 
                 repeat(rate) {
-                    button(Text["poll-filled-star"], "poll-rate:${order.id}:${dish.id}:$it")
+                    if (pollAnswer == null)
+                        button(Text["poll-filled-star"], "poll-rate:${order.id}:${dish.id}:${it + 1}")
+                    else
+                        button(Text["poll-filled-star"])
                 }
 
                 repeat(5 - rate) {
-                    button(Text["poll-unfilled-start"], "poll-rate:${order.id}:${dish.id}:${it + rate}")
+                    if (pollAnswer == null)
+                        button(Text["poll-unfilled-star"], "poll-rate:${order.id}:${dish.id}:${it + rate + 1}")
+                    else
+                        button(Text["poll-unfilled-star"])
                 }
             }
         }
-    }
 
-    // TODO end remove poll
+        if (finished == dishes.size)
+            button(Text["confirm-poll"], "remove-message")
+    }
 }
 
 val RATE_PROCESSOR = CallbackProcessor("poll-rate") { user, src, (orderIdStr, dishIdStr, rateStr) ->
@@ -66,15 +81,16 @@ val RATE_PROCESSOR = CallbackProcessor("poll-rate") { user, src, (orderIdStr, di
             .sendPoll(order)
 }
 
-private fun SenderContext.sendPolls() {
+private fun SenderContext.sendPolls() = transaction {
     val today = LocalDate.now().toString()
     val ordersToday = Order
             .find { Orders.orderDate eq today }
+            .filter { !it.canceled }
 
     for (order in ordersToday) {
         val clientUser = order.client.user
         if (clientUser.state != State.IMAGINE)
-            WindowContext(this, null, clientUser)
+            WindowContext(this@sendPolls, null, clientUser)
                     .sendPoll(order)
     }
 }
@@ -86,11 +102,15 @@ fun SenderContext.launchPollSender() = thread {
 
     while (true) {
         val timeNow = LocalTime.now()
-                .withSecondOfMinute(0) // Remove seconds
+                .withSecondOfMinute(0)
+                .withMillisOfSecond(0)// Remove seconds
 
-        if (!wasSent && timeNow == TIME_TO_SEND_POLL)
+        if (!wasSent && timeNow == TIME_TO_SEND_POLL) {
             sendPolls()
-        else
+            wasSent = true
+        }
+
+        if (timeNow != TIME_TO_SEND_POLL)
             wasSent = false
 
         sleep(LISTENER_DELAY)

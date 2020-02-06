@@ -3,8 +3,9 @@ package org.order.logic.impl.commands.payments
 import org.joda.time.DateTime
 import org.order.data.entities.Payment
 import org.order.logic.commands.processors.SuccessfulPaymentProcessor
+import org.order.logic.corpus.Text
 
-val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishment") { _, telegramId, providerId, (paymentIdStr) ->
+val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishment") { user, telegramId, providerId, (paymentIdStr) ->
     val paymentId = paymentIdStr.toInt()
     val payment = Payment.findById(paymentId) ?: error("There's no payment with id: $paymentId")
 
@@ -15,6 +16,9 @@ val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishme
         this.providerId = providerId
     }
 
+    payment.client.balance += payment.amount!!
 
-    // TODO include tests and user notification after successful payment
+    user.send(Text.get("successful-payment") {
+        it["amount"] = payment.amount.toString()
+    })
 }
