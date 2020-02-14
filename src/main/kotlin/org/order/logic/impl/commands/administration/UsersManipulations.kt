@@ -10,26 +10,21 @@ import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.telegram.telegrambots.meta.api.objects.Update
+import kotlin.math.max
 
 private fun longestCommonSubstring(s1: String, s2: String): Int {
-    val dynamicLine = IntArray(s1.length + 1) { 0 }
-    var max = 0
-
-    for (charS2 in s2) {
-        for ((indexS1, charS1) in s1.withIndex().reversed())
-            dynamicLine[indexS1 + 1] =
-                    if (charS1 == charS2)
-                        dynamicLine[indexS1] + 1
-                    else 0
-
-        val currentMax = dynamicLine.max() ?: 0
-
-        if (max < currentMax)
-            max = currentMax
-
+    val dynamic = Array(s2.length) {
+        IntArray(s1.length) { 0 }
     }
 
-    return max
+    for (i in 1..s1.length)
+        for (j in 1..s2.length) {
+            dynamic[i][j] = max(dynamic[i - 1][j], dynamic[i][j - 1])
+            if (s1[j - 1] == s2[i - 1])
+                dynamic[i][j] += 1
+        }
+
+    return dynamic.last().last()
 }
 
 private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_ACCOUNT) {
