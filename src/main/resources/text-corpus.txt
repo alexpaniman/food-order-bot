@@ -207,11 +207,13 @@
 # -- [Отмены заказов] -- #
 
 # --- Список платежей --- # TODO Список изменений баланса (заказ — -, оплата — +)
-[payments-list] [payments]
+[payments-list]
+    *Ваши платежи:*[br][br]
+    [payments]
 
 # TODO Информация для построения [payments] из [payments-list] выше
 [payment-display] [date] : [amount]
-[payments-date-format] dd-MM-yyyy`
+[payments-date-format] dd-MM-yyyy
 
 [there-were-no-payments-made-yet] Ещё не было сделано ни одной операции со счетом!
 # -- [Список платежей] -- #
@@ -291,7 +293,7 @@
 [pay-a-debt] оплатить долг
 
 [wrong-payment-amount]
-    Неверный ввод. Пожалуйста, введите число или используйте кнопки снизу:
+    Неверный ввод. Пожалуйста, введите число или нажмите кнопку 'отменить' выше:
 
 [successful-payment-cancellation]
     Вы успешно отменили оплату.
@@ -303,7 +305,7 @@
     оплатить [amount] грн.
 
 [make-payment-or-cancel-it]
-    Пожалуйста завершите оплату или отмените её!
+    Пожалуйста, завершите оплату или отмените её!
 
 [successful-payment]
     Успешный платеж на сумму: [amount]
