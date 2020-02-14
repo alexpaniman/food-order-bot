@@ -8,8 +8,10 @@ val REMOVE_CANCELED_PAYMENT = CallbackProcessor("remove-canceled-payment") { use
     val paymentId = paymentIdStr.toInt()
     val payment = Payment.findById(paymentId) ?: error("There's no payment with id: $paymentId")
 
-    payment.delete()
-    user.state = State.COMMAND
+    if (payment.registered == null) {
+        payment.delete()
+        user.state = State.COMMAND
+    }
 
     src.delete()
 }
