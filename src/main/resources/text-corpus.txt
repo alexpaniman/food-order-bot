@@ -307,6 +307,9 @@
 [make-payment-or-cancel-it]
     Пожалуйста, завершите оплату или отмените её!
 
+[canceled-payment-was-successful-removed]
+    Платёж был успешно отменен!
+
 [successful-payment]
     Успешный платеж на сумму: [amount]
 # -- [Оплата] -- #
