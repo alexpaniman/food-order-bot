@@ -21,7 +21,7 @@ private val ORDERS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["orders-list-comman
         (RoleTrigger(Client) or RoleTrigger(Parent))
 
 val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER,
-        args = listOf("0")) { user, (dayNumStr) ->
+        args = listOf("0")) { _, (dayNumStr) ->
     val now = LocalDate.now()
 
     val days = when (now.dayOfWeek) {
@@ -49,8 +49,10 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
     val ordersDisplay = buildString {
         val groupedByGrade = orders
                 .groupBy {
-                    if (user.hasLinked(Student))
-                        user.linked(Student).grade!!.name
+                    val clientUser = it.client.user
+
+                    if (clientUser.hasLinked(Student))
+                        clientUser.linked(Student).grade!!.name
                     else Text["empty-grade"]
                 }
 

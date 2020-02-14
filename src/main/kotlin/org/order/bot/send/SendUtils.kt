@@ -40,19 +40,21 @@ fun ReplyKeyboardMarkup.row(init: KeyboardRow.() -> Unit) {
     keyboard.last().apply(init)
 }
 
-fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = ":" + System.nanoTime(), init: InlineKeyboardButton.() -> Unit = {}) {
+fun MutableList<InlineKeyboardButton>.button(text: String, callback: String = ":" + System.nanoTime(), pay: Boolean = false, init: InlineKeyboardButton.() -> Unit = {}) {
     this += InlineKeyboardButton(text).apply {
-        this.callbackData = callback // TODO replace with text with key
+        this.pay = pay
+        if (!pay)
+            this.callbackData = callback
     }.apply(init)
 }
 fun KeyboardRow.button(text: String, init: KeyboardButton.() -> Unit = {}) {
-    this += KeyboardButton(text).apply(init) // TODO replace with text with key
+    this += KeyboardButton(text).apply(init)
 }
 
 fun ReplyKeyboardMarkup.button(text: String, init: KeyboardButton.() -> Unit = {}) =
         row { button(text, init) }
-fun InlineKeyboardMarkup.button(text: String, callback: String = ":", init: InlineKeyboardButton.() -> Unit = {}) =
-        row { button(text, callback, init) }
+fun InlineKeyboardMarkup.button(text: String, callback: String = ":", pay: Boolean = false, init: InlineKeyboardButton.() -> Unit = {}) =
+        row { button(text, callback, pay, init) }
 
 
 // ---------------------------------- Deactivatable Buttons ---------------------------------- //

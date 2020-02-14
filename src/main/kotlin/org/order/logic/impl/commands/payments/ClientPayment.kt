@@ -63,8 +63,15 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
                     it["amount"] = amount.toString()
                 },
                 "account-replenishment:${unfinishedPayment.id.value}"
-        )
-        user.state = COMMAND
+        ) {
+            button(Text.get("pay-button") {
+                it["amount"] = amount.toString()
+            }, pay = true)
+
+            button(Text["cancel-button"], "remove-canceled-payment:${unfinishedPayment.id.value}")
+        }
+
+        user.state = MODALITY_OF_PAYMENT_WINDOW
         return true
     }
 }

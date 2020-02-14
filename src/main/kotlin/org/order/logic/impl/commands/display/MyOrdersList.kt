@@ -1,5 +1,6 @@
 package org.order.logic.impl.commands.display
 
+import org.joda.time.LocalDate
 import org.order.bot.send.button
 import org.order.data.entities.Client
 import org.order.data.entities.Parent
@@ -9,7 +10,6 @@ import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.dayOfWeekAsLongText
-import org.order.logic.impl.utils.dayOfWeekAsShortText
 
 private const val WINDOW_MARKER = "my-orders-list-window"
 
@@ -27,8 +27,9 @@ val MY_ORDERS_LIST_WINDOW = Window(
     val clientNum = clientNumStr.toInt().coerceIn(clients.indices)
     val client = clients[clientNum]
 
+    val isNow = LocalDate.now()
     val orders = client.orders
-            .filter { !it.canceled }
+            .filter { !it.canceled && !it.orderDate.isBefore(isNow) }
 
     val ordersGroupedByDay = orders
             .groupBy { order -> order.orderDate }

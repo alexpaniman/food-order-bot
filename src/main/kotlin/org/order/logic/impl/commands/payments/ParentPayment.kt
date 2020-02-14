@@ -4,8 +4,7 @@ import org.order.bot.send.SenderContext
 import org.order.bot.send.button
 import org.order.data.entities.Parent
 import org.order.data.entities.Payment
-import org.order.data.entities.State.COMMAND
-import org.order.data.entities.State.READ_PARENT_PAYMENT_AMOUNT
+import org.order.data.entities.State.*
 import org.order.data.entities.User
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.questions.Question
@@ -42,18 +41,8 @@ private fun WindowContext.showParentPaymentWindow(user: User, childNum: Int) {
     show(Text.get("ask-payment-amount") { it["balance"] = "$balance" }) {
         if (user.hasLinked(Parent))
             button(name, "$WINDOW_MARKER:${(clientNum + 1).orZero(clients.indices)}")
-        button(Text["cancel-button"], "cancel-parent-payment:${unfinishedPayment.id.value}")
+        button(Text["cancel-button"], "remove-canceled-payment:${unfinishedPayment.id.value}")
     }
-}
-
-val CANCEL_PARENT_PAYMENT = CallbackProcessor("cancel-parent-payment") { user, src, (paymentIdStr) ->
-    val paymentId = paymentIdStr.toInt()
-    val payment = Payment.findById(paymentId) ?: error("There's no payment with id: $paymentId")
-
-    payment.delete()
-    user.state = COMMAND
-
-    src.delete()
 }
 
 val UPDATE_PARENT_PAYMENT_WINDOW = CallbackProcessor(WINDOW_MARKER) { user, src, (numStr) ->
@@ -84,8 +73,14 @@ private object ReadParentPaymentAmount: Question(READ_PARENT_PAYMENT_AMOUNT) {
                     it["amount"] = amount.toString()
                 },
                 "account-replenishment:${unfinishedPayment.id.value}"
-        )
-        user.state = COMMAND
+        ) {
+            button(Text.get("pay-button") {
+                it["amount"] = amount.toString()
+            }, pay = true)
+
+            button(Text["cancel-button"], "remove-canceled-payment:${unfinishedPayment.id.value}")
+        }
+        user.state = MODALITY_OF_PAYMENT_WINDOW
         return true
     }
 }

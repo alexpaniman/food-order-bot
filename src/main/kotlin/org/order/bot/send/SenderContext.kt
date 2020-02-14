@@ -60,7 +60,7 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
         return execute(delete)!!
     }
 
-    fun User.sendInvoice(title: String, amount: Float, description: String, payload: String) {
+    fun User.sendInvoice(title: String, amount: Float, description: String, payload: String, init: InlineKeyboardMarkup.() -> Unit = {}) {
         val realAmount = (amount * 100).toInt()
         val sendInvoice = SendInvoice().also {
             it.chatId = chat
@@ -74,6 +74,8 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
             it.currency = CURRENCY
             it.providerToken = PAYMENTS_TOKEN
             it.startParameter = INVOICE_START_PARAMETER
+
+            it.replyMarkup = InlineKeyboardMarkup().apply(init)
         }
 
         execute(sendInvoice)
