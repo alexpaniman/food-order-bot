@@ -196,7 +196,7 @@
 # -- [Заказы] -- #
 
 # --- Отмены заказов --- # TODO Блок предлагающий отменить заказ еды
-[suggest-order-cancellation] Выберите заказ, который хотите отменить:
+[suggest-order-cancellation] Выберите день, в который хотите отменить заказы:
 
 # TODO Сообщение об отсутствии данного заказа
 [these-orders-were-already-canceled]
@@ -212,6 +212,8 @@
 # TODO Информация для построения [payments] из [payments-list] выше
 [payment-display] [date] : [amount]
 [payments-date-format] dd-MM-yyyy`
+
+[there-were-no-payments-made-yet] Ещё не было сделано ни одной операции со счетом!
 # -- [Список платежей] -- #
 
 # --- Список моих заказов --- # TODO Список заказов клиента на этой неделе
@@ -297,9 +299,11 @@
 [payment-title] Пополнение счета.
 [payment-description]
     Пополнение счета на сумму [amount].
+[pay-button]
+    оплатить [amount] грн.
 
-[there-were-no-payments-made-yet]
-    Ещё не было сделано ни одной операции со счетом!
+[make-payment-or-cancel-it]
+    Пожалуйста завершите оплату или отмените её!
 
 [successful-payment]
     Успешный платеж на сумму: [amount]

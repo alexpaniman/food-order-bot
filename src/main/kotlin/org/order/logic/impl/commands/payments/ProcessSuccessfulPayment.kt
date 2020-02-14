@@ -4,6 +4,7 @@ import org.joda.time.DateTime
 import org.order.data.entities.Payment
 import org.order.logic.commands.processors.SuccessfulPaymentProcessor
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.appendMainKeyboard
 
 val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishment") { user, telegramId, providerId, (paymentIdStr) ->
     val paymentId = paymentIdStr.toInt()
@@ -20,5 +21,5 @@ val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishme
 
     user.send(Text.get("successful-payment") {
         it["amount"] = payment.amount.toString()
-    })
+    }) { appendMainKeyboard(user) }
 }

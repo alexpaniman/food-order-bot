@@ -13,7 +13,7 @@ import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.corpus.Text
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.order.logic.impl.utils.appendMainKeyboard
 
 private fun User.descriptionForValidation() = buildDescription(Student, Teacher, Parent, Producer)
         .replace('─', '-')
@@ -141,29 +141,9 @@ private fun linkParent(parent: Parent) {
     }
 }
 
-fun SendMessage.mainKeyboard() = reply {
-    row {
-        button(Text["order-command"])
-//                        button(Text["orders-list-command"])
-        button(Text["order-cancellation-command"])
-    }
-    row {
-        button(Text["orders-list-command"])
-        button(Text["my-orders-command"])
-    }
-    row {
-        button(Text["history-command"])
-    }
-//                    row {
-//                        button(Text["pay-command"])
-//                        button(Text["payments-list-command"])
-//                    }
-//                    button(Text["help-command"])
-}
-
 val RESEND_BUTTONS = TriggerCommand(CommandTrigger(Text["resend-buttons-command"])) { user, _ ->
     user.send(Text["resend-buttons-message"]) {
-        mainKeyboard()
+        appendMainKeyboard(user)
     }
 }
 
@@ -215,7 +195,7 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, 
             user.state = COMMAND
             user.valid = true
 
-            user.send(Text["validation:user-is-confirmed"]) { mainKeyboard() }
+            user.send(Text["validation:user-is-confirmed"]) { appendMainKeyboard(user) }
 
             src.edit(Text.get("coordinator-notification:user-is-confirmed") {
                 it["description"] = description
