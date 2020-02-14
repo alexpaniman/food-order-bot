@@ -9,6 +9,7 @@ import org.order.logic.commands.questions.Question
 import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.appendMainKeyboard
 import org.telegram.telegrambots.meta.api.objects.Update
 import kotlin.math.max
 
@@ -72,7 +73,10 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
         if (update.message?.text == Text["cancel-button"]) {
-            user.send(Text["successful-account-replenishment-cancellation"])
+            user.send(Text["successful-account-replenishment-cancellation"]) {
+                appendMainKeyboard(user)
+            }
+            return true
         }
 
         val args = update.message?.text?.split(", ")
@@ -100,7 +104,9 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
 
 object ChoosePaymentAmountToReplenishAccount: Question(READ_PAYMENT_AMOUNT_TO_REPLENISH_ACCOUNT) {
     override fun SenderContext.ask(user: User) =
-            user.send(Text["choose-payment-amount-to-replenish-account"])
+            user.send(Text["choose-payment-amount-to-replenish-account"]) {
+                appendMainKeyboard(user)
+            }
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
         val amount = update.message?.text?.toFloatOrNull()
