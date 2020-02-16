@@ -60,7 +60,7 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
                 it["description"] = description
             }
 
-            for (target in targets)
+            for (target in targets.distinct())
                 target.send(message) {
                     inline {
                         button(Text["validation-ban"], "validation:ban:${user.id.value}")
