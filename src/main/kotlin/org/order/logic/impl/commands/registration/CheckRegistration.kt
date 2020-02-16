@@ -137,7 +137,8 @@ private fun linkParent(parent: Parent) {
             }
 
             child.user.safeDelete()
-        }
+        } else
+            child.user.valid = true
     }
 }
 
