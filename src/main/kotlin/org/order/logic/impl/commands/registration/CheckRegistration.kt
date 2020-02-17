@@ -105,19 +105,12 @@ private fun linkStudent(realStudent: Student) {
     val imagineStudent = realStudent.findSameStudent(true)
 
     if (imagineStudent != null) {
-        val parents = Relations.select {
-            Relations.child eq imagineStudent.id
-        }.map {
-            val parentId = it[Relations.parent]
-            Parent.findById(parentId) ?: error("Broken link from Parent(id = $parentId)")
+        imagineStudent.user.apply {
+            chat = realStudent.user.chat
+            state = COMMAND
         }
 
-        Relations.batchInsert(parents) {
-            this[Relations.child] = realStudent.id
-            this[Relations.parent] = it.id
-        }
-
-        imagineStudent.user.safeDelete()
+        realStudent.user.safeDelete()
     }
 }
 
