@@ -8,7 +8,8 @@
 [help-command] помощь
 [history-command] история
 [resend-buttons-command] отправить клавиатуру
-[replenish-account] пополнить счет
+[replenish-account-command] пополнить счет
+[money-total-command] сводка по деньгам
 # -- [Список команд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
@@ -17,6 +18,8 @@
 [update-button] ↺
 [cancel-button] отменить
 [inactive-button] ∅
+# TODO Этим классом обозначаются учителя
+[empty-grade] —
 # -- [Общее] -- #
 
 # --- Названия ролей --- # TODO Используются при выборе роли.
@@ -265,9 +268,6 @@
 # TODO Корень списка заказов
 [orders-list] [orders]
 
-# TODO Этим классом обозначаются учителя
-[empty-grade] —
-
 # TODO Информация для построения [orders] из [orders-list] выше
 [grade-display] *[grade] [[orders-count]]:*
 [menu-display]  [space]   *Меню [menu-name] [[orders-count]]:*
@@ -344,6 +344,8 @@
 
 [successful-account-replenishment]
     Успешное пополнение счета.
+# -- [Пополнение счета] -- #
+
 # --- Опросы --- #
 [poll]
     Вы заказывали меню [order:menu:name]
@@ -356,3 +358,17 @@
 [confirm-poll]
     завершить опрос
 # -- [Опросы] -- #
+
+# --- Сводка по деньгам --- #
+[money-total-empty] *Здесь никого нет!*
+[money-total]
+    *Сводка по деньгам:*[br]
+    [money-total-rows]
+
+[show-only-debt-checked] только должники
+[show-only-debt-unchecked] все
+
+[money-total-grade] *[grade]:*
+[money-total-user]
+    [space]   `[user] : [balance]`
+# -- [Сводка по деньгам] -- #

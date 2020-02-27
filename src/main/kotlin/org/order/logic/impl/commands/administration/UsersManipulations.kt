@@ -155,7 +155,7 @@ val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenish
 
 private val ACCOUNT_REPLENISHMENT_TRIGGER =
         StateTrigger(COMMAND) and
-                CommandTrigger(Text["replenish-account"]) and
+                CommandTrigger(Text["replenish-account-command"]) and
                 (RoleTrigger(Parent) or RoleTrigger(Admin))
 
 val ACCOUNT_REPLENISHMENT = QuestionSet(
