@@ -8,7 +8,7 @@ import org.order.logic.corpus.Text
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 
 fun User.clients(): List<Client> {
-    val children = linkedOrNull(org.order.data.entities.Parent)
+    val children = linkedOrNull(Parent)
             ?.children
             ?.map { it.user.linked(Client) } ?: listOf()
 
@@ -54,7 +54,9 @@ fun SendMessage.appendMainKeyboard(user: User) = reply {
         if (canOrderAndPay)
             button(Text["history-command"])
         if (canReplenishAccount)
-            button(Text["replenish-account"])
+            button(Text["replenish-account-command"])
+        if (canReplenishAccount)
+            button(Text["money-total-command"])
         button(Text["help-command"])
     }
 }

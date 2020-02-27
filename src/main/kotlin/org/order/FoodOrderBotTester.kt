@@ -523,6 +523,7 @@ class FoodOrderBotTester {
 
         for (line in lines()) try {
             when {
+                line == "" -> {}
                 line.startsWith("echo#") -> println(line.removePrefix("echo#").eval())
                 !line.startsWith('#') -> line.eval()
             }

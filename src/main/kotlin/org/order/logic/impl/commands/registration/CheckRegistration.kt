@@ -1,17 +1,18 @@
 package org.order.logic.impl.commands.registration
 
-import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.order.bot.send.*
+import org.order.bot.send.button
+import org.order.bot.send.inline
+import org.order.bot.send.removeReply
+import org.order.bot.send.reply
 import org.order.data.entities.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Relations
 import org.order.data.tables.Students
-import org.order.logic.commands.processors.CallbackProcessor
-import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.TriggerCommand
+import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.CommandTrigger
+import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
 
