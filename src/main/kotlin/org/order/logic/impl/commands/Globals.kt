@@ -16,6 +16,8 @@ val LAST_ORDER_TIME = LocalTime(System.getenv("LAST_ORDER_TIME"))
 
 val TIME_TO_SEND_POLL = LocalTime(System.getenv("TIME_TO_SEND_POLL"))
 
+val MAX_DEBT = System.getenv("MAX_DEBT").toFloat()
+
 val PAYMENTS_TOKEN = System.getenv("PAYMENTS_TOKEN")!!
 const val INVOICE_START_PARAMETER = "0"
 const val CURRENCY = "UAH"

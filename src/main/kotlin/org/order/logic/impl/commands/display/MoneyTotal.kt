@@ -34,7 +34,7 @@ val MONEY_TOTAL_WINDOW = Window(WINDOW_MARKER, MONEY_TOTAL_WINDOW_TRIGGER,
                             ?.grade
                             ?.name ?: Text["empty-grade"]
                 }
-                .toSortedMap(compareBy { it })
+                .toSortedMap()
 
         for ((grade, byGrade) in groupedByGrade) {
             appendln(Text.get("money-total-grade") { it["grade"] = grade })

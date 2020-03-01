@@ -1,16 +1,21 @@
 package org.order.logic.impl.commands.orders
 
+import org.jetbrains.exposed.sql.and
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.order.bot.send.button
+import org.order.bot.send.inline
+import org.order.bot.send.row
 import org.order.bot.send.switcherIn
 import org.order.data.entities.*
 import org.order.data.entities.State.COMMAND
+import org.order.data.tables.Orders
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
+import org.order.logic.impl.commands.MAX_DEBT
 import org.order.logic.impl.utils.*
 
 private const val WINDOW_MARKER = "order-window"
@@ -33,7 +38,7 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
                     menu
                 }.sortedBy { it.name }
             }
-            .toSortedMap(compareBy { it })
+            .toSortedMap()
 
     val dayNum = dayNumStr.toInt().coerceIn(active.values.indices)
     val (day, activeToday) = active.entries.elementAt(dayNum)
@@ -45,8 +50,19 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
     val clientNum = clientNumStr.toInt().coerceIn(clients.indices)
     val client = clients[clientNum]
 
+    if (client.balance <= - MAX_DEBT) {
+        show(Text["not-enough-money-to-order"]) {
+            if (user.hasLinked(Parent))
+                button(client.user.name!!, "$WINDOW_MARKER:$dayNum:$menuNum:${(clientNum + 1).orZero(clients.indices)}")
+
+            button(Text["cancel-button"], "remove-message")
+        }
+
+        return
+    }
+
     val ordersToday = client.orders
-            .filter { it.orderDate == day && !it.canceled }
+            .filter { it.orderDate == day && it.menu == currentMenu && !it.canceled }
             .count()
 
     val message = Text.get("suggest-menu") {
@@ -77,7 +93,7 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
         else
             Text["make-order"]
 
-        button(makeOrderText, "make-order:${currentMenu.id.value}:$day:${client.id.value}:$dayNum:$menuNum:$clientNum")
+        button(makeOrderText, "make-order:${currentMenu.id.value}:$day:${client.id.value}:$dayNum:$menuNum:$clientNum:false")
 
         button(Text["cancel-button"], "remove-message")
     }
@@ -89,8 +105,9 @@ val ORDER_WINDOW = Window("order-window", ORDER_WINDOW_TRIGGER,
     suggestMakingOrder(user, dayNumStr, menuNumStr, clientNumStr)
 }
 
-val MAKE_ORDER = CallbackProcessor("make-order") { user, src, (menuIdStr, dayStr, clientIdStr, dayNumStr, menuNumStr, clientNumStr) ->
+val MAKE_ORDER = CallbackProcessor("make-order") make_order@ { user, src, (menuIdStr, dayStr, clientIdStr, dayNumStr, menuNumStr, clientNumStr, forcedStr) ->
     val orderDate = LocalDate.parse(dayStr)
+    val isForced = forcedStr.toBoolean()
 
     val menuId = menuIdStr.toInt()
 
@@ -102,6 +119,26 @@ val MAKE_ORDER = CallbackProcessor("make-order") { user, src, (menuIdStr, dayStr
         val client = Client.findById(clientId) ?: error("There's no client with id: $clientId!")
 
         val now = DateTime.now()
+
+        if (!isForced) {
+            val orders = Order
+                    .find {
+                        Orders.client eq client.id and
+                                (Orders.orderDate eq dayStr)
+                    }
+
+            if (!orders.empty()) {
+                src.edit(Text["do-you-want-to-order-yet-another-time"]) {
+                    row {
+                        button(Text["confirm-another-order"], "make-order:$menuIdStr:$dayStr:$clientIdStr:$dayNumStr:$menuNumStr:$clientNumStr:true")
+                        button(Text["dismiss-another-order"], "$WINDOW_MARKER:$dayNumStr:$menuNumStr:$clientNumStr")
+                    }
+
+                    button(Text["cancel-button"], "remove-message")
+                }
+                return@make_order
+            }
+        }
 
         Order.new {
             this.registered = now // Date and time when the order created
