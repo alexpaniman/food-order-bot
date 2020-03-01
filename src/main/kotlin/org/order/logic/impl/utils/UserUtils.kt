@@ -58,13 +58,14 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
     row {
         if (isClientOrParent)
             button(Text["history-command"])
+        button(Text["help-command"])
+    }
 
-        if (isAdminOrProducer) {
+    if (isAdminOrProducer) {
+        row {
             button(Text["replenish-account-command"])
             button(Text["money-total-command"])
         }
-
-        button(Text["help-command"])
     }
 
     if (isAdminOrProducer)

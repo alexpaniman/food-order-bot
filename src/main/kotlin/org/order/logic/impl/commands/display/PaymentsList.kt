@@ -64,7 +64,7 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
             }
 
     val changes = (payments + orders)
-            .toSortedMap(compareBy { it })
+            .toSortedMap()
             .toList()
     // -------------------------------------
 
