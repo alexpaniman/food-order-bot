@@ -16,12 +16,15 @@ import org.order.logic.impl.commands.tools.BAN_FILTER
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 import org.joda.time.DateTimeZone
+import org.order.logic.impl.commands.notifications.launchClientsNotifier
 import org.order.logic.impl.commands.polls.*
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
         DateTimeZone.setDefault(DateTimeZone.forID(REGION_ID))
+
         senderContext.launchPollSender()
+        senderContext.launchClientsNotifier()
 
         // ---- Validation Filter ----
         this += VALIDATION_FILTER

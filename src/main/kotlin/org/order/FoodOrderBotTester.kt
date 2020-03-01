@@ -22,6 +22,8 @@ import org.order.logic.impl.commands.CURRENCY
 import org.order.logic.impl.commands.DATABASE_DRIVER
 import org.order.logic.impl.commands.JDBC_DATABASE_URL
 import org.order.logic.impl.utils.Schedule
+import org.order.logic.impl.utils.newproperty
+import org.order.logic.impl.utils.setproperty
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -627,7 +629,7 @@ fun main() {
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
                 Relations, Coordinators, Users, PollAnswers,
-                OrdersCancellations, PollComments
+                OrdersCancellations, PollComments, Properties
         )
 
         createAdmin(0, "Аоооо Аооо", "+380669360000")
@@ -655,6 +657,12 @@ fun main() {
         createMenu("2", 41.0f, "2020-01-29:7", "Меню 2:3", "блюдо 1")
         createMenu("2", 43.0f, "2020-01-30:7", "Меню 2:4", "блюдо 1")
         createMenu("2", 43.0f, "2020-01-31:7", "Меню 2:5", "блюдо 1")
+
+        newproperty("LAST_ORDER_TIME", "09:30")
+        newproperty("TIME_TO_SEND_POLL", "11:45")
+        newproperty("MAX_DEBT", "165")
+        newproperty("TIME_TO_NOTIFY", "18:00")
+        newproperty("LAST_NOTIFICATION", LocalDate.now().toString())
     }
 
     FoodOrderBotTester().apply {
