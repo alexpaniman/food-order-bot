@@ -10,6 +10,7 @@ import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
+import org.order.logic.impl.utils.grade
 import org.telegram.telegrambots.meta.api.objects.Update
 import kotlin.math.max
 
@@ -88,7 +89,7 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
         val (name, grade) = args
         val client = Client.all().firstOrNull {
             val isNameSame = it.user.name == name
-            val clientGrade = it.user.linkedOrNull(Student)?.grade?.name ?: Text["empty-grade"]
+            val clientGrade = it.user.grade
             val isGradeSame = grade == clientGrade
             isNameSame && isGradeSame
         }!!
@@ -121,7 +122,7 @@ object ChoosePaymentAmountToReplenishAccount: Question(READ_PAYMENT_AMOUNT_TO_RE
         payment.amount = amount
 
         val client = payment.client
-        val clientGrade = client.user.linkedOrNull(Student)?.grade?.name ?: Text["empty-grade"]
+        val clientGrade = client.user.grade
 
         user.send(Text.get("confirm-account-replenishment") {
             it["name"] = client.user.name!!

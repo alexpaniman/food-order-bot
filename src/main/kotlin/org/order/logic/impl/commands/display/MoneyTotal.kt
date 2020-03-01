@@ -1,20 +1,21 @@
 package org.order.logic.impl.commands.display
 
-import org.jetbrains.exposed.sql.Expression
-import org.jetbrains.exposed.sql.and
 import org.order.bot.send.button
+import org.order.data.entities.Admin
 import org.order.data.entities.Client
+import org.order.data.entities.Producer
 import org.order.data.entities.State.COMMAND
 import org.order.data.entities.Student
 import org.order.data.tables.Clients
-import org.order.logic.commands.triggers.CommandTrigger
-import org.order.logic.commands.triggers.StateTrigger
-import org.order.logic.commands.triggers.and
+import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 
+private val MONEY_TOTAL_WINDOW_TRIGGER =
+        (RoleTrigger(Producer) or RoleTrigger(Admin)) and
+                StateTrigger(COMMAND) and
+                CommandTrigger(Text["money-total-command"])
 
-private val MONEY_TOTAL_WINDOW_TRIGGER = StateTrigger(COMMAND) and CommandTrigger(Text["money-total-command"])
 private const val WINDOW_MARKER = "money-total-window"
 
 val MONEY_TOTAL_WINDOW = Window(WINDOW_MARKER, MONEY_TOTAL_WINDOW_TRIGGER,

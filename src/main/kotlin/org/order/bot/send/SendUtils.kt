@@ -1,6 +1,7 @@
 package org.order.bot.send
 
 import org.order.logic.corpus.Text
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard
@@ -19,11 +20,16 @@ private fun SendMessage.keyboard(markup: ReplyKeyboard) {
     replyMarkup = markup
 }
 
+private fun SendDocument.keyboard(markup: ReplyKeyboard) {
+    replyMarkup = markup
+}
+
 fun SendMessage.removeReply() = keyboard(ReplyKeyboardRemove())
 
 fun SendMessage.inline(init: InlineKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.inline(init))
 fun SendMessage.reply(init: ReplyKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.reply(init))
 
+fun SendDocument.reply(init: ReplyKeyboardMarkup.() -> Unit) = keyboard(org.order.bot.send.reply(init))
 
 fun InlineKeyboardMarkup.row(init: MutableList<InlineKeyboardButton>.() -> Unit) {
     if (keyboard == null)

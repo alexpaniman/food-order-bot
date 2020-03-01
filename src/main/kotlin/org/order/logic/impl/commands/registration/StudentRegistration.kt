@@ -32,12 +32,10 @@ object GradeQuestion : Question(READ_GRADE) {
         val inputGrade = update.message?.text
         val grade      = if (inputGrade != null)
             Grade.find { Grades.name eq inputGrade }
-                    .singleOrNull() // Null if there's no grade with same name
+                    .firstOrNull() // Null if there's no grade with same name
         else null // Or input doesn't contain text
 
-        val currentStudent = Student
-                .find { Students.user eq user.id }
-                .single()
+        val currentStudent = user.linked(Student)
 
         if (grade != null)
             currentStudent.grade = grade

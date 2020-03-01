@@ -7,14 +7,17 @@ import org.order.logic.impl.commands.PAYMENTS_TOKEN
 import org.telegram.telegrambots.bots.DefaultAbsSender
 import org.telegram.telegrambots.bots.DefaultBotOptions
 import org.telegram.telegrambots.meta.api.methods.AnswerPreCheckoutQuery
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendInvoice
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
+import org.telegram.telegrambots.meta.api.objects.InputFile
 import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
+import java.io.File
 import kotlin.math.truncate
 
 class SenderContext(private val token: String, options: DefaultBotOptions): DefaultAbsSender(options) {
@@ -79,6 +82,17 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
         }
 
         execute(sendInvoice)
+    }
+
+    fun User.sendFile(name: String, caption: String, file: File, init: SendDocument.() -> Unit = {}) {
+        val sendFile = SendDocument().also {
+            it.chatId = chat.toString()
+
+            it.caption = caption
+            it.document = InputFile(file, name)
+        }.apply(init)
+
+        execute(sendFile)
     }
 
     fun answerPreCheckoutQuery(id: String, ok: Boolean, errorMessage: String? = null) {

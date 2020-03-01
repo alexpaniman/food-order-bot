@@ -4,6 +4,7 @@ import org.joda.time.LocalTime
 import java.util.*
 
 val LOCALE = Locale("ru")
+const val REGION_ID = "Europe/Kiev"
 
 val JDBC_DATABASE_URL = System.getenv("JDBC_DATABASE_URL")!!
 val DATABASE_DRIVER = System.getenv("DATABASE_DRIVER")!!
@@ -18,3 +19,8 @@ val TIME_TO_SEND_POLL = LocalTime(System.getenv("TIME_TO_SEND_POLL"))
 val PAYMENTS_TOKEN = System.getenv("PAYMENTS_TOKEN")!!
 const val INVOICE_START_PARAMETER = "0"
 const val CURRENCY = "UAH"
+
+const val TEXT_CORPUS_PATH = "src/main/resources/text-corpus.txt"
+
+const val FONT_FOR_BUILDING_PDF_PATH = "src/main/resources/font.ttf"
+const val BOLD_FONT_FOR_BUILDING_PDF_PATH = "src/main/resources/bold-font.ttf"

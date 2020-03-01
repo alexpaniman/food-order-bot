@@ -6,9 +6,15 @@ import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.order.bot.send.*
 import org.order.data.entities.*
+import org.order.data.entities.State.COMMAND
+import org.order.data.entities.State.READ_COMMENT_TO_ORDER
 import org.order.data.tables.Orders
 import org.order.data.tables.PollAnswers
+import org.order.data.tables.PollComments
+import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.processors.CallbackProcessor
+import org.order.logic.commands.triggers.StateTrigger
+import org.order.logic.commands.triggers.and
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.TIME_TO_SEND_POLL
@@ -57,8 +63,64 @@ private fun WindowContext.sendPoll(order: Order) {
         }
 
         if (finished == dishes.size)
-            button(Text["confirm-poll"], "remove-message")
+            button(Text["add-comment-to-poll"], "suggest-writing-a-comment:${order.id.value}")
     }
+}
+
+val SUGGEST_WRITING_A_COMMENT = CallbackProcessor("suggest-writing-a-comment") comment@ { user, _, (orderIdStr) ->
+    val orderId = orderIdStr.toInt()
+    val order = Order.findById(orderId) ?: error("There's no order with id: $orderId")
+
+    val comments = PollComment
+            .find { PollComments.order eq order.id }
+
+    if (!comments.empty()) {
+        user.send(Text["you-have-already-written-a-comment"])
+        user.state = COMMAND
+        return@comment
+    }
+
+    val pollComment = PollComment.new {
+        this.order = order
+    }
+
+    user.send(Text["suggest-writing-a-comment"]) {
+        inline {
+            button(Text["cancel-button"], "cancel-writing-a-comment:${pollComment.id.value}")
+        }
+    }
+
+    user.state = READ_COMMENT_TO_ORDER
+}
+
+val CANCEL_WRITING_A_COMMENT = CallbackProcessor("cancel-writing-a-comment") { user, src, (pollCommentIdStr) ->
+    val pollCommentId = pollCommentIdStr.toInt()
+    val pollComment = PollComment.findById(pollCommentId) ?: error("There's no order with id: $pollCommentId")
+
+    if (pollComment.text == null) {
+        pollComment.delete()
+        user.state = COMMAND
+    }
+
+    src.delete()
+}
+
+private val SEND_A_COMMENT_TRIGGER = StateTrigger(READ_COMMENT_TO_ORDER)
+val SEND_A_COMMENT = TriggerCommand(SEND_A_COMMENT_TRIGGER) comment@ { user, update ->
+    val text = update.message?.text
+    if (text == null) {
+        user.send(Text["illegal-comment"])
+        return@comment
+    }
+
+    val pollComment = PollComment.find { PollComments.text.isNull() }
+            .firstOrNull() ?: error("There's no poll comment without text")
+
+
+    pollComment.text = text
+
+    user.state = COMMAND
+    user.send(Text["comment-was-accepted"])
 }
 
 val RATE_PROCESSOR = CallbackProcessor("poll-rate") { user, src, (orderIdStr, dishIdStr, rateStr) ->

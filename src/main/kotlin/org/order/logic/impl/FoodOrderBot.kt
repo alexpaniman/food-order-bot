@@ -2,6 +2,7 @@ package org.order.logic.impl
 
 import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
+import org.order.logic.impl.commands.REGION_ID
 import org.order.logic.impl.commands.administration.ACCOUNT_REPLENISHMENT
 import org.order.logic.impl.commands.administration.PERFORM_ACCOUNT_REPLENISHMENT
 import org.order.logic.impl.commands.display.*
@@ -10,15 +11,16 @@ import org.order.logic.impl.commands.orders.MAKE_ORDER
 import org.order.logic.impl.commands.orders.ORDER_CANCELLATION_WINDOW
 import org.order.logic.impl.commands.orders.ORDER_WINDOW
 import org.order.logic.impl.commands.payments.*
-import org.order.logic.impl.commands.polls.RATE_PROCESSOR
-import org.order.logic.impl.commands.polls.launchPollSender
 import org.order.logic.impl.commands.registration.*
 import org.order.logic.impl.commands.tools.BAN_FILTER
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
+import org.joda.time.DateTimeZone
+import org.order.logic.impl.commands.polls.*
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
     init {
+        DateTimeZone.setDefault(DateTimeZone.forID(REGION_ID))
         senderContext.launchPollSender()
 
         // ---- Validation Filter ----
@@ -88,10 +90,14 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += MY_ORDERS_LIST_WINDOW
         this += HISTORY_WINDOW
         this += MONEY_TOTAL_WINDOW
+        this += POLLS_PDF_TOTAL
         // ---------------------------
 
         // ---------- Polls ----------
-         this += RATE_PROCESSOR
+        this += RATE_PROCESSOR
+        this += SUGGEST_WRITING_A_COMMENT
+        this += CANCEL_WRITING_A_COMMENT
+        this += SEND_A_COMMENT
         // ---------------------------
     }
 }

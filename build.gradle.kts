@@ -43,9 +43,14 @@ dependencies {
     // Use the mockk library for testing
     implementation("io.mockk:mockk:1.9.3")
 
+    implementation("joda-time:joda-time:2.10.5")
+
     // Library for building text tables
     implementation("com.jakewharton.picnic:picnic:0.2.0")
 
+    implementation("com.itextpdf:kernel:7.1.10")
+
+    implementation("com.itextpdf:layout:7.1.10")
     // -------------------------------
 
     // Use the Kotlin test library.

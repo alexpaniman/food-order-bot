@@ -275,6 +275,25 @@ class FoodOrderBotTester {
             }
         }
 
+        every { any<User>().sendFile(any(), any(), any(), any()) } answers {
+            val user: User = arg(0)
+            val name: String = arg(1)
+            val caption: String = arg(2)
+            val file: File = arg(3)
+
+            val message = Message(user.chat!!, "\nFile($name, ${file.absolutePath}) with caption $caption", None)
+            chats.computeIfAbsent(user.chat!!) {
+                QueueList()
+            } += message.apply {
+                if (displayMessages && active == message.chatId) {
+                    println("\nMessage [${message.chatId}] in active chat [$active]:\n" + this.asString())
+
+                    if (name.endsWith(".pdf"))
+                        Runtime.getRuntime().exec("zathura $file")
+                }
+            }
+        }
+
         every { answerPreCheckoutQuery(any(), any(), any()) } answers {
             println("\nPreCheckoutQuery was answered! ID: ${arg<String>(0)}, OK: ${arg<Boolean>(1)}, Error: ${arg<String?>(2)}")
         }
@@ -492,6 +511,10 @@ class FoodOrderBotTester {
             active!!.sendSuccessfulPayment(payload, telegramId, providerId)
             "SuccessfulPayment [payload = $payload, telegramId = $telegramId, providerId = $providerId] was sent to the chat [id = $active]."
         }
+        "wait" -> {
+            sleep(args[0].toLong())
+            "${args[0]} seconds was passed"
+        }
         else -> {
             val builder = StringBuilder((listOf(name) + args).joinToString(" "))
             while (true) {
@@ -603,8 +626,8 @@ fun main() {
         SchemaUtils.create(
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
-                Relations, Coordinators, Users,
-                OrdersCancellations, PollAnswers
+                Relations, Coordinators, Users, PollAnswers,
+                OrdersCancellations, PollComments
         )
 
         createAdmin(0, "Аоооо Аооо", "+380669360000")

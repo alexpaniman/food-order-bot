@@ -29,8 +29,8 @@ fun main() {
         SchemaUtils.create(
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
-                Relations, Coordinators, Users,
-                OrdersCancellations, PollAnswers
+                Relations, Coordinators, Users, PollAnswers,
+                OrdersCancellations, PollComments
         )
     }
 
