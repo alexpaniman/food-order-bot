@@ -10,6 +10,7 @@
 [resend-buttons-command] отправить клавиатуру
 [replenish-account-command] пополнить счет
 [money-total-command] сводка по деньгам
+[polls-pdf-total-command] сводка опросов
 # -- [Список команд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
@@ -352,11 +353,22 @@
     [space]на сегодня, [order:order-date].[br]
     Оцените его:
 
+[suggest-writing-a-comment]
+    Напишите Ваш комментарий:
+
+[you-have-already-written-a-comment]
+    Вы уже написали комментарий к этому заказу.
+
+[illegal-comment]
+    Неверный ввод! Пожалуйста введите текст комментария:
+
+[comment-was-accepted]
+    Спасибо за Ваш комментарий. Мы будем работать над качеством.
+
 [poll-unfilled-star] ☆
 [poll-filled-star] ★
 
-[confirm-poll]
-    завершить опрос
+[add-comment-to-poll] написать комментарий
 # -- [Опросы] -- #
 
 # --- Сводка по деньгам --- #
@@ -372,3 +384,29 @@
 [money-total-user]
     [space]   `[user] : [balance]`
 # -- [Сводка по деньгам] -- #
+
+# --- Сводка опросов --- #
+[polls-pdf-total:ask-date]
+    За какую дату вы хотите получить сводку?[br]
+    Введите [yyyy-MM-dd]:
+
+[polls-pdf-total:wrong-date]
+    Неверная дата! Пожалуйста, введите дату в формате yyyy-MM-dd.[br]
+    Повторите попытку:
+
+[polls-pdf-total:empty]
+    Нет информации!
+
+[polls-pdf-total]
+    Сводка по опросам за [date] [[day]]
+
+[polls-pdf-total:sum-up] Средние оценки
+[polls-pdf-total:full-list] Все оценки
+
+[polls-pdf-total:menu]
+    Меню [name]
+
+[polls-pdf-total:file-name] Polls[[date]].pdf
+[polls-pdf-total:caption]
+    Сводка опросов за [date], [day].
+# -- [Сводка опросов] -- #

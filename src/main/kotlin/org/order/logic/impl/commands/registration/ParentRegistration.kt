@@ -44,12 +44,10 @@ object ChildNameQuestion : Question(READ_CHILD_NAME) {
         val inputChildName = update.message?.text
         val isValid = inputChildName?.matches(NAME_VALIDATOR.toRegex()) ?: false
 
-        val linkedParent = Parent
-                .find { Parents.user eq user.id }
-                .single()
+        val linkedParent = user.linked(Parent)
 
         val currentStudent = linkedParent.children
-                .singleOrNull { it.user.name == null }
+                .firstOrNull { it.user.name == null }
                 ?: linkedParent.createChild()
 
         if (isValid)
@@ -75,12 +73,12 @@ object ChildGradeQuestion : Question(READ_CHILD_GRADE) {
         val inputGrade = update.message?.text
         val grade = if (inputGrade != null)
             Grade.find { Grades.name eq inputGrade }
-                    .singleOrNull() // Null if there's no grade with same name
+                    .firstOrNull() // Null if there's no grade with same name
         else null // Or input doesn't contains text
 
         val linkedParent = user.linked(Parent)
         val currentStudent = linkedParent.children
-                .single { it.grade == null }
+                .first { it.grade == null }
 
         if (grade != null)
             currentStudent.grade = grade

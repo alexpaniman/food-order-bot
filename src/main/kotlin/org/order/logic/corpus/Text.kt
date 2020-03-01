@@ -1,5 +1,6 @@
 package org.order.logic.corpus
 
+import org.order.logic.impl.commands.TEXT_CORPUS_PATH
 import java.io.File
 import java.lang.StringBuilder
 
@@ -10,7 +11,7 @@ object Text {
     private fun String.trimAfter(delimiter: Char) =
             substringAfter(delimiter).trim()
 
-    private val corpus: Map<String, String> = File("src/main/resources/text-corpus.txt")
+    private val corpus: Map<String, String> = File(TEXT_CORPUS_PATH)
             .readText().lines()
             .fold(mutableListOf<Pair<String, StringBuilder>>()) { list, text ->
                 list.apply {
