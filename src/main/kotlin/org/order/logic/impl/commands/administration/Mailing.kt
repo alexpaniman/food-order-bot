@@ -48,7 +48,9 @@ val SUGGEST_MAILING_A_MESSAGE_TO_MAIL = TriggerCommand(SUGGEST_MAILING_A_MESSAGE
 
         Text["cancel-button"] -> {
             user.state = COMMAND
-            user.send(Text["successful-mailing-cancellation"])
+            user.send(Text["successful-mailing-cancellation"]) {
+                appendMainKeyboard(user)
+            }
             return@mailing
         }
 
@@ -73,7 +75,9 @@ private val PERFORM_MAILING_TRIGGER =
 val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, update ->
     val text = update.message?.text
     if (text == Text["cancel-button"]) {
-        user.send(Text["successful-mailing-cancellation"])
+        user.send(Text["successful-mailing-cancellation"]) {
+            appendMainKeyboard(user)
+        }
         user.state = COMMAND
         return@mailing
     }
