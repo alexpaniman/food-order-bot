@@ -18,7 +18,6 @@ import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import java.io.File
-import kotlin.math.truncate
 
 class SenderContext(private val token: String, options: DefaultBotOptions): DefaultAbsSender(options) {
     override fun getBotToken() = token

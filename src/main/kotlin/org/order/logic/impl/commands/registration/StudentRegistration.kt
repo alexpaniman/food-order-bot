@@ -9,7 +9,6 @@ import org.order.data.entities.State.*
 import org.order.data.entities.Student
 import org.order.data.entities.User
 import org.order.data.tables.Grades
-import org.order.data.tables.Students
 import org.order.logic.commands.questions.Question
 import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.RoleTrigger

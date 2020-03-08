@@ -48,6 +48,7 @@ dependencies {
     // Library for building text tables
     implementation("com.jakewharton.picnic:picnic:0.2.0")
 
+    // Fro building PDF
     implementation("com.itextpdf:kernel:7.1.10")
 
     implementation("com.itextpdf:layout:7.1.10")

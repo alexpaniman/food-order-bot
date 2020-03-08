@@ -4,7 +4,6 @@ import org.jetbrains.exposed.sql.and
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.order.bot.send.button
-import org.order.bot.send.inline
 import org.order.bot.send.row
 import org.order.bot.send.switcherIn
 import org.order.data.entities.*

@@ -65,6 +65,8 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
         row {
             button(Text["replenish-account-command"])
             button(Text["money-total-command"])
+            if (isAdmin)
+                button(Text["mailing-command"])
         }
     }
 
@@ -81,3 +83,6 @@ fun SendMessage.appendMainKeyboard(user: User) = reply {
 fun SendDocument.appendMainKeyboard(user: User) = reply {
     mainKeyboard(user)
 }
+
+val User.isRegistered
+    get() = name != null && phone != null && state == State.COMMAND

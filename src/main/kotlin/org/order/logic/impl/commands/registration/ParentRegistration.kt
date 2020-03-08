@@ -2,23 +2,17 @@ package org.order.logic.impl.commands.registration
 
 import org.jetbrains.exposed.sql.insert
 import org.order.bot.send.*
-import org.telegram.telegrambots.meta.api.objects.Update
-
 import org.order.data.entities.*
 import org.order.data.entities.State.*
-
 import org.order.data.tables.Grades
-
-import org.order.data.tables.Parents
 import org.order.data.tables.Relations
-
 import org.order.logic.commands.questions.Question
 import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.triggers.and
-
 import org.order.logic.corpus.Text
+import org.telegram.telegrambots.meta.api.objects.Update
 
 private fun Parent.createChild(): Student {
     val user = User.new { this.state = IMAGINE }

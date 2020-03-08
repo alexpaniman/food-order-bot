@@ -1,10 +1,7 @@
 package org.order.logic.impl.commands.registration
 
 import org.jetbrains.exposed.sql.insert
-import org.order.bot.send.button
-import org.order.bot.send.inline
-import org.order.bot.send.removeReply
-import org.order.bot.send.reply
+import org.order.bot.send.*
 import org.order.data.entities.*
 import org.order.data.entities.State.*
 import org.order.data.tables.Relations
@@ -15,6 +12,9 @@ import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
+import org.order.logic.impl.utils.grade
+import org.order.logic.impl.utils.isRegistered
+import org.telegram.telegrambots.meta.api.objects.Message
 
 private fun User.descriptionForValidation() = buildDescription(Student, Teacher, Parent, Producer)
         .replace('─', '-')
@@ -70,11 +70,15 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
                     }
                 }
 
-            user.send(Text.get("registration-confirmed") {
-                it["description"] = description
-            }) { removeReply() }
+            if (user.name == "Иван Иванов") // TODO remove it
+                performValidation(null, "confirm", user.id.value)
+            else {
+                user.send(Text.get("registration-confirmed") {
+                    it["description"] = description
+                }) { removeReply() }
 
-            user.state = VALIDATION
+                user.state = VALIDATION
+            }
         }
 
         Text["registration-dismiss-button"] -> {
@@ -142,16 +146,20 @@ val RESEND_BUTTONS = TriggerCommand(CommandTrigger(Text["resend-buttons-command"
     }
 }
 
-val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, (action, id) ->
-    val user = User.findById(id.toInt()) ?: error("User doesn't exist!")
+val VALIDATION_PROCESSOR = CallbackProcessor("validation") { _, src, (action, id) ->
+    performValidation(src, action, id.toInt())
+}
+
+fun SenderContext.performValidation(src: Message?, action: String, id: Int) {
+    val user = User.findById(id) ?: error("User doesn't exist!")
 
     val description = user.descriptionForValidation()
 
-    if (user.valid) {
-        src.edit(Text.get("coordinator-notification:user-was-processed-by-another-coordinator") {
+    if (user.valid || user.state == BANNED || user.isRegistered) {
+        src?.edit(Text.get("coordinator-notification:user-was-processed-by-another-coordinator") {
             it["description"] = description
         })
-        return@validation
+        return
     }
 
     when (action) {
@@ -161,7 +169,7 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, 
 
             user.send(Text["validation:user-is-banned"])
 
-            src.edit(Text.get("coordinator-notification:user-is-banned") {
+            src?.edit(Text.get("coordinator-notification:user-is-banned") {
                 it["description"] = description
             })
         }
@@ -174,7 +182,7 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, 
             user.state = READ_NAME
             user.send(Text["register-name"])
 
-            src.edit(Text.get("coordinator-notification:user-is-dismissed") {
+            src?.edit(Text.get("coordinator-notification:user-is-dismissed") {
                 it["description"] = description
             })
         }
@@ -192,7 +200,7 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") validation@{ _, src, 
 
             user.send(Text["validation:user-is-confirmed"]) { appendMainKeyboard(user) }
 
-            src.edit(Text.get("coordinator-notification:user-is-confirmed") {
+            src?.edit(Text.get("coordinator-notification:user-is-confirmed") {
                 it["description"] = description
             })
         }

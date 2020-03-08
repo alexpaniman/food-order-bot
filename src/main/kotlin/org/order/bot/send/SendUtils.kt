@@ -70,13 +70,9 @@ fun MutableList<InlineKeyboardButton>.deactivatableButton(text: String, callback
     else
         button(Text["inactive-button"])
 }
-fun InlineKeyboardMarkup.deactivatableButton(text: String, callback: String, activate: () -> Boolean) =
-        row { deactivatableButton(text, callback, activate) }
 
 fun MutableList<InlineKeyboardButton>.deactivatableKeyButton(key: String, callback: String, activate: () -> Boolean) =
         deactivatableButton(Text[key], callback, activate)
-fun InlineKeyboardMarkup.deactivatableKeyButton(key: String, callback: String, activate: () -> Boolean) =
-        row { deactivatableKeyButton(key, callback, activate) }
 // --------------------------------- [Deactivatable Buttons] --------------------------------- //
 
 fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback: (T) -> String = { it.toString() }, show: (T) -> String = { it.toString() }) {
