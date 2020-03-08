@@ -70,7 +70,7 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
                     }
                 }
 
-            if (user.name == "Иван Иванов") // TODO remove it
+            if (user.name == "Иванов Иван") // TODO remove it
                 performValidation(null, "confirm", user.id.value)
             else {
                 user.send(Text.get("registration-confirmed") {
