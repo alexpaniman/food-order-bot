@@ -13,6 +13,7 @@ import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.appendMainKeyboard
 import org.telegram.telegrambots.meta.api.objects.Update
 import kotlin.math.absoluteValue
 
@@ -33,7 +34,9 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
         val answer = update.message?.text
 
         if (answer == Text["cancel-button"]) {
-            user.send(Text["successful-payment-cancellation"])
+            user.send(Text["successful-payment-cancellation"]) {
+                appendMainKeyboard(user)
+            }
             user.state = COMMAND
             return true
         }
