@@ -1,7 +1,6 @@
 package org.order.data.entities
 
 import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.dao.IntEntity
 import org.order.data.Role
 import org.order.data.RoleClass
 import org.order.data.tables.Teachers

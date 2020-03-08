@@ -3,8 +3,6 @@ package org.order.logic.impl
 import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
 import org.order.logic.impl.commands.REGION_ID
-import org.order.logic.impl.commands.administration.ACCOUNT_REPLENISHMENT
-import org.order.logic.impl.commands.administration.PERFORM_ACCOUNT_REPLENISHMENT
 import org.order.logic.impl.commands.display.*
 import org.order.logic.impl.commands.orders.CANCEL_ORDER
 import org.order.logic.impl.commands.orders.MAKE_ORDER
@@ -16,6 +14,7 @@ import org.order.logic.impl.commands.tools.BAN_FILTER
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 import org.joda.time.DateTimeZone
+import org.order.logic.impl.commands.administration.*
 import org.order.logic.impl.commands.notifications.launchClientsNotifier
 import org.order.logic.impl.commands.polls.*
 
@@ -101,6 +100,12 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += SUGGEST_WRITING_A_COMMENT
         this += CANCEL_WRITING_A_COMMENT
         this += SEND_A_COMMENT
+        // ---------------------------
+
+        // --------- Mailing ---------
+        this += MAILING_MENU
+        this += SUGGEST_MAILING_A_MESSAGE_TO_MAIL
+        this += PERFORM_MAILING
         // ---------------------------
     }
 }

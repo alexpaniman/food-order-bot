@@ -4,7 +4,10 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
-import org.order.bot.send.*
+import org.order.bot.send.SenderContext
+import org.order.bot.send.button
+import org.order.bot.send.inline
+import org.order.bot.send.row
 import org.order.data.entities.*
 import org.order.data.entities.State.COMMAND
 import org.order.data.entities.State.READ_COMMENT_TO_ORDER
@@ -14,7 +17,6 @@ import org.order.data.tables.PollComments
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.StateTrigger
-import org.order.logic.commands.triggers.and
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.TIME_TO_SEND_POLL
