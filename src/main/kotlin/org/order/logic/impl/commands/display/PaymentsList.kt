@@ -51,7 +51,7 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
             .groupBy { it.registered!! }
             .mapValues { (_, value) ->
                 value.map {
-                    -it.amount!!
+                    it.amount!!
                 }
             }
 
@@ -59,7 +59,7 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
             .groupBy { it.registered }
             .mapValues { (_, value) ->
                 value.map {
-                    it.menu.cost
+                    -it.menu.cost
                 }
             }
 
