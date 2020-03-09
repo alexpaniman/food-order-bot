@@ -177,11 +177,6 @@
 # -- [Подтверждение] -- #
 
 # --- Заказы --- # TODO Блок предлагающий заказ еды
-# TODO недостаток денег на счету
-[not-enough-money-to-order]
-    Недостаточно денег для заказа![br]
-    Пожалуйста пополните счет!
-
 [do-you-want-to-order-yet-another-time]
     Вы действительно хотите заказать обед ещё раз в этот день?
 
@@ -210,6 +205,7 @@
 # TODO Кнопки отличаются в зависимости от количества заказов
 [make-order] заказать
 [make-another-order] заказать ещё
+[make-order-not-enough-money] недостаточно денег
 
 # TODO сообщение об отсутствии данного меню
 [menu-is-not-available-now] В данный момент это меню недоступно.
@@ -250,7 +246,7 @@
 
 # --- История --- # TODO Список всех действий человека
 [history-empty]
-    На данный момент ваша история пуста!
+    *На данный момент ваша история пуста!*
 
 [history-balance]
     [space]       *Баланс*`[delta]` = `[balance]`
@@ -346,6 +342,16 @@
 
 [successful-payment]
     Успешный платеж на сумму: [amount]
+
+[payment-notification]
+    *Уведомление о платеже!*[br][br]
+    [space]   `Заплатил: [user-name]`[br]
+    [space]   `На счет клиента: [client-name]`[br][br]
+    [space]   `Сумму: [amount] грн.`[br]
+    [space]   `С комиссией: [actual-amount] грн.`[br][br]
+    [space]   `Время: [registered]`[br][br]
+    [space]   `TelegramId платежа: [telegram-id]`[br]
+    [space]   `LiqPayId платежа: [provider-id]`
 # -- [Оплата] -- #
 
 # --- Пополнение счета --- # TODO Для администраторов
@@ -413,7 +419,7 @@
 [show-only-debt-checked] только должники
 [show-only-debt-unchecked] все
 
-[money-total-grade] *[grade]:*
+[money-total-grade] *Класс [grade]:*
 [money-total-user]
     [space]   `[user] : [balance]`
 # -- [Сводка по деньгам] -- #

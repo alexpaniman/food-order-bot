@@ -49,17 +49,6 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
     val clientNum = clientNumStr.toInt().coerceIn(clients.indices)
     val client = clients[clientNum]
 
-    if (client.balance <= - MAX_DEBT) {
-        show(Text["not-enough-money-to-order"]) {
-            if (user.hasLinked(Parent))
-                button(client.user.name!!, "$WINDOW_MARKER:$dayNum:$menuNum:${(clientNum + 1).orZero(clients.indices)}")
-
-            button(Text["cancel-button"], "remove-message")
-        }
-
-        return
-    }
-
     val ordersToday = client.orders
             .filter { it.orderDate == day && it.menu == currentMenu && !it.canceled }
             .count()
@@ -87,12 +76,16 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
             }
         }, { "$WINDOW_MARKER:$dayNum:$it:$clientNum" })
 
-        val makeOrderText = if (ordersToday > 0)
-            Text["make-another-order"]
-        else
-            Text["make-order"]
+        if (client.balance <= - MAX_DEBT)
+            button(Text["make-order-not-enough-money"])
+        else {
+            val makeOrderText = if (ordersToday > 0)
+                Text["make-another-order"]
+            else
+                Text["make-order"]
 
-        button(makeOrderText, "make-order:${currentMenu.id.value}:$day:${client.id.value}:$dayNum:$menuNum:$clientNum:false")
+            button(makeOrderText, "make-order:${currentMenu.id.value}:$day:${client.id.value}:$dayNum:$menuNum:$clientNum:false")
+        }
 
         button(Text["cancel-button"], "remove-message")
     }

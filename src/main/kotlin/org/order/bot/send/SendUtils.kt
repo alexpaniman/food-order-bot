@@ -59,7 +59,7 @@ fun KeyboardRow.button(text: String, init: KeyboardButton.() -> Unit = {}) {
 
 fun ReplyKeyboardMarkup.button(text: String, init: KeyboardButton.() -> Unit = {}) =
         row { button(text, init) }
-fun InlineKeyboardMarkup.button(text: String, callback: String = ":", pay: Boolean = false, init: InlineKeyboardButton.() -> Unit = {}) =
+fun InlineKeyboardMarkup.button(text: String, callback: String = ":" + System.nanoTime(), pay: Boolean = false, init: InlineKeyboardButton.() -> Unit = {}) =
         row { button(text, callback, pay, init) }
 
 
