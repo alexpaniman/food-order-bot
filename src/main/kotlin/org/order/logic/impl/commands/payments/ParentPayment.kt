@@ -15,9 +15,13 @@ import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
+import org.order.logic.impl.commands.COMMISSION
 import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.orZero
+import org.order.logic.impl.utils.withCommission
 import org.telegram.telegrambots.meta.api.objects.Update
+import kotlin.math.ceil
+import kotlin.math.round
 
 private const val WINDOW_MARKER = "read-parent-payment-amount-window"
 
@@ -67,15 +71,18 @@ private object ReadParentPaymentAmount: Question(READ_PARENT_PAYMENT_AMOUNT) {
 
         unfinishedPayment.amount = amount
 
+        val actualAmount = amount.withCommission
         user.sendInvoice(
-                Text["payment-title"], amount,
+                Text["payment-title"], actualAmount,
                 Text.get("payment-description") {
                     it["amount"] = amount.toString()
+                    it["commission"] = (COMMISSION * 100f).toString()
+                    it["actual-amount"] = actualAmount.toString()
                 },
                 "account-replenishment:${unfinishedPayment.id.value}"
         ) {
             button(Text.get("pay-button") {
-                it["amount"] = amount.toString()
+                it["actual-amount"] = actualAmount.toString()
             }, pay = true)
 
             button(Text["cancel-button"], "remove-canceled-payment:${unfinishedPayment.id.value}")

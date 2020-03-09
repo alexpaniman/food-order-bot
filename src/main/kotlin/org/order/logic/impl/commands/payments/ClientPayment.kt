@@ -13,7 +13,9 @@ import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.corpus.Text
+import org.order.logic.impl.commands.COMMISSION
 import org.order.logic.impl.utils.appendMainKeyboard
+import org.order.logic.impl.utils.withCommission
 import org.telegram.telegrambots.meta.api.objects.Update
 import kotlin.math.absoluteValue
 
@@ -60,15 +62,18 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
             this.amount = amount
         }
 
+        val actualAmount = amount.withCommission
         user.sendInvoice(
-                Text["payment-title"], amount,
+                Text["payment-title"], actualAmount,
                 Text.get("payment-description") {
                     it["amount"] = amount.toString()
+                    it["commission"] = (COMMISSION * 100f).toString()
+                    it["actual-amount"] = actualAmount.toString()
                 },
                 "account-replenishment:${unfinishedPayment.id.value}"
         ) {
             button(Text.get("pay-button") {
-                it["amount"] = amount.toString()
+                it["actual-amount"] = actualAmount.toString()
             }, pay = true)
 
             button(Text["cancel-button"], "remove-canceled-payment:${unfinishedPayment.id.value}")
