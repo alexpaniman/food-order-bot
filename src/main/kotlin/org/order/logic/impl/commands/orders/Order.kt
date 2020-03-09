@@ -116,7 +116,8 @@ val MAKE_ORDER = CallbackProcessor("make-order") make_order@ { user, src, (menuI
             val orders = Order
                     .find {
                         Orders.client eq client.id and
-                                (Orders.orderDate eq dayStr)
+                                (Orders.orderDate eq dayStr) and
+                                (Orders.canceled eq false)
                     }
 
             if (!orders.empty()) {
