@@ -133,6 +133,11 @@ private fun linkParent(parent: Parent) {
         } else
             child.user.valid = true
     }
+
+    parent.user.apply {
+        state = COMMAND
+        valid = true
+    }
 }
 
 val RESEND_BUTTONS = TriggerCommand(CommandTrigger(Text["resend-buttons-command"])) { user, _ ->
@@ -190,8 +195,6 @@ fun SenderContext.performValidation(src: Message?, action: String, id: Int) {
                 user.hasLinked(Parent) ->
                     linkParent(user.linked(Parent))
             }
-            user.state = COMMAND
-            user.valid = true
 
             user.send(Text["validation:user-is-confirmed"]) { appendMainKeyboard(user) }
 
