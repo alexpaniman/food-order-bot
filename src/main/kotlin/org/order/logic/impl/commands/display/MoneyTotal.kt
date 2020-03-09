@@ -43,6 +43,8 @@ val MONEY_TOTAL_WINDOW = Window(WINDOW_MARKER, MONEY_TOTAL_WINDOW_TRIGGER,
                     it["user"] = client.user.name!!
                     it["balance"] = client.balance.toString()
                 })
+
+            appendln()
         }
     }
 

@@ -212,7 +212,7 @@
 # -- [Заказы] -- #
 
 # --- Отмены заказов --- # TODO Блок предлагающий отменить заказ еды
-[suggest-order-cancellation] Выберите день, в который хотите отменить заказы:
+[suggest-order-cancellation] *Выберите день, в который хотите отменить заказы:*
 
 # TODO Сообщение об отсутствии данного заказа
 [these-orders-were-already-canceled]
@@ -224,7 +224,7 @@
 
 # --- Список платежей --- # TODO Список изменений баланса (заказ — -, оплата — +)
 [payments-list]
-    *Ваши платежи:*[br][br]
+    *Ваши операции со счетом:*[br][br]
     [payments]
 
 # TODO Информация для построения [payments] из [payments-list] выше
@@ -282,12 +282,12 @@
 [orders-list] [orders]
 
 # TODO Информация для построения [orders] из [orders-list] выше
-[grade-display] *[grade] [[orders-count]]:*
+[grade-display] *Класс [grade] [[orders-count]]:*
 [menu-display]  [space]   *Меню [menu-name] [[orders-count]]:*
 [user-display]  [space]       `[user-name]`
 
 [there-were-no-orders-made-yet]
-    На данный момент нет заказов!
+    *На данный момент нет заказов!*
 # -- [Список заказов] -- #
 
 # -- [Помощь] -- # TODO Сообщение, которое выводиться после нажатия "Помощь"
