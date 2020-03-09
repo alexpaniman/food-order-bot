@@ -12,7 +12,6 @@
 [money-total-command] сводка по деньгам
 [polls-pdf-total-command] сводка опросов
 [mailing-command] рассылка
-[help-slash-command] /help
 # -- [Список команд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
