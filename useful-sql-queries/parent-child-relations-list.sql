@@ -1,0 +1,1 @@
+select pu.name as parent_name, pu.is_valid as is_parent_valid, pu.id as parent_user_id, pu.state as parent_state, su.name as child_name, su.is_valid as is_child_valid, su.id as child_user_id, su.state as child_state from relations r, parents p, students s, users pu, users su where r.parent_id = p.id and r.child_id = s.id and pu.id = p.user_id and su.id = s.user_id;
