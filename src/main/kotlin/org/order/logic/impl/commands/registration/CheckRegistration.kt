@@ -12,7 +12,6 @@ import org.order.logic.commands.triggers.CommandTrigger
 import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
-import org.order.logic.impl.utils.grade
 import org.order.logic.impl.utils.isRegistered
 import org.telegram.telegrambots.meta.api.objects.Message
 
@@ -70,15 +69,11 @@ val REGISTRATION_PROCESSOR = TriggerCommand(REGISTRATION_PROCESSOR_TRIGGER) { us
                     }
                 }
 
-            if (user.name == "Иванов Иван") // TODO remove it
-                performValidation(null, "confirm", user.id.value)
-            else {
-                user.send(Text.get("registration-confirmed") {
-                    it["description"] = description
-                }) { removeReply() }
+            user.send(Text.get("registration-confirmed") {
+                it["description"] = description
+            }) { removeReply() }
 
-                user.state = VALIDATION
-            }
+            user.state = VALIDATION
         }
 
         Text["registration-dismiss-button"] -> {

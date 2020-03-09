@@ -17,16 +17,21 @@ val BOT_USERNAME = System.getenv("BOT_USERNAME")!!
 
 val PAYMENTS_TOKEN = System.getenv("PAYMENTS_TOKEN")!!
 
-val LAST_ORDER_TIME get() = LocalTime(getproperty("LAST_ORDER_TIME"))
-val TIME_TO_SEND_POLL get() = LocalTime(getproperty("TIME_TO_SEND_POLL"))
-val TIME_TO_NOTIFY get() = LocalTime(getproperty("TIME_TO_NOTIFY"))
-val MAX_DEBT get() = getproperty("MAX_DEBT").toFloat()
+val LAST_ORDER_TIME
+    get() = LocalTime(getproperty("LAST_ORDER_TIME"))
+val TIME_TO_SEND_POLL
+    get() = LocalTime(getproperty("TIME_TO_SEND_POLL"))
+val TIME_TO_NOTIFY
+    get() = LocalTime(getproperty("TIME_TO_NOTIFY"))
+val MAX_DEBT
+    get() = getproperty("MAX_DEBT").toFloat()
 
 var LAST_NOTIFICATION: LocalDate
     get() = LocalDate.parse(getproperty("LAST_NOTIFICATION"))
     set(value) = setproperty("LAST_NOTIFICATION", value.toString())
 
-val COMMISSION = getproperty("COMMISSION").toFloat()
+val COMMISSION
+    get() = getproperty("COMMISSION").toFloat()
 
 const val INVOICE_START_PARAMETER = "0"
 const val CURRENCY = "UAH"
