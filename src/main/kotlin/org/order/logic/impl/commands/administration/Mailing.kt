@@ -12,6 +12,8 @@ import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
+import java.lang.Exception
+import java.lang.Thread.sleep
 
 private val MAILING_TRIGGER = StateTrigger(COMMAND) and
         RoleTrigger(Admin) and
@@ -95,27 +97,40 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
                         it.send(text) {
                             appendMainKeyboard(it)
                         }
+                        sleep(35)
                     }
 
         SEND_MESSAGE_TO_ALL_USERS ->
             User.all()
                     .filter { it.chat != null }
-                    .forEach { it.send(text) }
+                    .forEach {
+                        it.send(text)
+                        sleep(35)
+                    }
 
         SEND_MESSAGE_TO_ALL_CLIENTS ->
             Client.all()
                     .map { it.user }
                     .filter { it.chat != null }
-                    .forEach { it.send(text) }
+                    .forEach {
+                        it.send(text)
+                        sleep(35)
+                    }
 
         SUGGEST_REGISTRATION_TO_ALL_NEW_USERS ->
             User.all()
-                    .filter { it.state == COMMAND && it.name == null }
+                    .filter { it.state == COMMAND && it.name == null && it.chat != null }
                     .forEach {
-                        it.send(text)
+                        try {
+                            it.send(text)
 
-                        it.state = READ_NAME
-                        it.send(Text["register-name"])
+                            it.state = READ_NAME
+                            it.send(Text["register-name"])
+                            sleep(35)
+                        } catch (exc: Exception) {
+                            user.send("Error occurred: $exc")
+                            sleep(35)
+                        }
                     }
 
         else -> error("Trigger doesn't work!")
