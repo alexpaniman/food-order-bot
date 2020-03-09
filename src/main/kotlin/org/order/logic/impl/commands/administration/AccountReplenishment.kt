@@ -15,14 +15,14 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import kotlin.math.max
 
 private fun longestCommonSubstring(s1: String, s2: String): Int {
-    val dynamic = Array(s2.length) {
-        IntArray(s1.length) { 0 }
+    val dynamic = Array(s1.length + 1) {
+        IntArray(s2.length + 1) { 0 }
     }
 
     for (i in 1..s1.length)
         for (j in 1..s2.length) {
             dynamic[i][j] = max(dynamic[i - 1][j], dynamic[i][j - 1])
-            if (s1[j - 1] == s2[i - 1])
+            if (s1[i - 1] == s2[j - 1])
                 dynamic[i][j] += 1
         }
 

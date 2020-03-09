@@ -111,6 +111,9 @@ private fun linkStudent(realStudent: Student) {
         }
 
         realStudent.user.safeDelete()
+    } else realStudent.user.apply {
+        state = COMMAND
+        valid = true
     }
 }
 
