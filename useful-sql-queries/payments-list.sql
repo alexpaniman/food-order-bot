@@ -1,0 +1,1 @@
+select um.name as made_by, uc.name as client, p.amount as amount, p.provider_id as provider_id, p.telegram_id as telegram_id, p.registered as registered from payments p, clients c, users uc, users um where p.made_by_id = um.id and p.client_id = c.id and c.user_id = uc.id and provider_id is not null;
