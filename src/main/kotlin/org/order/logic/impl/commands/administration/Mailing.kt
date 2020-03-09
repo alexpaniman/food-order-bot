@@ -1,8 +1,6 @@
 package org.order.logic.impl.commands.administration
 
 import org.order.bot.send.button
-import org.order.bot.send.inline
-import org.order.bot.send.removeReply
 import org.order.bot.send.reply
 import org.order.data.entities.Admin
 import org.order.data.entities.Client
@@ -12,7 +10,6 @@ import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
-import java.lang.Exception
 import java.lang.Thread.sleep
 
 private val MAILING_TRIGGER = StateTrigger(COMMAND) and
@@ -126,7 +123,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
 
                             it.state = READ_NAME
                             it.send(Text["register-name"])
-                            sleep(35)
+                            sleep(70)
                         } catch (exc: Exception) {
                             user.send("Error occurred: $exc")
                             sleep(35)
