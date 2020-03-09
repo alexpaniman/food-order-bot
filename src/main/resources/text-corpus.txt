@@ -338,8 +338,10 @@
     Вы успешно отменили оплату.
 
 [payment-title] Пополнение счета.
-[payment-description] Пополнение счета на сумму [amount].
-[pay-button] оплатить [amount] грн.
+[payment-description]
+    Пополнение счета на сумму [amount] грн.[br]
+    С комиссией [commission]% платёжной системы [actual-amount] грн.
+[pay-button] оплатить [actual-amount] грн.
 [make-payment-or-cancel-it] Пожалуйста, завершите оплату или отмените её!
 [canceled-payment-was-successful-removed] Платёж был успешно отменен!
 

@@ -3,6 +3,7 @@ package org.order.logic.impl.commands.payments
 import org.order.data.entities.Payment
 import org.order.logic.commands.processors.PreCheckoutQueryProcessor
 import org.order.logic.impl.commands.CURRENCY
+import org.order.logic.impl.utils.withCommission
 
 val PAYMENT_CONFIRMATION = PreCheckoutQueryProcessor("account-replenishment") { user, id, currency, amount, (paymentIdStr) ->
     val paymentId = paymentIdStr.toInt()
@@ -12,8 +13,8 @@ val PAYMENT_CONFIRMATION = PreCheckoutQueryProcessor("account-replenishment") { 
         "Wrong currency: $currency instead of $CURRENCY"
     }
 
-    check(payment.amount == amount) {
-        "Wrong payment amount: $amount instead of ${payment.amount}"
+    check(payment.amount!!.withCommission == amount) {
+        "Wrong payment amount: $amount instead of ${payment.amount!!.withCommission}"
     }
 
     check(payment.madeBy == user) {

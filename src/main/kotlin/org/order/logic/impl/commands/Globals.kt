@@ -26,6 +26,8 @@ var LAST_NOTIFICATION: LocalDate
     get() = LocalDate.parse(getproperty("LAST_NOTIFICATION"))
     set(value) = setproperty("LAST_NOTIFICATION", value.toString())
 
+val COMMISSION = getproperty("COMMISSION").toFloat()
+
 const val INVOICE_START_PARAMETER = "0"
 const val CURRENCY = "UAH"
 
