@@ -11,10 +11,29 @@ import org.order.data.tables.Orders
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_NOTIFICATION
 import org.order.logic.impl.commands.TIME_TO_NOTIFY
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
 const val LISTENER_DELAY = 10000L
+
+private fun SenderContext.notifyClient(client: Client, clientsWhoOrdered: Set<Client>) {
+    if (client.user.state == IMAGINE)
+        return
+
+    if (client in clientsWhoOrdered)
+        return
+
+    client.user.send(Text["notification"])
+}
+
+private fun SenderContext.notifyClientSafe(client: Client, clientsWhoOrdered: Set<Client>) =
+        try {
+            notifyClient(client, clientsWhoOrdered)
+            sleep(35)
+        } catch (exc: TelegramApiException) {
+            exc.printStackTrace()
+        }
 
 fun SenderContext.launchClientsNotifier() = thread {
     while (true) {
@@ -30,15 +49,8 @@ fun SenderContext.launchClientsNotifier() = thread {
                     .map { it.client }
                     .toSet()
 
-            for (client in Client.all()) {
-                if (client.user.state == IMAGINE)
-                    continue
-
-                if (client in clientsWhoOrdered)
-                    continue
-
-                client.user.send(Text["notification"])
-            }
+            for (client in Client.all())
+                notifyClientSafe(client, clientsWhoOrdered)
 
             LAST_NOTIFICATION = now
         }
