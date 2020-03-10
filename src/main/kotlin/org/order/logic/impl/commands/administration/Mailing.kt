@@ -91,18 +91,28 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
             User.all()
                     .filter { it.chat != null }
                     .forEach {
-                        it.send(text) {
-                            appendMainKeyboard(it)
+                        try {
+                            it.send(text) {
+                                appendMainKeyboard(it)
+                            }
+                            sleep(35)
+                        } catch (exc: Exception) {
+                            user.send("Error occurred: $exc")
+                            sleep(35)
                         }
-                        sleep(35)
                     }
 
         SEND_MESSAGE_TO_ALL_USERS ->
             User.all()
                     .filter { it.chat != null }
                     .forEach {
-                        it.send(text)
-                        sleep(35)
+                        try {
+                            it.send(text)
+                            sleep(35)
+                        } catch (exc: Exception) {
+                            user.send("Error occurred: $exc")
+                            sleep(35)
+                        }
                     }
 
         SEND_MESSAGE_TO_ALL_CLIENTS ->
@@ -110,8 +120,13 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
                     .map { it.user }
                     .filter { it.chat != null }
                     .forEach {
-                        it.send(text)
-                        sleep(35)
+                        try {
+                            it.send(text)
+                            sleep(35)
+                        } catch (exc: Exception) {
+                            user.send("Error occurred: $exc")
+                            sleep(35)
+                        }
                     }
 
         SUGGEST_REGISTRATION_TO_ALL_NEW_USERS ->

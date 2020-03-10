@@ -57,6 +57,7 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
             }
 
     val orders = client.orders
+            .filter { !it.canceled }
             .groupBy { it.registered.monthOfYear() }
             .mapValues { (_, value) ->
                 value.map {
