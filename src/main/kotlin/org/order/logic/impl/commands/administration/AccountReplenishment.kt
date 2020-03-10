@@ -154,7 +154,7 @@ object ChoosePaymentAmountToReplenishAccount: Question(READ_PAYMENT_AMOUNT_TO_RE
     }
 }
 
-val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenishment") { _, src, (action, paymentIdStr) ->
+val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenishment") { user, src, (action, paymentIdStr) ->
     val payment = Payment.findById(paymentIdStr.toInt())!!
     when(action) {
         "confirm" -> {
@@ -166,6 +166,10 @@ val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenish
                 it["amount"] = payment.amount.toString()
                 it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
             })
+
+            user.send(Text["resend-buttons-message"]) {
+                appendMainKeyboard(user)
+            }
         }
         "dismiss" -> {
             payment.delete()
