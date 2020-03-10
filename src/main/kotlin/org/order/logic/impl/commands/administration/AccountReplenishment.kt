@@ -46,7 +46,7 @@ private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_A
 
         if (response == Text["cancel-button"]) {
             user.send(Text["successful-account-replenishment-cancellation"]) {
-                removeReply()
+                appendMainKeyboard(user)
             }
             user.state = COMMAND
             return false
@@ -77,7 +77,8 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
             user.send(Text["successful-account-replenishment-cancellation"]) {
                 appendMainKeyboard(user)
             }
-            return true
+            user.state = COMMAND
+            return false
         }
 
         val args = update.message?.text?.split(", ")
@@ -106,18 +107,32 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
 object ChoosePaymentAmountToReplenishAccount: Question(READ_PAYMENT_AMOUNT_TO_REPLENISH_ACCOUNT) {
     override fun SenderContext.ask(user: User) =
             user.send(Text["choose-payment-amount-to-replenish-account"]) {
-                appendMainKeyboard(user)
+                reply {
+                    button(Text["cancel-button"])
+                }
             }
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
-        val amount = update.message?.text?.toFloatOrNull()
+        val text = update.message?.text
+
+        val payment = Payment.all()
+                .firstOrNull { it.madeBy == user && it.amount == null }!!
+
+        if (text == Text["cancel-button"]) {
+            user.send(Text["successful-account-replenishment-cancellation"]) {
+                appendMainKeyboard(user)
+            }
+
+            payment.delete()
+            user.state = COMMAND
+            return false
+        }
+
+        val amount = text?.toFloatOrNull()
         if (amount == null) {
             user.send(Text["wrong-payment-amount-to-replenish-account"])
             return false
         }
-
-        val payment = Payment.all()
-                .firstOrNull { it.madeBy == user && it.amount == null }!!
 
         payment.amount = amount
 
