@@ -116,9 +116,25 @@ private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
     val orders = Order
             .find { Orders.orderDate eq date.toString() }
 
+    val polls = orders.map { order ->
+        val client = order.client
+
+        val answers = PollAnswer
+                .find { PollAnswers.order eq order.id }
+                .toList()
+
+        val comments = PollComment
+                .find { PollComments.order eq order.id }
+                .firstOrNull()
+
+        Poll(client, order.menu, answers, comments)
+    }
+            .filter { it.answers.isNotEmpty() }
+            .sortedBy { it.client.user.grade }
+
     val document = Document(
             PdfDocument(PdfWriter(tempFile)).apply {
-                defaultPageSize = PageSize(595f, 421f + orders.count() * 210f)
+                defaultPageSize = PageSize(595f, 421f + polls.size * 210f)
             }
     )
     val font = PdfFontFactory.createFont(
@@ -143,22 +159,6 @@ private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
             .setTextAlignment(TextAlignment.CENTER)
     )
     document.add(Paragraph("\n\n"))
-
-    val polls = orders.map { order ->
-        val client = order.client
-
-        val answers = PollAnswer
-                .find { PollAnswers.order eq order.id }
-                .toList()
-
-        val comments = PollComment
-                .find { PollComments.order eq order.id }
-                .firstOrNull()
-
-        Poll(client, order.menu, answers, comments)
-    }
-            .filter { it.answers.isNotEmpty() }
-            .sortedBy { it.client.user.grade }
 
     if (polls.isEmpty()) {
         document.add(Paragraph(Text["polls-pdf-total:empty"]))
