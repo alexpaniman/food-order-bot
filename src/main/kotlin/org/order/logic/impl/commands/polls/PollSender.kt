@@ -20,6 +20,7 @@ import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.window.WindowContext
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.TIME_TO_SEND_POLL
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
 
@@ -66,6 +67,15 @@ private fun WindowContext.sendPoll(order: Order) {
 
         if (finished == dishes.size)
             button(Text["add-comment-to-poll"], "suggest-writing-a-comment:${order.id.value}")
+    }
+}
+
+private fun WindowContext.sendPollSafe(order: Order) {
+    try {
+        sendPoll(order)
+        sleep(35)
+    } catch (exc: TelegramApiException) {
+        exc.printStackTrace()
     }
 }
 
@@ -142,7 +152,7 @@ val RATE_PROCESSOR = CallbackProcessor("poll-rate") { user, src, (orderIdStr, di
     }
 
     WindowContext(this, src, user)
-            .sendPoll(order)
+            .sendPollSafe(order)
 }
 
 private fun SenderContext.sendPolls() = transaction {
@@ -155,7 +165,7 @@ private fun SenderContext.sendPolls() = transaction {
         val clientUser = order.client.user
         if (clientUser.state != State.IMAGINE)
             WindowContext(this@sendPolls, null, clientUser)
-                    .sendPoll(order)
+                    .sendPollSafe(order)
     }
 }
 

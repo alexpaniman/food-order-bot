@@ -154,7 +154,12 @@ val VALIDATION_PROCESSOR = CallbackProcessor("validation") { _, src, (action, id
 }
 
 fun SenderContext.performValidation(src: Message?, action: String, id: Int) {
-    val user = User.findById(id) ?: error("User doesn't exist!")
+    val user = User.findById(id)
+
+    if (user == null) {
+        src?.edit(Text["coordinator-notification:looks-like-another-coordinator-have-processed-it"])
+        return
+    }
 
     val description = user.descriptionForValidation()
 

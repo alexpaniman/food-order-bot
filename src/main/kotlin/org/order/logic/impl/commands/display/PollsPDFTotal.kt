@@ -153,7 +153,9 @@ private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
                 .firstOrNull()
 
         Poll(client, order.menu, answers, comments)
-    }.sortedBy { it.client.user.grade }
+    }
+            .filter { it.answers.isNotEmpty() }
+            .sortedBy { it.client.user.grade }
 
     if (polls.isEmpty()) {
         document.add(Paragraph(Text["polls-pdf-total:empty"]))

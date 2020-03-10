@@ -10,6 +10,7 @@ import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException
 import java.lang.Thread.sleep
 
 private val MAILING_TRIGGER = StateTrigger(COMMAND) and
@@ -109,7 +110,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
                         try {
                             it.send(text)
                             sleep(35)
-                        } catch (exc: Exception) {
+                        } catch (exc: TelegramApiException) {
                             user.send("Error occurred: $exc")
                             sleep(35)
                         }
@@ -123,7 +124,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
                         try {
                             it.send(text)
                             sleep(35)
-                        } catch (exc: Exception) {
+                        } catch (exc: TelegramApiException) {
                             user.send("Error occurred: $exc")
                             sleep(35)
                         }
@@ -139,7 +140,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
                             it.state = READ_NAME
                             it.send(Text["register-name"])
                             sleep(70)
-                        } catch (exc: Exception) {
+                        } catch (exc: TelegramApiException) {
                             user.send("Error occurred: $exc")
                             sleep(35)
                         }

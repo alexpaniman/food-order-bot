@@ -36,7 +36,7 @@ val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishme
                     it["amount"] = payment.amount!!.toString()
                     it["actual-amount"] = payment.amount!!.withCommission.toString()
                     it["client-name"] = payment.client.user.name!!
-                    it["registered"] = payment.registered.toString()
+                    it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
                     it["telegram-id"] = payment.telegramId!!
                     it["provider-id"] = payment.providerId!!
                 })

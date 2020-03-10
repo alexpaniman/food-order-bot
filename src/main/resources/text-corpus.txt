@@ -160,6 +160,9 @@
     координатором до Вас.*[br][br]
     *Его описание:*[br][br][description]
 
+[coordinator-notification:looks-like-another-coordinator-have-processed-it]
+    *Похоже, что другой координатором уже обработал этого пользователя.*
+
 # TODO Сообщение об успешном завершении регистрации пользователя координатору
 [coordinator-notification:user-is-confirmed]
     *Пользователь был успешно подтверждён!*[br][br]
@@ -384,7 +387,11 @@
     подтверждаю
 
 [successful-account-replenishment]
-    *Успешное пополнение счета.*
+    *Успешное ручное пополнение счета!*[br][br]
+        [space]   `Заплатил: [user-name]`[br]
+        [space]   `На счет клиента: [client-name]`[br][br]
+        [space]   `Сумму: [amount] грн.`[br][br]
+        [space]   `Время: [registered]`
 # -- [Пополнение счета] -- #
 
 # --- Опросы --- #
