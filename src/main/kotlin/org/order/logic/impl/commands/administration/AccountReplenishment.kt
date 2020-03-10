@@ -160,7 +160,12 @@ val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenish
         "confirm" -> {
             payment.registered = DateTime.now()
             payment.client.balance += payment.amount!!
-            src.edit(Text["successful-account-replenishment"])
+            src.edit(Text.get("successful-account-replenishment") {
+                it["user-name"] = payment.madeBy.name!!
+                it["client-name"] = payment.client.user.name!!
+                it["amount"] = payment.amount.toString()
+                it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
+            })
         }
         "dismiss" -> {
             payment.delete()
