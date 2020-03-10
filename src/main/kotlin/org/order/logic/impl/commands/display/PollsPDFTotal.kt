@@ -3,6 +3,7 @@ package org.order.logic.impl.commands.display
 import com.itextpdf.io.font.PdfEncodings
 import com.itextpdf.kernel.font.PdfFont
 import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
@@ -112,8 +113,13 @@ private fun SenderContext.sendPoll(user: User, date: LocalDate, file: File) {
 private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
     val tempFile = createTempFile()
 
+    val orders = Order
+            .find { Orders.orderDate eq date.toString() }
+
     val document = Document(
-            PdfDocument(PdfWriter(tempFile))
+            PdfDocument(PdfWriter(tempFile)).apply {
+                defaultPageSize = PageSize(595f, 421f + orders.count() * 210f)
+            }
     )
     val font = PdfFontFactory.createFont(
             FONT_FOR_BUILDING_PDF_PATH,
@@ -137,9 +143,6 @@ private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
             .setTextAlignment(TextAlignment.CENTER)
     )
     document.add(Paragraph("\n\n"))
-
-    val orders = Order
-            .find { Orders.orderDate eq date.toString() }
 
     val polls = orders.map { order ->
         val client = order.client
