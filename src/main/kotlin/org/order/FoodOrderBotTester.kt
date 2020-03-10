@@ -663,6 +663,7 @@ fun main() {
         newproperty("MAX_DEBT", "165")
         newproperty("TIME_TO_NOTIFY", "18:00")
         newproperty("LAST_NOTIFICATION", LocalDate.now().toString())
+        newproperty("COMMISSION", "0.0275")
     }
 
     FoodOrderBotTester().apply {

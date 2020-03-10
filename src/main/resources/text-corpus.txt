@@ -286,8 +286,9 @@
 [menu-display]  [space]   *Меню [menu-name] [[orders-count]]:*
 [user-display]  [space]       `[user-name]`
 
-[there-were-no-orders-made-yet]
-    *На данный момент нет заказов!*
+[orders-list-total:menu-display] *Меню [name]:* `[count]` заказов.
+[orders-list-total:total-display] *Итого:* `[count]` заказов.
+[there-were-no-orders-made-yet] *На данный момент нет заказов!*
 # -- [Список заказов] -- #
 
 # -- [Помощь] -- # TODO Сообщение, которое выводиться после нажатия "Помощь"

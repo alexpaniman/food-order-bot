@@ -12,6 +12,7 @@ import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.dayOfWeekAsShortText
+import org.order.logic.impl.utils.grade
 
 private val ORDERS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["orders-list-command"]) and
         StateTrigger(COMMAND) and (RoleTrigger(Client) or RoleTrigger(Parent) or RoleTrigger(Producer))
@@ -44,13 +45,7 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
 
     val ordersDisplay = buildString {
         val groupedByGrade = orders
-                .groupBy {
-                    val clientUser = it.client.user
-
-                    if (clientUser.hasLinked(Student))
-                        clientUser.linked(Student).grade!!.name
-                    else Text["empty-grade"]
-                }
+                .groupBy { it.client.user.grade }
 
         for ((grade, byGrade) in groupedByGrade) {
             appendln(Text.get("grade-display") {
@@ -77,6 +72,20 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
 
             appendln()
         }
+
+        val groupedByMenu = orders
+                .groupBy { it.menu }
+
+        for ((menu, byMenu) in groupedByMenu)
+            appendln(Text.get("orders-list-total:menu-display") {
+                it["name"] = menu.name
+                it["count"] = byMenu.size.toString()
+            })
+
+        appendln()
+        append(Text.get("orders-list-total:total-display") {
+            it["count"] = orders.size.toString()
+        })
     }
 
     val message = if (ordersDisplay.isNotBlank())
