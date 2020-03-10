@@ -12,6 +12,7 @@ import org.order.logic.commands.triggers.and
 import org.order.logic.commands.triggers.or
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
+import org.order.logic.impl.commands.LOCALE
 import org.order.logic.impl.utils.orZero
 
 private const val WINDOW_MARKER = "payments-list-window"
@@ -48,23 +49,23 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
 
     // ------------ All Changes ------------
     val payments = client.payments
-            .groupBy { it.registered!! }
+            .groupBy { it.registered!!.monthOfYear() }
             .mapValues { (_, value) ->
                 value.map {
-                    it.amount!!
+                    it.registered!! to it.amount!!
                 }
             }
 
     val orders = client.orders
-            .groupBy { it.registered }
+            .groupBy { it.registered.monthOfYear() }
             .mapValues { (_, value) ->
                 value.map {
-                    -it.menu.cost
+                    it.registered to -it.menu.cost
                 }
             }
 
     val changes = (payments + orders)
-            .toSortedMap()
+            .toSortedMap(compareBy { it.get() })
             .toList()
     // -------------------------------------
 
@@ -77,15 +78,14 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
     val monthNum = monthNumStr.toInt()
             .coerceIn(changes.indices)
 
-    val (day, changesToDisplay) = changes[monthNum]
+    val (month, changesToDisplay) = changes[monthNum]
     // ------------------------------------
 
-    val displayDay = day.toString(Text["payments-date-format"])
     val paymentsDisplay = buildString {
-        for (amount in changesToDisplay)
+        for ((registered, amount) in changesToDisplay)
             appendln(Text.get("payment-display") {
                 it["amount"] = amount.toString()
-                it["date"] = displayDay
+                it["date"] = registered.toString(Text["payments-date-format"])
             })
     }
 
@@ -109,6 +109,8 @@ val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
                     "$WINDOW_MARKER:${monthNum - 1}:$clientNum") {
                 monthNum - 1 >= 0
             }
+
+            button(month.getAsText(LOCALE))
 
             deactivatableKeyButton(
                     "next-button",
