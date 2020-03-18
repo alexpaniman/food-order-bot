@@ -5,6 +5,7 @@ import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.order.bot.send.SenderContext
 import org.order.data.entities.Client
+import org.order.data.entities.Menu
 import org.order.data.entities.Order
 import org.order.data.entities.State.IMAGINE
 import org.order.data.tables.Orders
@@ -35,6 +36,16 @@ private fun SenderContext.notifyClientSafe(client: Client, clientsWhoOrdered: Se
             exc.printStackTrace()
         }
 
+private fun clientCanOrderTodayForTomorrow(): Boolean {
+    val tomorrow = LocalDate.now()
+            .plusDays(1)
+
+    return Menu.all()
+            .any {
+                it.schedule.isAvailable(tomorrow)
+            }
+}
+
 fun SenderContext.launchClientsNotifier() = thread {
     while (true) {
         val timeNow = LocalTime.now()
@@ -43,16 +54,18 @@ fun SenderContext.launchClientsNotifier() = thread {
 
 
         if (timeNow >= TIME_TO_NOTIFY && LAST_NOTIFICATION < LocalDate.now()) transaction {
-            val now = LocalDate.now()
-            val clientsWhoOrdered = Order
-                    .find { Orders.orderDate eq now.plusDays(1).toString() }
-                    .map { it.client }
-                    .toSet()
+            if (clientCanOrderTodayForTomorrow()) {
+                val now = LocalDate.now()
+                val clientsWhoOrdered = Order
+                        .find { Orders.orderDate eq now.plusDays(1).toString() }
+                        .map { it.client }
+                        .toSet()
 
-            for (client in Client.all())
-                notifyClientSafe(client, clientsWhoOrdered)
+                for (client in Client.all())
+                    notifyClientSafe(client, clientsWhoOrdered)
 
-            LAST_NOTIFICATION = now
+                LAST_NOTIFICATION = now
+            }
         }
 
         sleep(LISTENER_DELAY)
