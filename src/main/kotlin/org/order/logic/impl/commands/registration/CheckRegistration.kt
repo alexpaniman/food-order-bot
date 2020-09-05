@@ -101,23 +101,26 @@ private fun Student.findSameStudent(imagine: Boolean) = Student
                     (it.user.state != IMAGINE) xor imagine // According to imagine variable student imagine or not
         }
 
-private fun linkStudent(realStudent: Student) {
+private fun linkStudent(realStudent: Student): User {
     val imagineStudent = realStudent.findSameStudent(true)
 
-    if (imagineStudent != null) {
+    return if (imagineStudent != null) {
         imagineStudent.user.apply {
             chat = realStudent.user.chat
+            phone = realStudent.user.phone
             state = COMMAND
         }
 
         realStudent.user.safeDelete()
+
+        imagineStudent.user
     } else realStudent.user.apply {
         state = COMMAND
         valid = true
     }
 }
 
-private fun linkParent(parent: Parent) {
+private fun linkParent(parent: Parent): User {
     for (child in parent.children) {
         check(child.user.state == IMAGINE) {
             "Unexpected real Student(id = ${child.id})"
@@ -137,7 +140,7 @@ private fun linkParent(parent: Parent) {
             child.user.valid = true
     }
 
-    parent.user.apply {
+    return parent.user.apply {
         state = COMMAND
         valid = true
     }
@@ -196,15 +199,19 @@ fun SenderContext.performValidation(src: Message?, action: String, id: Int) {
         }
 
         "confirm" -> {
-            when {
+            val confirmedUser = when {
                 user.hasLinked(Student) ->
                     linkStudent(user.linked(Student))
 
                 user.hasLinked(Parent) ->
                     linkParent(user.linked(Parent))
+
+                user.hasLinked(Teacher) || user.hasLinked(Producer) -> user
+
+                else -> error("Illegal kind of users!")
             }
 
-            user.send(Text["validation:user-is-confirmed"]) { appendMainKeyboard(user) }
+            confirmedUser.send(Text["validation:user-is-confirmed"]) { appendMainKeyboard(confirmedUser) }
 
             src?.edit(Text.get("coordinator-notification:user-is-confirmed") {
                 it["description"] = description

@@ -632,13 +632,9 @@ fun main() {
                 OrdersCancellations, PollComments, Properties
         )
 
-        createAdmin(0, "Аоооо Аооо", "+380669360000")
+        createAdmin(0, "Администратор Администратор", "+380669360000")
 
-        val grades = createGrades("9-Ф", "10-Ф", "11-ИКТ", "8-Б")
-        createCoordinator(grades[0], 1, "Абв Авб", "+380669363333")
-        createCoordinator(grades[1], 2, "Абгв Авб", "+380669364444")
-        createCoordinator(grades[2], 3, "Абв Агвб", "+380669365555")
-        createCoordinator(grades[3], 4, "Абв Авбг", "+380669366666")
+        createGrades("8-ТЕСТ", "9-ТЕСТ", "10-ТЕСТ", "11-ТЕСТ")
 
         createMenu("1", 55.0f, "2020-01-27:14", "Меню 1:1:1", "блюдо 1", "блюдо 2")
         createMenu("1", 55.0f, "2020-01-28:14", "Меню 1:1:2", "блюдо 1", "блюдо 2")

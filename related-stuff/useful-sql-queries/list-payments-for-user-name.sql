@@ -1,0 +1,1 @@
+select um.name as made_by, uc.name as client, o.order_date, o.registered, o.is_canceled, m.name as menu_name, m.cost from users uc, users um, clients c, orders o, menus m where m.id = o.menu_id and uc.id = c.user_id and c.id = o.client_id and um.id = o.made_by_id and uc.name
