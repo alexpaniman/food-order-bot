@@ -1,0 +1,4 @@
+* Bug in producer registration
+After confirming producer's registration bot told me that it has been successfully completed. But it wasn't actually.
+
+Producer had it's entry in =producers= table but it's state has never changed. So I got entry in =users= table with =is_valid= set to ~false~ and state =VALIDATION=.
