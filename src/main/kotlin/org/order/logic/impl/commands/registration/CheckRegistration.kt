@@ -206,7 +206,10 @@ fun SenderContext.performValidation(src: Message?, action: String, id: Int) {
                 user.hasLinked(Parent) ->
                     linkParent(user.linked(Parent))
 
-                user.hasLinked(Teacher) || user.hasLinked(Producer) -> user
+                user.hasLinked(Teacher) || user.hasLinked(Producer) -> user.apply {
+                    state = COMMAND
+                    valid = true
+                }
 
                 else -> error("Illegal kind of users!")
             }
