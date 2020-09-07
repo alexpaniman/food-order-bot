@@ -57,7 +57,9 @@ object ChildGradeQuestion : Question(READ_CHILD_GRADE) {
     override fun SenderContext.ask(user: User) =
             user.send(Text["register-child-grade"]) {
                 reply {
-                    val grades = Grade.all().map { it.name } // Get all grade names
+                    val grades = Grade.all()
+                            .map { it.name } // Get all grade names
+                            .sorted() // Sort them for better readability
 
                     show(grades, 5) // And show them (5 per row)
                 }
