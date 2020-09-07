@@ -1,3 +1,5 @@
+@file:Suppress("SameParameterValue", "unused")
+
 package org.order
 
 import com.jakewharton.picnic.TextAlignment
@@ -23,7 +25,6 @@ import org.order.logic.impl.commands.DATABASE_DRIVER
 import org.order.logic.impl.commands.JDBC_DATABASE_URL
 import org.order.logic.impl.utils.Schedule
 import org.order.logic.impl.utils.newproperty
-import org.order.logic.impl.utils.setproperty
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import org.telegram.telegrambots.meta.api.objects.Update
@@ -83,6 +84,7 @@ class FoodOrderBotTester {
                         it.message = this
                     }
                 }
+                Remove, None -> {}
             }
         }
     }
@@ -654,11 +656,14 @@ fun main() {
         createMenu("2", 43.0f, "2020-01-30:7", "Меню 2:4", "блюдо 1")
         createMenu("2", 43.0f, "2020-01-31:7", "Меню 2:5", "блюдо 1")
 
+        newproperty("TIME_TO_NOTIFY_PARENT", "21:00")
+        newproperty("TIME_TO_NOTIFY_STUDENT", "18:00")
+        newproperty("LAST_PARENT_NOTIFICATION", "2020-09-06")
+        newproperty("LAST_STUDENT_NOTIFICATION", "2020-09-07")
+
         newproperty("LAST_ORDER_TIME", "09:30")
         newproperty("TIME_TO_SEND_POLL", "11:45")
         newproperty("MAX_DEBT", "165")
-        newproperty("TIME_TO_NOTIFY", "18:00")
-        newproperty("LAST_NOTIFICATION", LocalDate.now().toString())
         newproperty("COMMISSION", "0.0275")
     }
 
