@@ -287,7 +287,7 @@
 # TODO Информация для построения [orders] из [orders-list] выше
 [grade-display] *Класс [grade] [[orders-count]]:*
 [menu-display]  [space]   *Меню [menu-name] [[orders-count]]:*
-[user-display]  [space]       [user-name]
+[user-display]  [space]   [user-name]
 
 [orders-list-total:menu-display] *Меню [name]:* `[count]` заказов.
 [orders-list-total:total-display] *Итого:* `[count]` заказов.
