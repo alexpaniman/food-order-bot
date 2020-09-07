@@ -67,7 +67,7 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
                     appendln(Text.get("user-display") {
                         it["user-name"] = order.client.user.name!!
                     })
-                appendln("```") // TODO?
+                append("```") // TODO?
 
                 appendln()
             }
