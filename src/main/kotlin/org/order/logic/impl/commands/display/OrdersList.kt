@@ -62,10 +62,12 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
                     it["orders-count"] = "${byMenu.size}"
                 })
 
+                appendln("```") // TODO?
                 for (order in byMenu)
                     appendln(Text.get("user-display") {
                         it["user-name"] = order.client.user.name!!
                     })
+                appendln("```") // TODO?
 
                 appendln()
             }

@@ -19,16 +19,28 @@ val PAYMENTS_TOKEN = System.getenv("PAYMENTS_TOKEN")!!
 
 val LAST_ORDER_TIME
     get() = LocalTime(getproperty("LAST_ORDER_TIME"))
+
 val TIME_TO_SEND_POLL
     get() = LocalTime(getproperty("TIME_TO_SEND_POLL"))
-val TIME_TO_NOTIFY
-    get() = LocalTime(getproperty("TIME_TO_NOTIFY"))
+
 val MAX_DEBT
     get() = getproperty("MAX_DEBT").toFloat()
 
-var LAST_NOTIFICATION: LocalDate
-    get() = LocalDate.parse(getproperty("LAST_NOTIFICATION"))
-    set(value) = setproperty("LAST_NOTIFICATION", value.toString())
+
+val TIME_TO_NOTIFY_PARENT
+    get() = LocalTime(getproperty("TIME_TO_NOTIFY_PARENT"))
+
+val TIME_TO_NOTIFY_STUDENT
+    get() = LocalTime(getproperty("TIME_TO_NOTIFY_STUDENT"))
+
+var LAST_PARENT_NOTIFICATION: LocalDate
+    get() = LocalDate.parse(getproperty("LAST_PARENT_NOTIFICATION"))
+    set(value) = setproperty("LAST_PARENT_NOTIFICATION", value.toString())
+
+var LAST_STUDENT_NOTIFICATION: LocalDate
+    get() = LocalDate.parse(getproperty("LAST_STUDENT_NOTIFICATION"))
+    set(value) = setproperty("LAST_STUDENT_NOTIFICATION", value.toString())
+
 
 val COMMISSION
     get() = getproperty("COMMISSION").toFloat()
