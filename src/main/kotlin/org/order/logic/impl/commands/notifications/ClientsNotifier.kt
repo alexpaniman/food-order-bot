@@ -77,7 +77,7 @@ fun SenderContext.launchClientsNotifier() = thread {
                         else
                             Text["notification-report:student"]
 
-                        it["people"] = notified.joinToString("\n") { user -> "\t${user.name}" }
+                        it["people"] = notified.joinToString("\n") { user -> "\t\t${user.name}" }
                     }
 
                     Admin.all()
