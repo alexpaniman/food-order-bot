@@ -463,7 +463,7 @@
     Не забудьте заказать еду на завтра!
 
 [notification-report]
-    Напоминание разослано [count] [type]. Их список:[br]
+    *Напоминание разослано* `[count]` *[type]. Их список:*[br]
     ```[people]```
 
 [notification-report:parent] родителей
