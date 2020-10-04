@@ -12,6 +12,7 @@
 [money-total-command] сводка по деньгам
 [polls-pdf-total-command] сводка опросов
 [mailing-command] рассылка
+[money-pdf-total-command] сводка по балансам
 # -- [Список команд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
@@ -429,7 +430,7 @@
 
 [money-total-grade] *Класс [grade]:*
 [money-total-user]
-    [space]   `[user] : [balance]`
+    [space]   `[user]: [balance]`
 # -- [Сводка по деньгам] -- #
 
 # --- Сводка опросов --- #
@@ -493,3 +494,11 @@
 
 [mailing-was-done] *Рассылка была осуществлена!*
 # -- [Рассылка] -- #
+
+# --- PDF сводка по балансам --- #
+[money-pdf-total:title] Сводка по балансам клиентов
+[money-pdf-total:name] Имя, Фамилия
+[money-pdf-total:balance] Баланс
+[money-pdf-total:total] Итого
+[money-pdf-total:file-name] Сводка по балансам на момент [date].pdf
+# -- [PDF сводка по балансам] -- #
