@@ -658,8 +658,8 @@ fun main() {
 
         newproperty("TIME_TO_NOTIFY_PARENT", "21:00")
         newproperty("TIME_TO_NOTIFY_STUDENT", "18:00")
-        newproperty("LAST_PARENT_NOTIFICATION", "2020-09-06")
-        newproperty("LAST_STUDENT_NOTIFICATION", "2020-09-07")
+        newproperty("LAST_PARENT_NOTIFICATION", LocalDate.now().plusDays(1).toString("yyyy-MM-dd"))
+        newproperty("LAST_STUDENT_NOTIFICATION", LocalDate.now().plusDays(1).toString("yyyy-MM-dd"))
 
         newproperty("LAST_ORDER_TIME", "09:30")
         newproperty("TIME_TO_SEND_POLL", "11:45")

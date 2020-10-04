@@ -61,19 +61,18 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
         button(Text["help-command"])
     }
 
-    if (isAdminOrProducer) {
-        row {
-            button(Text["replenish-account-command"])
-            button(Text["money-total-command"])
-            if (isAdmin)
-                button(Text["mailing-command"])
-        }
+    if (isAdminOrProducer) row {
+        button(Text["replenish-account-command"])
+        button(Text["money-total-command"])
+        if (isAdmin)
+            button(Text["mailing-command"])
     }
 
-    if (isAdminOrProducer)
-        row {
-            button(Text["polls-pdf-total-command"])
-        }
+    if (isAdminOrProducer) row {
+        button(Text["money-pdf-total-command"])
+        button(Text["polls-pdf-total-command"])
+    }
+
 }
 
 fun SendMessage.appendMainKeyboard(user: User) = reply {

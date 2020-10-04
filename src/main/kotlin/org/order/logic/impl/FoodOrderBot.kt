@@ -93,6 +93,7 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += HISTORY_WINDOW
         this += MONEY_TOTAL_WINDOW
         this += POLLS_PDF_TOTAL
+        this += MONEY_PDF_TOTAL
         // ---------------------------
 
         // ---------- Polls ----------
