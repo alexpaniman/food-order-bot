@@ -50,7 +50,14 @@ fun createMoneyPDFTotal() = createPDF {
 
         val groupedByGrade = Client.all()
                 .groupBy { it.user.grade }
-                .toSortedMap()
+                .toSortedMap(compareBy {
+                    val split = it.split("-")
+
+                    if (split.size > 1) {
+                        val (grade, name) = split
+                        1e6 * (grade.toIntOrNull() ?: 0) + (name.firstOrNull()?.toInt() ?: 0)
+                    } else 1e9
+                })
 
         var totalRealBalance = 0f
         var totalVirtualBalance = 0f
@@ -61,6 +68,7 @@ fun createMoneyPDFTotal() = createPDF {
 
             for (client in clients) {
                 val ordered = client.orders
+                        .filter { !it.canceled }
                         .filter { !lastFinishedDay.isBefore(it.orderDate) }
                         .sumBy { (- it.menu.cost * 100).roundToInt() } / 100f
 
