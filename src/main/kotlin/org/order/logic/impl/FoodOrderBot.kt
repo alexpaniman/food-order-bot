@@ -15,6 +15,8 @@ import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
 import org.joda.time.DateTimeZone
 import org.order.logic.impl.commands.administration.*
+import org.order.logic.impl.commands.display.pdf.MONEY_PDF_TOTAL
+import org.order.logic.impl.commands.display.pdf.POLLS_PDF_TOTAL
 import org.order.logic.impl.commands.notifications.launchClientsNotifier
 import org.order.logic.impl.commands.polls.*
 
