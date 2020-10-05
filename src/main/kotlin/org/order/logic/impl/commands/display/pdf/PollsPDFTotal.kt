@@ -1,19 +1,15 @@
-package org.order.logic.impl.commands.display
+package org.order.logic.impl.commands.display.pdf
 
 import com.itextpdf.io.font.PdfEncodings
-import com.itextpdf.kernel.font.PdfFont
 import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
-import com.itextpdf.layout.borders.Border
-import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.property.TextAlignment
 import com.itextpdf.layout.property.UnitValue
-import com.itextpdf.layout.property.VerticalAlignment
 import org.joda.time.LocalDate
 import org.order.bot.send.SenderContext
 import org.order.bot.send.button
@@ -21,6 +17,7 @@ import org.order.bot.send.removeReply
 import org.order.bot.send.reply
 import org.order.data.entities.*
 import org.order.data.entities.State.COMMAND
+import org.order.data.entities.State.READ_DATE_FOR_PDF_POLLS_TOTAL
 import org.order.data.tables.Orders
 import org.order.data.tables.PollAnswers
 import org.order.data.tables.PollComments
@@ -30,32 +27,12 @@ import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.BOLD_FONT_FOR_BUILDING_PDF_PATH
 import org.order.logic.impl.commands.FONT_FOR_BUILDING_PDF_PATH
+import org.order.logic.impl.utils.appendMainKeyboard
 import org.order.logic.impl.utils.dayOfWeekAsLongText
 import org.order.logic.impl.utils.dayOfWeekAsShortText
 import org.order.logic.impl.utils.grade
 import org.telegram.telegrambots.meta.api.objects.Update
 import java.io.File
-import org.order.data.entities.State.READ_DATE_FOR_PDF_POLLS_TOTAL
-import org.order.logic.impl.utils.appendMainKeyboard
-
-private fun Table.cell(text: String, row: Int = 1, col: Int = 1, border: Boolean = true, font: PdfFont? = null, padding: Float = 5f) {
-    val paragraph = Paragraph(text)
-    if (font != null)
-        paragraph.setFont(font)
-
-    val cell = Cell(row, col).apply {
-        if (!border)
-            setBorder(Border.NO_BORDER)
-
-        add(paragraph)
-
-        setTextAlignment(TextAlignment.CENTER)
-        setVerticalAlignment(VerticalAlignment.MIDDLE)
-        setPadding(padding)
-    }
-
-    this.addCell(cell)
-}
 
 private object AskPollsTotalDate: Question(READ_DATE_FOR_PDF_POLLS_TOTAL) {
     override fun SenderContext.ask(user: User) =
@@ -211,11 +188,12 @@ private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
     val mainTable = Table(
             UnitValue.createPercentArray(floatArrayOf(0.2f, 0.15f, 0.5f, 0.15f))
     )
+
     for (poll in polls) mainTable.apply {
         val client = poll.client.user
 
         if (poll.answers.isNotEmpty()) {
-            cell("", 1, 2, border = false)
+            cell("", 1, 2)
 
             val menuName = Text.get("polls-pdf-total:menu") {
                 it["name"] = poll.answers.first().dish.menu.name
@@ -231,11 +209,11 @@ private fun SenderContext.sendPollsPdfTotal(user: User, date: LocalDate) {
             cell(dishRate.rate.toString())
         }
         if (poll.comment?.text != null) {
-            cell("", 1, 2, border = false)
+            cell("", 1, 2)
             cell(poll.comment.text!!, 1, 2)
         }
 
-        cell("", 1, 4, border = false)
+        cell("", 1, 4, null)
     }
     document.add(mainTable)
     document.close()
