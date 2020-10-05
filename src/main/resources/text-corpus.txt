@@ -497,7 +497,7 @@
 
 # --- PDF сводка по балансам --- #
 [money-pdf-total:title] Сводка по балансам клиентов
-[money-pdf-total:name] Имя, Фамилия
+[money-pdf-total:name] Фамилия, Имя
 [money-pdf-total:grade] Класс
 [money-pdf-total:real-balance] Реальный баланс
 [money-pdf-total:future-orders] Будущие заказы
