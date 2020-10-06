@@ -11,6 +11,7 @@ import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
+import org.order.logic.impl.utils.GRADE_COMPARATOR
 import org.order.logic.impl.utils.grade
 import kotlin.math.roundToInt
 
@@ -50,14 +51,7 @@ fun createMoneyPDFTotal() = createPDF {
 
         val groupedByGrade = Client.all()
                 .groupBy { it.user.grade }
-                .toSortedMap(compareBy {
-                    val split = it.split("-")
-
-                    if (split.size > 1) {
-                        val (grade, name) = split
-                        1e6 * (grade.toIntOrNull() ?: 0) + (name.firstOrNull()?.toInt() ?: 0)
-                    } else 1e9
-                })
+                .toSortedMap(GRADE_COMPARATOR)
 
         var totalRealBalance = 0f
         var totalVirtualBalance = 0f

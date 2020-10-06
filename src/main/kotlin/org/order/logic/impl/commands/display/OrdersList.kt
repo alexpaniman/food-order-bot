@@ -11,6 +11,7 @@ import org.order.data.tables.Orders
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.GRADE_COMPARATOR
 import org.order.logic.impl.utils.dayOfWeekAsShortText
 import org.order.logic.impl.utils.grade
 
@@ -46,14 +47,7 @@ val ORDERS_LIST_WINDOW = Window("orders-list-window", ORDERS_LIST_WINDOW_TRIGGER
     val ordersDisplay = buildString {
         val groupedByGrade = orders
                 .groupBy { it.client.user.grade }
-                .toSortedMap(compareBy {
-                    val split = it.split("-")
-
-                    if (split.size > 1) {
-                        val (grade, name) = split
-                        1e6 * (grade.toIntOrNull() ?: 0) + (name.firstOrNull()?.toInt() ?: 0)
-                    } else 1e9
-                })
+                .toSortedMap(GRADE_COMPARATOR)
 
         for ((grade, byGrade) in groupedByGrade) {
             appendln(Text.get("grade-display") {
