@@ -30,7 +30,8 @@ val User.grade get() = linkedOrNull(Student)?.grade?.name ?: Text["empty-grade"]
 val GRADE_COMPARATOR = compareBy<String> {
     val split = it.split("-")
     val gradeValue = split[0].toIntOrNull() ?: 12 // <=== Teachers are treated as people from "twelfth" grade
-    val letterValue = split.getOrNull(1)?.toIntOrNull() ?: 0
+    val letterValue = split.getOrNull(1)
+            ?.getOrNull(0)?.toInt() ?: 0
 
     1e6 * gradeValue + letterValue
 }
