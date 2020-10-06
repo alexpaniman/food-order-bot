@@ -27,6 +27,14 @@ fun User.clients(): List<Client> {
 
 val User.grade get() = linkedOrNull(Student)?.grade?.name ?: Text["empty-grade"]
 
+val GRADE_COMPARATOR = compareBy<String> {
+    val split = it.split("-")
+    val gradeValue = split[0].toIntOrNull() ?: 12 // <=== Teachers are treated as people from "twelfth" grade
+    val letterValue = split.getOrNull(1)?.toIntOrNull() ?: 0
+
+    1e6 * gradeValue + letterValue
+}
+
 private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
     val isClient = user.hasLinked(Client)
     val isParent = user.hasLinked(Parent)
