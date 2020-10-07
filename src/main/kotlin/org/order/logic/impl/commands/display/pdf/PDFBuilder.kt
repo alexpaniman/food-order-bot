@@ -50,7 +50,8 @@ fun Document.text(text: String, bold: Boolean = false, fontSize: Float? = null, 
     this.add(paragraph)
 }
 
-fun Document.section(title: String, bold: Boolean = false) = text(title, bold = bold, fontSize = 24f)
+fun Document.section(title: String, bold: Boolean = false) =
+        text(title, bold = bold, alignment = TextAlignment.CENTER, fontSize = 24f)
 
 fun Document.table(vararg percents: Float, init: Table.() -> Unit) {
     val percentArray = UnitValue.createPercentArray(

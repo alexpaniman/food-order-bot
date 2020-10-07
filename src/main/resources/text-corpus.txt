@@ -12,7 +12,8 @@
 [money-total-command] сводка по деньгам
 [polls-pdf-total-command] сводка опросов
 [mailing-command] рассылка
-[money-pdf-total-command] сводка по балансам
+[money-pdf-total-command] сводка балансов
+[orders-pdf-total-command] сводка заказов
 # -- [Список команд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
@@ -319,7 +320,7 @@
     При приёме оплат используется платежная система LiqPay. После оплаты[space]
     возврат перечисленных средств не производится.[br][br]
 
-    *Телефон координатора питания (***REMOVED***а):* +380633108125[br]
+    *Телефон координатора питания (Александра):* +380633108125[br]
     *Телефон лицея:* +380487289867[br]
     *Сайт лицея:* rl.odessa.ua[br]
     *По вопросам связанным с работой бота пишите:* @panimanalex
@@ -496,12 +497,24 @@
 # -- [Рассылка] -- #
 
 # --- PDF сводка по балансам --- #
-[money-pdf-total:title] Сводка по балансам клиентов
+[money-pdf-total:title] Сводка балансов
 [money-pdf-total:name] Фамилия, Имя
 [money-pdf-total:grade] Класс
 [money-pdf-total:real-balance] Реальный баланс
 [money-pdf-total:future-orders] Будущие заказы
 [money-pdf-total:virtual-balance] Виртуальный баланс
 [money-pdf-total:total] Итого
-[money-pdf-total:file-name] Сводка по балансам на момент [date].pdf
+[money-pdf-total:file-name] Балансы[date].pdf
 # -- [PDF сводка по балансам] -- #
+
+# --- PDF сводка заказов по дням --- #
+[orders-pdf-total:title] Сводка заказов по дням
+[orders-pdf-total:sum-for-a-day] Всего
+[orders-pdf-total:sum-for-a-month] Итого
+[orders-pdf-total:date] Дата
+[orders-pdf-total:menu] Меню
+[orders-pdf-total:menu-cost] Стоимость меню
+[orders-pdf-total:amount] Количество
+[orders-pdf-total:cost] Стоимость
+[orders-pdf-total:file-name] Заказы[date].pdf
+# -- [PDF сводка заказов по дням] -- #
