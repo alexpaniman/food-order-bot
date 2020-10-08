@@ -116,9 +116,8 @@ val MONEY_PDF_TOTAL = TriggerCommand(MONEY_PDF_TOTAL_TRIGGER) { user, _ ->
         val pdfTotal = transaction {
             createMoneyPDFTotal()
         }
-        val pdfTotalFileName = Text.get("money-pdf-total:file-name") {
-            it["date"] = DateTime.now().toString("yyyy-MM-dd HH:mm:ss")
-        }
+
+        val pdfTotalFileName = Text["money-pdf-total:file-name"]
         user.sendFile(pdfTotalFileName, "", pdfTotal)
     }
 }

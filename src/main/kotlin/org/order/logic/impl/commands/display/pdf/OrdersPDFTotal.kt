@@ -16,7 +16,11 @@ import org.order.logic.corpus.Text
 fun createOrdersPDFTotal() = createPDF {
     section(Text["orders-pdf-total:title"], bold = true)
 
-    text(DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),
+    val date = DateTime.now()
+            .minusMonths(1)
+            .toString("yyyy-MM")
+
+    text(date,
             alignment = TextAlignment.CENTER,
             fontSize = 20f, bold = false)
 
@@ -121,9 +125,8 @@ val ORDERS_PDF_TOTAL = TriggerCommand(ORDERS_PDF_TOTAL_TRIGGER) { user, _ ->
         val pdfTotal = transaction {
             createOrdersPDFTotal()
         }
-        val pdfTotalFileName = Text.get("orders-pdf-total:file-name") {
-            it["date"] = DateTime.now().toString("yyyy-MM-dd HH:mm:ss")
-        }
+
+        val pdfTotalFileName = Text["orders-pdf-total:file-name"]
         user.sendFile(pdfTotalFileName, "", pdfTotal)
     }
 }

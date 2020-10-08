@@ -79,6 +79,7 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
 
     if (isAdminOrProducer) row {
         button(Text["money-pdf-total-command"])
+        button(Text["orders-pdf-total-command"])
         button(Text["polls-pdf-total-command"])
     }
 
