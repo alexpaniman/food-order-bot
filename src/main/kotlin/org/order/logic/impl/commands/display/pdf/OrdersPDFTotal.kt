@@ -16,11 +16,11 @@ import org.order.logic.corpus.Text
 fun createOrdersPDFTotal() = createPDF {
     section(Text["orders-pdf-total:title"], bold = true)
 
-    val date = DateTime.now()
+    val currentDate = DateTime.now()
             .minusMonths(1)
             .toString("yyyy-MM")
 
-    text(date,
+    text(currentDate,
             alignment = TextAlignment.CENTER,
             fontSize = 20f, bold = false)
 
