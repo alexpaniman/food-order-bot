@@ -504,7 +504,7 @@
 [money-pdf-total:future-orders] Будущие заказы
 [money-pdf-total:virtual-balance] Виртуальный баланс
 [money-pdf-total:total] Итого
-[money-pdf-total:file-name] Балансы[date].pdf
+[money-pdf-total:file-name] Балансы.pdf
 # -- [PDF сводка по балансам] -- #
 
 # --- PDF сводка заказов по дням --- #
@@ -516,5 +516,5 @@
 [orders-pdf-total:menu-cost] Стоимость меню
 [orders-pdf-total:amount] Количество
 [orders-pdf-total:cost] Стоимость
-[orders-pdf-total:file-name] Заказы[date].pdf
+[orders-pdf-total:file-name] Заказы.pdf
 # -- [PDF сводка заказов по дням] -- #
