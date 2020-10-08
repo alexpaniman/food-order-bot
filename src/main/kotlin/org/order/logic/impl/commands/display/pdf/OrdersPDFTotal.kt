@@ -59,6 +59,7 @@ fun createOrdersPDFTotal() = createPDF {
 
         val allOrders = Order.all()
                 .filter { it.orderDate >= start && it.orderDate <= end }
+                .filter { !it.canceled }
 
         val groupedByDate = allOrders
                 .groupBy { it.orderDate }
