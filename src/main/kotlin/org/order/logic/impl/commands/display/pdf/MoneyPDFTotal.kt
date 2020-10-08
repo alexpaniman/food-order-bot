@@ -18,7 +18,10 @@ import kotlin.math.roundToInt
 fun createMoneyPDFTotal() = createPDF {
     section(Text["money-pdf-total:title"], bold = true)
 
-    text(DateTime.now().toString("yyyy-MM-dd HH:mm:ss"),
+    val currentDate = DateTime.now()
+            .toString("yyyy-MM-dd HH:mm:ss")
+
+    text(currentDate,
             alignment = TextAlignment.CENTER,
             fontSize = 20f, bold = false)
 
