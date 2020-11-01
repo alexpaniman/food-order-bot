@@ -125,7 +125,9 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
 
                 val joinedOrders = orders.joinToString(":") { it.id.value.toString() }
 
-                deactivatableButton(dateDisplay, "cancel-orders-confirmation:$date:$joinedOrders") {
+                val restoreCallback = "$clientNum:$searchResults:$minusWeek"
+                deactivatableButton(dateDisplay,
+                        "cancel-orders-confirmation:$restoreCallback:$date:$joinedOrders") {
                     orders.isNotEmpty()
                 }
             }
@@ -149,14 +151,16 @@ val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS = TriggerCommand(ORDER_CANCELLAT
     searchUsers(user, "$WINDOW_MARKER:0:{}:0")
 }
 
-val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation") { _, src, args ->
+val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation") { user, src, confirmationArgs ->
+    val args = confirmationArgs.drop(3)
+
+    val orders = args.drop(1)
+            .map { it.toInt() }
+            .map { Order.findById(it) ?: error("No such order!") }
+
     val text = Text.get("cancel-orders:confirmation") { map ->
         map["n"] = "${args.size - 1}"
         map["items"] = buildString {
-            val orders = args.drop(1)
-                    .map { it.toInt() }
-                    .map { Order.findById(it) ?: error("No such order!") }
-
             for ((index, order) in orders.withIndex())
                 appendln(Text.get("cancel-orders:confirmation:item") {
                     it["number"] = "${index + 1}"
@@ -166,11 +170,23 @@ val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation")
     }
 
     val cancellationCallback = "cancel-orders:${args.joinToString(":")}"
+    val restoreCallback = "order-cancellation-window:${confirmationArgs.take(3).joinToString(":")}"
     src.edit(text) {
+        if (user.hasLinked(Parent) || user.hasLinked(Admin) || user.hasLinked(Producer))
+            button(orders.first().client.user.name!!)
+
         row {
             button(Text["cancel-orders:accept"], cancellationCallback)
-            button(Text["cancel-orders:reject"], "remove-message")
+            button(Text["cancel-orders:reject"], restoreCallback)
         }
+
+        if (orders.size > 1)
+            row {
+                for ((index, order) in orders.withIndex())
+                    button(Text.get("cancel-orders:only-this") {
+                        it["num"] = "${index + 1}"
+                    }, "cancel-orders:${args.first()}:${order.id}")
+            }
     }
 }
 

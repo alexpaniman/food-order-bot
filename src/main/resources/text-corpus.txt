@@ -246,6 +246,9 @@
 [cancel-orders:accept] Да
 [cancel-orders:reject] Нет
 
+[cancel-orders:only-this]
+    Только [num]й
+
 [successful-order-cancellation]
     `[amount]` *заказ(-a) на* `[date]` *были успешно отменены.*
 # -- [Отмены заказов] -- #
