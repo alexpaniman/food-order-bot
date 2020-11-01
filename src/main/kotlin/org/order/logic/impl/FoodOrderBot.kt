@@ -18,6 +18,8 @@ import org.order.logic.impl.commands.administration.*
 import org.order.logic.impl.commands.display.pdf.MONEY_PDF_TOTAL
 import org.order.logic.impl.commands.display.pdf.ORDERS_PDF_TOTAL
 import org.order.logic.impl.commands.display.pdf.POLLS_PDF_TOTAL
+import org.order.logic.impl.commands.modules.USER_SEARCHER
+import org.order.logic.impl.commands.modules.USER_SEARCHER_WINDOW
 import org.order.logic.impl.commands.notifications.launchClientsNotifier
 import org.order.logic.impl.commands.polls.*
 
@@ -98,6 +100,11 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += POLLS_PDF_TOTAL
         this += MONEY_PDF_TOTAL
         this += ORDERS_PDF_TOTAL
+        // ---------------------------
+
+        // --------- Modules ---------
+        this += USER_SEARCHER
+        this += USER_SEARCHER_WINDOW
         // ---------------------------
 
         // ---------- Polls ----------

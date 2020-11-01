@@ -103,16 +103,16 @@ fun <T: Any> ReplyKeyboardMarkup.show(elements: List<T>, length: Int, show: (T) 
     }
 }
 
-fun <T : Any> InlineKeyboardMarkup.switcherIn(list: List<T>, index: Int, text: (Int) -> Any, callback: (Int) -> String) =
+fun InlineKeyboardMarkup.switcherIn(indices: IntRange, index: Int, text: (Int) -> Any, callback: (Int) -> String) =
         row {
-            if (index - 1 >= 0)
+            if (index - 1 in indices)
                 button(Text["previous-button"], callback(index - 1))
             else
                 button(Text["inactive-button"])
 
             button(text(index).toString())
 
-            if (index + 1 <= list.lastIndex)
+            if (index + 1 in indices)
                 button(Text["next-button"], callback(index + 1))
             else
                 button(Text["inactive-button"])

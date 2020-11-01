@@ -68,9 +68,9 @@ private fun WindowContext.suggestMakingOrder(user: User, dayNumStr: String, menu
         if (user.hasLinked(Parent))
             button(client.user.name!!, "$WINDOW_MARKER:$dayNum:$menuNum:${(clientNum + 1).orZero(clients.indices)}")
 
-        switcherIn(activeList, dayNum, { orderDayDisplay }, { "$WINDOW_MARKER:$it:$menuNum:$clientNum" })
+        switcherIn(activeList.indices, dayNum, { orderDayDisplay }, { "$WINDOW_MARKER:$it:$menuNum:$clientNum" })
 
-        switcherIn(activeToday, menuNum, { num ->
+        switcherIn(activeToday.indices, menuNum, { num ->
             Text.get("menu-label") {
                 it["name"] = activeToday[num].name
             }

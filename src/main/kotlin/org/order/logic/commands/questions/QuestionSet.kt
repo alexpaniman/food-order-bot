@@ -11,6 +11,7 @@ class QuestionSet(
         private val beginning : SenderContext.(User) -> Unit = {},
         private val conclusion: SenderContext.(User) -> Unit = {},
         val trigger: Trigger) : Command {
+
     override fun SenderContext.process(user: User, update: Update): Boolean {
         for (index in questions.indices) {
             val question = questions[index]
