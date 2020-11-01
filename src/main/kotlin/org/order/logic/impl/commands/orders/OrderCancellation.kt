@@ -164,6 +164,7 @@ val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation")
             for ((index, order) in orders.withIndex())
                 appendln(Text.get("cancel-orders:confirmation:item") {
                     it["number"] = "${index + 1}"
+                    it["name"] = order.menu.name
                     it["date"] = order.registered.toString("yyyy-MM-dd HH:MM:ss")
                 })
         }
@@ -181,12 +182,10 @@ val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation")
         }
 
         if (orders.size > 1)
-            row {
-                for ((index, order) in orders.withIndex())
-                    button(Text.get("cancel-orders:only-this") {
-                        it["num"] = "${index + 1}"
-                    }, "cancel-orders:${args.first()}:${order.id}")
-            }
+            for ((index, order) in orders.withIndex())
+                button(Text.get("cancel-orders:only-this") {
+                    it["num"] = "${index + 1}"
+                }, "cancel-orders:${args.first()}:${order.id}")
     }
 }
 
