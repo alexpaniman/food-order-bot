@@ -631,7 +631,8 @@ fun main() {
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
                 Relations, Coordinators, Users, PollAnswers,
-                OrdersCancellations, PollComments, Properties
+                OrdersCancellations, PollComments, Properties,
+                TempProperties
         )
 
         createAdmin(0, "Администратор Администратор", "+380669360000")
