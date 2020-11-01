@@ -11,12 +11,14 @@ import org.order.bot.send.row
 import org.order.bot.send.switcherIn
 import org.order.data.entities.*
 import org.order.data.entities.State.COMMAND
+import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
 import org.order.logic.impl.commands.modules.replaceWithUsersSearch
+import org.order.logic.impl.commands.modules.searchUsers
 import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.dayOfWeekAsLongText
 import org.order.logic.impl.utils.dayOfWeekAsShortText
@@ -40,7 +42,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     val clients = if (searchMode)
         searchResults.split(",")
                 .map { it.toInt() }
-                .map { Client.findById(it) ?: error("No such client!") }
+                .map { Client.findById(it) ?: error("No such client id: $it!") }
     else
         user.clients()
     // ------------------------------------
@@ -98,7 +100,8 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
                     val searcherCallback = replaceWithUsersSearch(user, "$WINDOW_MARKER:0:{}:$minusWeek")
                     button(Text["administration:search-button"], searcherCallback)
 
-                    if (searchResults != "") // Empty string here means that no search is performed
+                    val userIsParentOrClient = user.hasLinked(Parent) || user.hasLinked(Client)
+                    if (searchResults != "" && userIsParentOrClient) // Empty string here means that no search is performed
                     // Send empty string as search string back to this window
                         button(Text["administration:cancel-search"], "$WINDOW_MARKER:$clientNum::0")
                 }
@@ -132,6 +135,13 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         button(Text["cancel-button"], "remove-message")
         // -------------------------------------------------------------
     }
+}
+
+private val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER =
+        CommandTrigger(Text["order-cancellation-command"]) and
+                StateTrigger(COMMAND) and (RoleTrigger(Admin) or RoleTrigger(Producer))
+val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS = TriggerCommand(ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER) { user, _ ->
+    searchUsers(user, "$WINDOW_MARKER:0:{}:0")
 }
 
 val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->
