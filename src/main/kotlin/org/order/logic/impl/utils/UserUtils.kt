@@ -51,11 +51,13 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
     val isAdminOrProducer = isAdmin || isProducer
     val isClientOrParent = isClient || isParent
 
-    if (isClientOrParent)
-        row {
+    row {
+        if (isClientOrParent)
             button(Text["order-command"])
+
+        if (isClientOrParent || isAdminOrProducer)
             button(Text["order-cancellation-command"])
-        }
+    }
 
     row {
         if (isClientOrParent)

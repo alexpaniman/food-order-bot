@@ -4,6 +4,7 @@ import org.order.bot.send.SenderContext
 import org.order.bot.send.button
 import org.order.bot.send.inline
 import org.order.data.entities.Client
+import org.order.data.entities.State.COMMAND
 import org.order.data.entities.State.READ_SEARCH_STRING
 import org.order.data.entities.User
 import org.order.logic.commands.questions.Question
@@ -50,8 +51,7 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
         }
 
         val (_, clients) = Client.all()
-                .map { it.user }
-                .groupBy { longestCommonSubstring(it.name!!, searchString) }
+                .groupBy { longestCommonSubstring(it.user.name!!, searchString) }
                 .maxBy { (similarity, _) -> similarity }
                 ?: return false // Means empty clients list (which is very unlikely)
 
@@ -66,18 +66,26 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
                     val result = "${client.id}," + clients
                             .filter { it != client }
                             .take(5) // Drop results if there's too many of them TODO Check if this is a good idea
-                            .joinToString(",") { "$it.id" }
+                            .joinToString(",") { "${it.id}" }
                     val callback = acceptCallback.replace("{}", result)
 
                     // FIXME Probably replace with string from text corpus
-                    button(client.name + ", " + client.grade, callback)
+                    button(client.user.name + ", " + client.user.grade, callback)
                 }
             }
         }
 
         user.removeTempProperty("user-searcher:accept-callback")
+        user.state = COMMAND
         return true
     }
+}
+
+fun SenderContext.searchUsers(user: User, acceptCallback: String) {
+    user.setTempProperty("user-searcher:accept-callback", acceptCallback)
+
+    user.state = READ_SEARCH_STRING
+    user.send(Text["user-searcher:title"])
 }
 
 
