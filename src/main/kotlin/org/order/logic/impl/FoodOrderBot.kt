@@ -4,10 +4,6 @@ import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
 import org.order.logic.impl.commands.REGION_ID
 import org.order.logic.impl.commands.display.*
-import org.order.logic.impl.commands.orders.CANCEL_ORDER
-import org.order.logic.impl.commands.orders.MAKE_ORDER
-import org.order.logic.impl.commands.orders.ORDER_CANCELLATION_WINDOW
-import org.order.logic.impl.commands.orders.ORDER_WINDOW
 import org.order.logic.impl.commands.payments.*
 import org.order.logic.impl.commands.registration.*
 import org.order.logic.impl.commands.tools.BAN_FILTER
@@ -18,7 +14,10 @@ import org.order.logic.impl.commands.administration.*
 import org.order.logic.impl.commands.display.pdf.MONEY_PDF_TOTAL
 import org.order.logic.impl.commands.display.pdf.ORDERS_PDF_TOTAL
 import org.order.logic.impl.commands.display.pdf.POLLS_PDF_TOTAL
+import org.order.logic.impl.commands.modules.USER_SEARCHER
+import org.order.logic.impl.commands.modules.USER_SEARCHER_WINDOW
 import org.order.logic.impl.commands.notifications.launchClientsNotifier
+import org.order.logic.impl.commands.orders.*
 import org.order.logic.impl.commands.polls.*
 
 class FoodOrderBot(senderContext: SenderContext, username: String, token: String) : CommandsBot(senderContext, username, token) {
@@ -99,6 +98,15 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += MONEY_PDF_TOTAL
         this += ORDERS_PDF_TOTAL
         // ---------------------------
+
+        // --------- Modules ---------
+        this += USER_SEARCHER
+        this += USER_SEARCHER_WINDOW
+        // ---------------------------
+
+        // - Manual Order Cancellations -
+        this += ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS
+        // ------------------------------
 
         // ---------- Polls ----------
         this += RATE_PROCESSOR

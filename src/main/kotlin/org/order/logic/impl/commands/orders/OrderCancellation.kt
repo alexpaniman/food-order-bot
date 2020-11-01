@@ -8,16 +8,17 @@ import org.joda.time.LocalTime
 import org.order.bot.send.button
 import org.order.bot.send.deactivatableButton
 import org.order.bot.send.row
-import org.order.data.entities.Client
-import org.order.data.entities.Order
-import org.order.data.entities.OrderCancellation
-import org.order.data.entities.Parent
+import org.order.bot.send.switcherIn
+import org.order.data.entities.*
 import org.order.data.entities.State.COMMAND
+import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
+import org.order.logic.impl.commands.modules.replaceWithUsersSearch
+import org.order.logic.impl.commands.modules.searchUsers
 import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.dayOfWeekAsLongText
 import org.order.logic.impl.utils.dayOfWeekAsShortText
@@ -29,10 +30,21 @@ private val ORDER_CANCELLATION_WINDOW_TRIGGER = CommandTrigger(Text["order-cance
         StateTrigger(COMMAND) and (RoleTrigger(Client) or RoleTrigger(Parent))
 
 val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_TRIGGER,
-        args = listOf("0")) { user, (clientNumStr) ->
+        args = listOf("0", "", "0")) { user, (clientNumStr, /* Last two are only for admins */ searchResults, minusWeeksStr) ->
+
+    // Admins and parents are allowed to perform user search
+    val userHasAdministratorRights = user.hasLinked(Admin) || user.hasLinked(Parent)
+
+    // Means that results are search dependent
+    val searchMode = userHasAdministratorRights && searchResults != ""
 
     // ----------- Clients List -----------
-    val clients = user.clients()
+    val clients = if (searchMode)
+        searchResults.split(",")
+                .map { it.toInt() }
+                .map { Client.findById(it) ?: error("No such client id: $it!") }
+    else
+        user.clients()
     // ------------------------------------
 
     // ---------- Current Client ----------
@@ -43,7 +55,12 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     // ------------------------------------
 
     // -------- List of Done Orders --------
+    // Week offset is needed in order to provide administrators the ability to remove old orders
+    // For regular clients this should always be 0
+    val minusWeek = minusWeeksStr.toInt()
     val nowDate = LocalDate.now()
+            .minusWeeks(minusWeek)
+
     val nowTime = LocalTime.now()
 
     val weekStart = when (nowDate.dayOfWeek) {
@@ -55,7 +72,8 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
             .filter { !it.canceled }
             .filter { !it.orderDate.isBefore(nowDate) }
             .filter {
-                it.orderDate != nowDate || LAST_ORDER_TIME.isAfter(nowTime)
+                searchMode || // <== People who can search can delete order in any time
+                        it.orderDate != nowDate || LAST_ORDER_TIME.isAfter(nowTime)
             }
 
     val ordersWithDate = (1..5)
@@ -70,13 +88,31 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     // -------------------------------------
 
     show(Text["suggest-order-cancellation"]) {
-        // ------------ Button with Client name for Parents ------------
-        if (user.hasLinked(Parent))
-            button(
-                    client.user.name!!,
-                    "$WINDOW_MARKER:${(clientNum + 1).orZero(clients.indices)}"
-            )
-        // -------------------------------------------------------------
+        if (user.hasLinked(Parent) || userHasAdministratorRights)
+            row {
+                // ------------ Button with Client name for Parents ------------
+                val nextClient = (clientNum + 1).orZero(clients.indices) // <== Next client id
+                button(client.user.name!!, "$WINDOW_MARKER:$nextClient:$searchResults:$minusWeek")
+                // -------------------------------------------------------------
+
+                // -------------------------- Search ---------------------------
+                if (userHasAdministratorRights) {
+                    val searcherCallback = replaceWithUsersSearch(user, "$WINDOW_MARKER:0:{}:$minusWeek")
+                    button(Text["administration:search-button"], searcherCallback)
+
+                    val userIsParentOrClient = user.hasLinked(Parent) || user.hasLinked(Client)
+                    if (searchResults != "" && userIsParentOrClient) // Empty string here means that no search is performed
+                    // Send empty string as search string back to this window
+                        button(Text["administration:cancel-search"], "$WINDOW_MARKER:$clientNum::0")
+                }
+                // -------------------------------------------------------------
+            }
+
+        if (userHasAdministratorRights)
+            switcherIn(Int.MIN_VALUE..0, minusWeek, { nowDate.toString("yyyy-MM") }) {
+                "$WINDOW_MARKER:$clientNum:$searchResults:$it"
+            }
+
 
         // ----- List with Days of Week When the Order Was Ordered -----
         row {
@@ -92,13 +128,20 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         // -------------------------------------------------------------
 
         // ------------------ Button to Update Window ------------------
-        button(Text["update-button"], "$WINDOW_MARKER:$clientNum")
+        button(Text["update-button"], "$WINDOW_MARKER:$clientNum:$searchResults:$minusWeek")
         // -------------------------------------------------------------
 
         // ------------------ Button to Remove Window ------------------
         button(Text["cancel-button"], "remove-message")
         // -------------------------------------------------------------
     }
+}
+
+private val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER =
+        CommandTrigger(Text["order-cancellation-command"]) and
+                StateTrigger(COMMAND) and (RoleTrigger(Admin) or RoleTrigger(Producer))
+val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS = TriggerCommand(ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER) { user, _ ->
+    searchUsers(user, "$WINDOW_MARKER:0:{}:0")
 }
 
 val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->
@@ -120,7 +163,7 @@ val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->
         order.canceled = true
         // ------------------------------------
 
-        canceledCount ++
+        canceledCount++
     }
 
     src.edit(Text.get("successful-order-cancellation") {
