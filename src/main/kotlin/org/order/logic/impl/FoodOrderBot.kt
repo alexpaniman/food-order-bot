@@ -106,6 +106,7 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
 
         // - Manual Order Cancellations -
         this += ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS
+        this += CANCEL_ORDERS_CONFIRMATION
         // ------------------------------
 
         // ---------- Polls ----------
