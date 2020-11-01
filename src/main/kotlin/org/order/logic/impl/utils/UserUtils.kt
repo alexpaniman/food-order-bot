@@ -1,9 +1,14 @@
 package org.order.logic.impl.utils
 
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.order.bot.send.button
 import org.order.bot.send.reply
 import org.order.bot.send.row
 import org.order.data.entities.*
+import org.order.data.tables.TempProperties
 import org.order.logic.corpus.Text
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -95,3 +100,23 @@ fun SendDocument.appendMainKeyboard(user: User) = reply {
 
 val User.isRegistered
     get() = name != null && phone != null && state == State.COMMAND
+
+fun User.getTempProperty(key: String) = TempProperties
+        .select {
+            (TempProperties.user eq this@getTempProperty.id) and
+                    (TempProperties.key eq key)
+        }
+        .first()[TempProperties.value]
+
+fun User.setTempProperty(key: String, value: String) = TempProperties
+        .insert {
+            it[this.user] = id
+            it[this.key] = key
+            it[this.value] = value
+        }
+
+fun User.removeTempProperty(key: String) = TempProperties
+        .deleteWhere {
+            (TempProperties.user eq id) and
+                    (TempProperties.key eq key)
+        }

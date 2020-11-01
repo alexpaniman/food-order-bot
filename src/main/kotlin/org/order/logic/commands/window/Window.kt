@@ -4,6 +4,7 @@ import org.order.bot.send.SenderContext
 import org.order.data.entities.User
 import org.order.logic.commands.Command
 import org.order.logic.commands.triggers.Trigger
+import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 
 class Window(private val marker: String,
@@ -32,5 +33,10 @@ class Window(private val marker: String,
         }
 
         return false
+    }
+
+    fun updateCurrent(senderContext: SenderContext, user: User, source: Message, args: List<String>) {
+        WindowContext(senderContext, source, user)
+                .window(user, args)
     }
 }
