@@ -59,7 +59,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
     // For regular clients this should always be 0
     val minusWeek = minusWeeksStr.toInt()
     val nowDate = LocalDate.now()
-            .minusWeeks(minusWeek)
+            .plusWeeks(minusWeek)
 
     val nowTime = LocalTime.now()
 
@@ -109,7 +109,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
             }
 
         if (userHasAdministratorRights)
-            switcherIn(Int.MIN_VALUE..0, minusWeek, { nowDate.toString("yyyy-MM") }) {
+            switcherIn(Int.MIN_VALUE..0, minusWeek, { nowDate.toString("yyyy-MM-dd") }) {
                 "$WINDOW_MARKER:$clientNum:$searchResults:$it"
             }
 
