@@ -108,8 +108,10 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
                 // -------------------------------------------------------------
             }
 
-        if (userHasAdministratorRights)
-            switcherIn(Int.MIN_VALUE..0, minusWeek, { nowDate.toString("yyyy-MM-dd") }) {
+        if (searchMode)
+            switcherIn(Int.MIN_VALUE..0, minusWeek, {
+                weekStart.toString("yyyy-MM") + " [" + weekStart.weekOfWeekyear + "]"
+            }) {
                 "$WINDOW_MARKER:$clientNum:$searchResults:$it"
             }
 
@@ -117,10 +119,13 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         // ----- List with Days of Week When the Order Was Ordered -----
         row {
             for ((date, orders) in ordersWithDate) {
-                val dateDisplay = date.dayOfWeekAsShortText
+                val dateDisplay = if (searchMode)
+                    "${date.dayOfMonth}"
+                else date.dayOfWeekAsShortText
+
                 val joinedOrders = orders.joinToString(":") { it.id.value.toString() }
 
-                deactivatableButton(dateDisplay, "cancel-orders:$date:$joinedOrders") {
+                deactivatableButton(dateDisplay, "cancel-orders-confirmation:$date:$joinedOrders") {
                     orders.isNotEmpty()
                 }
             }
@@ -142,6 +147,31 @@ private val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER =
                 StateTrigger(COMMAND) and (RoleTrigger(Admin) or RoleTrigger(Producer))
 val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS = TriggerCommand(ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER) { user, _ ->
     searchUsers(user, "$WINDOW_MARKER:0:{}:0")
+}
+
+val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation") { _, src, args ->
+    val text = Text.get("cancel-orders:confirmation") { map ->
+        map["n"] = "${args.size - 1}"
+        map["items"] = buildString {
+            val orders = args.drop(1)
+                    .map { it.toInt() }
+                    .map { Order.findById(it) ?: error("No such order!") }
+
+            for ((index, order) in orders.withIndex())
+                appendln(Text.get("cancel-orders:confirmation:item") {
+                    it["number"] = "${index + 1}"
+                    it["date"] = order.registered.toString("yyyy-MM-dd HH:MM:ss")
+                })
+        }
+    }
+
+    val cancellationCallback = "cancel-orders:${args.joinToString(":")}"
+    src.edit(text) {
+        row {
+            button(Text["cancel-orders:accept"], cancellationCallback)
+            button(Text["cancel-orders:reject"], "remove-message")
+        }
+    }
 }
 
 val CANCEL_ORDER = CallbackProcessor("cancel-orders") { user, src, args ->

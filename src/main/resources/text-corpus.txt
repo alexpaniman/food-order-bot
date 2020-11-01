@@ -236,6 +236,16 @@
 [these-orders-were-already-canceled]
     *Заказы в этот день уже были отменены!*
 
+[cancel-orders:confirmation:item]
+    [number]. Заказан в [date]
+
+[cancel-orders:confirmation]
+    Вы уверены, что хотите отменить `[n]` заказ(-а) на этот день?[br][br]
+    *Перечень:*[br][items]
+
+[cancel-orders:accept] Да
+[cancel-orders:reject] Нет
+
 [successful-order-cancellation]
     `[amount]` *заказ(-a) на* `[date]` *были успешно отменены.*
 # -- [Отмены заказов] -- #
