@@ -237,7 +237,7 @@
     *Заказы в этот день уже были отменены!*
 
 [cancel-orders:confirmation:item]
-    [number]. Заказан в [date]
+    [number]. [name] меню заказано в [date]
 
 [cancel-orders:confirmation]
     Вы уверены, что хотите отменить `[n]` заказ(-а) на этот день?[br][br]
