@@ -33,7 +33,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         args = listOf("0", "", "0")) { user, (clientNumStr, /* Last two are only for admins */ searchResults, minusWeeksStr) ->
 
     // Admins and parents are allowed to perform user search
-    val userHasAdministratorRights = user.hasLinked(Admin) || user.hasLinked(Parent)
+    val userHasAdministratorRights = user.hasLinked(Admin) || user.hasLinked(Producer)
 
     // Means that results are search dependent
     val searchMode = userHasAdministratorRights && searchResults != ""
