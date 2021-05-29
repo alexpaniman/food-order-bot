@@ -64,7 +64,7 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
 
         val actualAmount = amount.withCommission
         user.sendInvoice(
-                Text["payment-title"], actualAmount,
+                Text["payment-title"], amount,
                 Text.get("payment-description") {
                     it["amount"] = amount.toString()
                     it["commission"] = (COMMISSION * 100f).toString()
