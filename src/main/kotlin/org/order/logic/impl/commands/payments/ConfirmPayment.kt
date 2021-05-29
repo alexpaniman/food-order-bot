@@ -13,9 +13,9 @@ val PAYMENT_CONFIRMATION = PreCheckoutQueryProcessor("account-replenishment") { 
         "Wrong currency: $currency instead of $CURRENCY"
     }
 
-    check(payment.amount!!.withCommission == amount) {
-        "Wrong payment amount: $amount instead of ${payment.amount!!.withCommission}"
-    }
+    // check(payment.amount!!.withCommission == amount) {
+    //    "Wrong payment amount: $amount instead of ${payment.amount!!.withCommission}"
+    // }
 
     check(payment.madeBy == user) {
         "Wrong creator of payment (User ID's): ${user.id.value} instead of ${payment.madeBy.id.value}"
