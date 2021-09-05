@@ -80,9 +80,9 @@ fun createHistoryPDF(user: User) = createPDF {
             .groupBy { it.time.toLocalDate() }
             .mapValues { (_, action) ->
                 action.sortedBy { it.time }
-            }
+            }.toSortedMap()
 
-        table(.16f, .1f, .2f, .32f, .22f) {
+        table(.16f, .08f, .18f, .30f, .28f) {
             cell(Text["history-pdf:date"       ], border = SolidBorder(1f), bold = true)
             cell(Text["history-pdf:time"       ], border = SolidBorder(1f), bold = true)
             cell(Text["history-pdf:made-by"    ], border = SolidBorder(1f), bold = true)

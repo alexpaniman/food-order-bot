@@ -277,18 +277,20 @@
 # -- [Список моих заказов] -- #
 
 # --- История --- # TODO Список всех действий человека
-[history-pdf:title] История [name] [br] на момент [date]
+[history-pdf:title]
+    История [name]
+    [br] на момент [date]
 
 [history-pdf:order]
-    [space]Заказать меню [menu:name]
-    [space]на [order-date]
+    Заказ меню [menu:name]
+    [br]на [order-date]
 
 [history-pdf:payment]
-    [space]Пополнение счета
+    Пополнение счета
 
 [history-pdf:order-cancellation]
-    [space]Отменить меню [order:menu:name]
-    [space]на [order:order-date]
+    Отмена меню [order:menu:name]
+    [br]на [order:order-date]
 
 [history-pdf:balance-change-history]
     История баланса [client:name]
