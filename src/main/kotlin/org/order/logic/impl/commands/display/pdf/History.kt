@@ -17,7 +17,7 @@ import org.order.logic.impl.commands.modules.searchUsers
 import org.order.logic.impl.utils.clients
 import java.lang.Exception
 
-private data class HistoryAction(val time: DateTime, val balanceChange: Float, val description: String)
+private data class HistoryAction(val time: DateTime, val author: String, val balanceChange: Float, val description: String)
 
 private fun fetchOrdersHistory(client: Client) = client.orders
     .mapNotNull map@ { order ->
@@ -30,7 +30,7 @@ private fun fetchOrdersHistory(client: Client) = client.orders
             it["order-date"] = order.orderDate.toString()
         }
 
-        HistoryAction(order.registered, -order.menu.cost, description)
+        HistoryAction(order.registered, order.madeBy.name!!, -order.menu.cost, description)
     }
 
 private fun fetchPaymentsHistory(client: Client) = client.payments
@@ -45,7 +45,7 @@ private fun fetchPaymentsHistory(client: Client) = client.payments
         }
 
         if (payment.registered != null && payment.amount != null)
-            HistoryAction(payment.registered!!, payment.amount!!, description)
+            HistoryAction(payment.registered!!, payment.madeBy.name!!, payment.amount!!, description)
         else null
     }
 
@@ -61,7 +61,7 @@ private fun fetchCancellationsHistory(client: Client) = client.orders
             it["order:order-date"] = order.orderDate.toString()
         }
 
-        HistoryAction(cancellation.canceled, cancellation.order.menu.cost, description)
+        HistoryAction(cancellation.canceled, cancellation.canceledBy.name!!, cancellation.order.menu.cost, description)
     }
 
 fun createHistoryPDF(user: User) = createPDF {
@@ -114,7 +114,7 @@ fun createHistoryPDF(user: User) = createPDF {
                 for (action in actions) {
                     val time = action.time.toString("HH:mm")
                     cell(time)
-                    cell("Александр Паниман")
+                    cell(action.author)
                     cell(action.description)
 
                     balance += action.balanceChange
