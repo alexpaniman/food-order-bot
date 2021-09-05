@@ -1,5 +1,6 @@
 package org.order.logic.impl
 
+import org.joda.time.DateTimeZone
 import org.order.bot.CommandsBot
 import org.order.bot.send.SenderContext
 import org.order.logic.impl.commands.REGION_ID
@@ -9,11 +10,8 @@ import org.order.logic.impl.commands.registration.*
 import org.order.logic.impl.commands.tools.BAN_FILTER
 import org.order.logic.impl.commands.tools.MESSAGE_REMOVER
 import org.order.logic.impl.commands.tools.VALIDATION_FILTER
-import org.joda.time.DateTimeZone
 import org.order.logic.impl.commands.administration.*
-import org.order.logic.impl.commands.display.pdf.MONEY_PDF_TOTAL
-import org.order.logic.impl.commands.display.pdf.ORDERS_PDF_TOTAL
-import org.order.logic.impl.commands.display.pdf.POLLS_PDF_TOTAL
+import org.order.logic.impl.commands.display.pdf.*
 import org.order.logic.impl.commands.modules.USER_SEARCHER
 import org.order.logic.impl.commands.modules.USER_SEARCHER_WINDOW
 import org.order.logic.impl.commands.notifications.launchClientsNotifier
@@ -92,7 +90,9 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += ORDERS_LIST_WINDOW
         this += PAYMENTS_LIST_WINDOW
         this += MY_ORDERS_LIST_WINDOW
-        this += HISTORY_WINDOW
+        this += HISTORY_PDF_TOTAL
+        this += HISTORY_PDF_SEARCH
+        this += HISTORY_PDF_SEARCH_SEND
         this += MONEY_TOTAL_WINDOW
         this += POLLS_PDF_TOTAL
         this += MONEY_PDF_TOTAL

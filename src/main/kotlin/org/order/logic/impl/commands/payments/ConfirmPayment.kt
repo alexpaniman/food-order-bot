@@ -3,7 +3,6 @@ package org.order.logic.impl.commands.payments
 import org.order.data.entities.Payment
 import org.order.logic.commands.processors.PreCheckoutQueryProcessor
 import org.order.logic.impl.commands.CURRENCY
-import org.order.logic.impl.utils.withCommission
 
 val PAYMENT_CONFIRMATION = PreCheckoutQueryProcessor("account-replenishment") { user, id, currency, amount, (paymentIdStr) ->
     val paymentId = paymentIdStr.toInt()

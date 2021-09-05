@@ -7,6 +7,7 @@
 [payments-list-command] список платежей
 [help-command] помощь
 [history-command] история
+[history-search-command] поиск истории
 [resend-buttons-command] отправить клавиатуру
 [replenish-account-command] пополнить счет
 [money-total-command] сводка по деньгам
@@ -276,36 +277,31 @@
 # -- [Список моих заказов] -- #
 
 # --- История --- # TODO Список всех действий человека
-[history-empty]
-    *На данный момент ваша история пуста!*
+[history-pdf:title] История [name] [br] на момент [date]
 
-[history-balance]
-    [space]       *Баланс*`[delta]` = `[balance]`
+[history-pdf:order]
+    [space]Заказать меню [menu:name]
+    [space]на [order-date]
 
-[history]
-    *История ваших действий:*[br]
-    [actions]
+[history-pdf:payment]
+    [space]Пополнение счета
 
-[history-date] [space]   *[date]*:
+[history-pdf:order-cancellation]
+    [space]Отменить меню [order:menu:name]
+    [space]на [order:order-date]
 
-# TODO Каждый блок отражает одно действие в истории
-# TODO Блоки разделены символом \n
-# TODO Смена дня обозначается блоком [history-date] выше
+[history-pdf:balance-change-history]
+    История баланса [client:name]
 
-[history:order]
-    [space]       *([ordered-by])*[br]
-    [space]       Заказать меню [menu:name]
-    [space]на `[order-date]`
+[history-pdf:file-name] История.pdf
 
-[history:payment]
-    [space]       *([paid-by])*[br]
-    [space]       Пополнить счёт
-    [space]на `[amount]`
-
-[history:order-cancellation]
-    [space]       *([canceled-by])*[br]
-    [space]       Отменить меню [order:menu:name]
-    [space]на `[order:order-date]`
+[history-pdf:empty] —
+[history-pdf:total] Итого:
+[history-pdf:date] Дата
+[history-pdf:time] Время
+[history-pdf:made-by] Инициатор
+[history-pdf:description] Описание
+[history-pdf:balance] Баланс
 # -- [История] -- #
 
 # --- Список заказов --- # TODO Список заказов всей школы сгруппированный по дням

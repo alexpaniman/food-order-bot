@@ -1,6 +1,7 @@
 package org.order.logic.impl.commands.display.pdf
 
 import com.itextpdf.io.font.PdfEncodings
+import com.itextpdf.kernel.colors.Color
 import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
@@ -62,14 +63,23 @@ fun Document.table(vararg percents: Float, init: Table.() -> Unit) {
     this.add(table)
 }
 
-fun Table.cell(text: String, row: Int = 1, col: Int = 1, border: Border? = null, bold: Boolean = false, padding: Float = 5f) {
-    val paragraph = Paragraph(text).apply {
+fun par(text: String, bold: Boolean = false, color: Color? = null) = Paragraph(text)
+    .apply {
         if (bold)
             setFont(createFont(BOLD_FONT_FOR_BUILDING_PDF_PATH))
         else
             setFont(createFont(FONT_FOR_BUILDING_PDF_PATH))
+        if (color != null)
+            setFontColor(color)
     }
 
+operator fun Paragraph.plus(other: Paragraph) = this.add(other)!!
+
+fun Table.cell(text: String, row: Int = 1, col: Int = 1, border: Border? = null, bold: Boolean = false, padding: Float = 5f) {
+    cell(par(text, bold), row, col, border, padding)
+}
+
+fun Table.cell(paragraph: Paragraph, row: Int = 1, col: Int = 1, border: Border? = null, padding: Float = 5f) {
     val cell = Cell(row, col).apply {
         if (border != null)
             setBorder(border)

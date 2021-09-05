@@ -74,6 +74,10 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
     row {
         if (isClientOrParent)
             button(Text["history-command"])
+
+        if (isAdminOrProducer)
+            button(Text["history-search-command"])
+
         button(Text["help-command"])
     }
 
