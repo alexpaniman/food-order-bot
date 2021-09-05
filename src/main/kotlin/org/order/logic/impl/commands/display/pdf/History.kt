@@ -5,7 +5,6 @@ import com.itextpdf.layout.borders.SolidBorder
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.order.data.entities.*
-import org.order.data.tables.Clients
 import org.order.data.tables.OrdersCancellations
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.processors.CallbackProcessor
@@ -16,11 +15,15 @@ import org.order.logic.commands.triggers.or
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.modules.searchUsers
 import org.order.logic.impl.utils.clients
+import java.lang.Exception
 
 private data class HistoryAction(val time: DateTime, val balanceChange: Float, val description: String)
 
 private fun fetchOrdersHistory(client: Client) = client.orders
-    .map { order ->
+    .mapNotNull map@ { order ->
+        if (order.madeBy.name == null)
+            return@map null
+
         val description = Text.get("history-pdf:order") {
             it["ordered-by"] = order.madeBy.name!!
             it["menu:name"] = order.menu.name
@@ -31,14 +34,19 @@ private fun fetchOrdersHistory(client: Client) = client.orders
     }
 
 private fun fetchPaymentsHistory(client: Client) = client.payments
-    .map { payment ->
+    .mapNotNull map@ { payment ->
+        if (payment.madeBy.name == null)
+            return@map null
+
         val description = Text.get("history-pdf:payment") {
             it["paid-by"] = payment.madeBy.name!!
             it["amount"] = payment.amount.toString()
             it["client:name"] = payment.client.user.name!!
         }
 
-        HistoryAction(payment.registered!!, payment.amount!!, description)
+        if (payment.registered != null && payment.amount != null)
+            HistoryAction(payment.registered!!, payment.amount!!, description)
+        else null
     }
 
 private fun fetchCancellationsHistory(client: Client) = client.orders
@@ -58,7 +66,7 @@ private fun fetchCancellationsHistory(client: Client) = client.orders
 
 fun createHistoryPDF(user: User) = createPDF {
     section(Text.get("history-pdf:title") {
-        it["name"] = user.name!! // TODO Make safe
+        it["name"] = user.name!!
         it["date"] = DateTime.now().toString("dd-MM-yyyy HH:mm")
     }, bold = true)
 
@@ -81,6 +89,11 @@ fun createHistoryPDF(user: User) = createPDF {
             .mapValues { (_, action) ->
                 action.sortedBy { it.time }
             }.toSortedMap()
+
+        if (allActions.isEmpty()) {
+            text(Text["history-pdf:nothing-here"])
+            continue
+        }
 
         table(.16f, .08f, .18f, .30f, .28f) {
             cell(Text["history-pdf:date"       ], border = SolidBorder(1f), bold = true)
@@ -132,12 +145,14 @@ val HISTORY_PDF_TOTAL_TRIGGER =
 
 val HISTORY_PDF_TOTAL = TriggerCommand(HISTORY_PDF_TOTAL_TRIGGER) { user, _ ->
     PDFQueue.schedule {
-        val pdfTotal = transaction {
-            createHistoryPDF(user)
-        }
+        try {
+            val pdfTotal = transaction {
+                createHistoryPDF(user)
+            }
 
-        val pdfTotalFileName = Text["history-pdf:file-name"]
-        user.sendFile(pdfTotalFileName, "", pdfTotal)
+            val pdfTotalFileName = Text["history-pdf:file-name"]
+            user.sendFile(pdfTotalFileName, "", pdfTotal)
+        } catch(ignore: Exception) {}
     }
 }
 
@@ -155,11 +170,13 @@ val HISTORY_PDF_SEARCH_SEND = CallbackProcessor(HISTORY_SEARCH_CALLBACK) { user,
     val client = Client.findById(clientId) ?: error("No such client!")
 
     PDFQueue.schedule {
-        val pdfTotal = transaction {
-            createHistoryPDF(client.user)
-        }
+        try {
+            val pdfTotal = transaction {
+                createHistoryPDF(client.user)
+            }
 
-        val pdfTotalFileName = Text["history-pdf:file-name"]
-        user.sendFile(pdfTotalFileName, "", pdfTotal)
+            val pdfTotalFileName = Text["history-pdf:file-name"]
+            user.sendFile(pdfTotalFileName, "", pdfTotal)
+        } catch(ignore: Exception) {}
     }
 }

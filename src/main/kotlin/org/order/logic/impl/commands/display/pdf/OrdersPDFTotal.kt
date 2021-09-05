@@ -12,6 +12,7 @@ import org.order.data.entities.State
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
+import java.lang.Exception
 
 fun createOrdersPDFTotal() = createPDF {
     section(Text["orders-pdf-total:title"], bold = true)
@@ -123,11 +124,13 @@ private val ORDERS_PDF_TOTAL_TRIGGER =
 
 val ORDERS_PDF_TOTAL = TriggerCommand(ORDERS_PDF_TOTAL_TRIGGER) { user, _ ->
     PDFQueue.schedule {
-        val pdfTotal = transaction {
-            createOrdersPDFTotal()
-        }
+        try {
+            val pdfTotal = transaction {
+                createOrdersPDFTotal()
+            }
 
-        val pdfTotalFileName = Text["orders-pdf-total:file-name"]
-        user.sendFile(pdfTotalFileName, "", pdfTotal)
+            val pdfTotalFileName = Text["orders-pdf-total:file-name"]
+            user.sendFile(pdfTotalFileName, "", pdfTotal)
+        } catch (ignore: Exception) {}
     }
 }

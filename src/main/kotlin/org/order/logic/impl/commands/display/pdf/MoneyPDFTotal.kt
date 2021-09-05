@@ -13,6 +13,7 @@ import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
 import org.order.logic.impl.utils.GRADE_COMPARATOR
 import org.order.logic.impl.utils.grade
+import java.lang.Exception
 import kotlin.math.roundToInt
 
 fun createMoneyPDFTotal() = createPDF {
@@ -116,11 +117,13 @@ private val MONEY_PDF_TOTAL_TRIGGER =
 
 val MONEY_PDF_TOTAL = TriggerCommand(MONEY_PDF_TOTAL_TRIGGER) { user, _ ->
     PDFQueue.schedule {
-        val pdfTotal = transaction {
-            createMoneyPDFTotal()
-        }
+        try {
+            val pdfTotal = transaction {
+                createMoneyPDFTotal()
+            }
 
-        val pdfTotalFileName = Text["money-pdf-total:file-name"]
-        user.sendFile(pdfTotalFileName, "", pdfTotal)
+            val pdfTotalFileName = Text["money-pdf-total:file-name"]
+            user.sendFile(pdfTotalFileName, "", pdfTotal)
+        } catch(ignore: Exception) {}
     }
 }

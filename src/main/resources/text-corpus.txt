@@ -297,6 +297,8 @@
 
 [history-pdf:file-name] История.pdf
 
+[history-pdf:nothing-here] Тут ещё ничего нет!
+
 [history-pdf:empty] —
 [history-pdf:total] Итого:
 [history-pdf:date] Дата
