@@ -103,3 +103,6 @@ fun replaceWithUsersSearch(user: User, acceptCallback: String): String {
     user.setTempProperty("user-searcher:accept-callback", acceptCallback)
     return "$WINDOW_MARKER:"
 }
+
+fun clearUsersSearch(user: User) =
+    user.removeTempProperty("user-searcher:accept-callback")

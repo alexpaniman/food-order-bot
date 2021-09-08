@@ -17,6 +17,7 @@ import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LAST_ORDER_TIME
+import org.order.logic.impl.commands.modules.clearUsersSearch
 import org.order.logic.impl.commands.modules.replaceWithUsersSearch
 import org.order.logic.impl.commands.modules.searchUsers
 import org.order.logic.impl.utils.clients
@@ -31,6 +32,7 @@ private val ORDER_CANCELLATION_WINDOW_TRIGGER = CommandTrigger(Text["order-cance
 
 val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_TRIGGER,
         args = listOf("0", "", "0")) { user, (clientNumStr, /* Last two are only for admins */ searchResults, minusWeeksStr) ->
+    clearUsersSearch(user) // Clear user search if its entry exists
 
     // Admins and parents are allowed to perform user search
     val userHasAdministratorRights = user.hasLinked(Admin) || user.hasLinked(Producer)

@@ -385,13 +385,13 @@
 
 [payment-notification]
     *Уведомление о платеже!*[br][br]
-    [space]   `Заплатил: [user-name]`[br]
-    [space]   `На счет клиента: [client-name]`[br][br]
-    [space]   `Сумму: [amount] грн.`[br]
-    [space]   `С комиссией: [actual-amount] грн.`[br][br]
-    [space]   `Время: [registered]`[br][br]
-    [space]   `TelegramId платежа: [telegram-id]`[br]
-    [space]   `TranzzoId платежа: [provider-id]`
+    [space]   *Заплатил:* `[user-name]`[br]
+    [space]   *На счет клиента:* `[client-name]`[br][br]
+    [space]   *Сумму:* `[amount] грн.`[br]
+    [space]   *С комиссией:* `[actual-amount] грн.`[br][br]
+    [space]   *Время:* `[registered]`[br][br]
+    [space]   *TelegramId платежа:* `[telegram-id]`[br]
+    [space]   *TranzzoId платежа:* `[provider-id]`
 # -- [Оплата] -- #
 
 # --- Пополнение счета --- # TODO Для администраторов
@@ -424,10 +424,10 @@
 
 [successful-account-replenishment]
     *Успешное ручное пополнение счета!*[br][br]
-        [space]   `Заплатил: [user-name]`[br]
-        [space]   `На счет клиента: [client-name]`[br][br]
-        [space]   `Сумму: [amount] грн.`[br][br]
-        [space]   `Время: [registered]`
+        [space]   *Заплатил:* `[user-name]`[br]
+        [space]   *На счет клиента:* `[client-name]`[br][br]
+        [space]   *Сумму:* `[amount] грн.`[br][br]
+        [space]   *Время:* `[registered]`
 # -- [Пополнение счета] -- #
 
 # --- Опросы --- #
@@ -579,7 +579,7 @@
 
 [refund:notify]
     Администратор [name] снял с вашего счета `[amount] грн.`
-    [br][br]*Причина:*[comment]
+    [br][br]*Причина:* [comment]
 
 [refund:cannot-notify]
     Не получается сообщить человеку о возврате средств!
@@ -588,7 +588,7 @@
 [refund:confirmation]
     Вы уверены, что хотите произвести возврат средств?
     [br]*Клиент:* `[client]`
-    [br][br]*Текущий баланс*: `[balance]`
+    [br][br]*Текущий баланс:* `[balance]`
     [br]*Сумма снятия:* `[amount]`
     [br][br]*Описанная вами причина:* [comment]
     [br][br]Клиент будет оповещен о возврате
@@ -608,5 +608,5 @@
     [space]   *Снятая сумма:* `[amount] грн.`[br]
     [space]   *Баланс после снятия:* `[new-balance] грн.`[br]
     [space]   *Время:* `[registered]`[br][br]
-    [space]   *Комментарий*: [comment]
+    [space]   *Комментарий:* [comment]
 # -- [Возврат средств] -- #
