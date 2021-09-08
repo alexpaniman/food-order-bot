@@ -632,7 +632,7 @@ fun main() {
                 Menus, Orders, Parents, Payments, Producers,
                 Relations, Coordinators, Users, PollAnswers,
                 OrdersCancellations, PollComments, Properties,
-                TempProperties
+                TempProperties, RefundComments
         )
 
         createAdmin(0, "Администратор Администратор", "+380669360000")

@@ -5,11 +5,9 @@ import org.order.bot.send.deactivatableKeyButton
 import org.order.bot.send.row
 import org.order.data.entities.Client
 import org.order.data.entities.Parent
+import org.order.data.entities.State
 import org.order.data.entities.Student
-import org.order.logic.commands.triggers.CommandTrigger
-import org.order.logic.commands.triggers.RoleTrigger
-import org.order.logic.commands.triggers.and
-import org.order.logic.commands.triggers.or
+import org.order.logic.commands.triggers.*
 import org.order.logic.commands.window.Window
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.LOCALE
@@ -17,8 +15,8 @@ import org.order.logic.impl.utils.orZero
 
 private const val WINDOW_MARKER = "payments-list-window"
 
-private val PAYMENTS_LIST_WINDOW_TRIGGER =
-        CommandTrigger(Text["payments-list-command"]) and (RoleTrigger(Parent) or RoleTrigger(Student))
+private val PAYMENTS_LIST_WINDOW_TRIGGER = CommandTrigger(Text["payments-list-command"]) and
+        StateTrigger(State.COMMAND) and (RoleTrigger(Parent) or RoleTrigger(Student))
 
 val PAYMENTS_LIST_WINDOW = Window(WINDOW_MARKER, PAYMENTS_LIST_WINDOW_TRIGGER,
         args = listOf("-1", "0")) { user, (monthNumStr, clientNumStr) ->

@@ -55,14 +55,13 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
         if (isClientOrParent)
             button(Text["order-command"])
 
-        if (isClientOrParent || isAdminOrProducer)
-            button(Text["order-cancellation-command"])
-    }
-
-    row {
         if (isClientOrParent)
             button(Text["my-orders-command"])
+
         button(Text["orders-list-command"])
+
+        if (isClientOrParent || isAdminOrProducer)
+            button(Text["order-cancellation-command"])
     }
 
     if (isClientOrParent)
@@ -71,29 +70,32 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
             button(Text["payments-list-command"])
         }
 
-    row {
-        if (isClientOrParent)
-            button(Text["history-command"])
+    if (isClientOrParent || isAdminOrProducer)
+        row {
+            if (isClientOrParent)
+                button(Text["history-command"])
 
-        if (isAdminOrProducer)
-            button(Text["history-search-command"])
-
-        button(Text["help-command"])
-    }
+            if (isAdminOrProducer)
+                button(Text["history-search-command"])
+        }
 
     if (isAdminOrProducer) row {
         button(Text["replenish-account-command"])
-        button(Text["money-total-command"])
-        if (isAdmin)
-            button(Text["mailing-command"])
+        button(Text["refund-command"])
     }
 
     if (isAdminOrProducer) row {
+        button(Text["money-total-command"])
         button(Text["money-pdf-total-command"])
         button(Text["orders-pdf-total-command"])
         button(Text["polls-pdf-total-command"])
     }
 
+    row {
+        if (isAdmin)
+            button(Text["mailing-command"])
+        button(Text["help-command"])
+    }
 }
 
 fun SendMessage.appendMainKeyboard(user: User) = reply {

@@ -30,7 +30,7 @@ fun main() {
                 Menus, Orders, Parents, Payments, Producers,
                 Relations, Coordinators, Users, PollAnswers,
                 OrdersCancellations, PollComments, Properties,
-                TempProperties
+                TempProperties, RefundComments
         )
     }
 

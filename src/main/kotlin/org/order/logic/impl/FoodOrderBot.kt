@@ -85,6 +85,14 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += PERFORM_ACCOUNT_REPLENISHMENT
         // ------------------------------------
 
+        // -------------- Refund --------------
+        this += REFUND
+        this += REFUND_CONFIRMATION
+        this += REFUND_READ_AMOUNT
+        this += REFUND_CONFIRMATION
+        this += REFUND_QUESTION_SET
+        // ------------------------------------
+
         // --------- Display ---------
         this += HELP
         this += ORDERS_LIST_WINDOW

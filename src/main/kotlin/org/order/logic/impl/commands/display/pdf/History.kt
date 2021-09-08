@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.order.data.entities.*
 import org.order.data.tables.OrdersCancellations
+import org.order.data.tables.RefundComments
 import org.order.logic.commands.TriggerCommand
 import org.order.logic.commands.processors.CallbackProcessor
 import org.order.logic.commands.triggers.CommandTrigger
@@ -35,18 +36,28 @@ private fun fetchOrdersHistory(client: Client) = client.orders
 
 private fun fetchPaymentsHistory(client: Client) = client.payments
     .mapNotNull map@ { payment ->
-        if (payment.madeBy.name == null)
+        if (payment.madeBy.name == null || payment.amount == null || payment.registered == null)
             return@map null
 
-        val description = Text.get("history-pdf:payment") {
-            it["paid-by"] = payment.madeBy.name!!
-            it["amount"] = payment.amount.toString()
-            it["client:name"] = payment.client.user.name!!
+        val description = when (payment.providerId) {
+            null -> when {
+                payment.amount!! < 0 -> {
+                    val refundComment = RefundComment
+                        .find { RefundComments.payment eq payment.id }
+                        .singleOrNull() ?: return@map null
+
+                    Text.get("history-pdf:refund") {
+                        it["comment"] = refundComment.comment
+                    }
+                }
+
+                else -> Text["history-pdf:manual-payment"]
+            }
+
+            else -> Text["history-pdf:payment"]
         }
 
-        if (payment.registered != null && payment.amount != null)
-            HistoryAction(payment.registered!!, payment.madeBy.name!!, payment.amount!!, description)
-        else null
+        HistoryAction(payment.registered!!, payment.madeBy.name!!, payment.amount!!, description)
     }
 
 private fun fetchCancellationsHistory(client: Client) = client.orders
@@ -95,7 +106,7 @@ fun createHistoryPDF(user: User) = createPDF {
             continue
         }
 
-        table(.16f, .08f, .18f, .30f, .28f) {
+        table(.18f, .08f, .18f, .30f, .26f) {
             cell(Text["history-pdf:date"       ], border = SolidBorder(1f), bold = true)
             cell(Text["history-pdf:time"       ], border = SolidBorder(1f), bold = true)
             cell(Text["history-pdf:made-by"    ], border = SolidBorder(1f), bold = true)

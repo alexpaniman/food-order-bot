@@ -15,6 +15,7 @@
 [mailing-command] рассылка
 [money-pdf-total-command] сводка балансов
 [orders-pdf-total-command] сводка заказов
+[refund-command] возврат средств
 # -- [Список команд] -- #
 
 # --- Общее --- # TODO текст, используемый во многих местах сразу
@@ -288,6 +289,13 @@
 [history-pdf:payment]
     Пополнение счета
 
+[history-pdf:refund]
+    Возврат средств
+    [br]Причина: [comment]
+
+[history-pdf:manual-payment]
+    Ручное пополнение счета
+
 [history-pdf:order-cancellation]
     Отмена меню [order:menu:name]
     [br]на [order:order-date]
@@ -544,3 +552,61 @@
 [orders-pdf-total:cost] Стоимость
 [orders-pdf-total:file-name] Заказы.pdf
 # -- [PDF сводка заказов по дням] -- #
+
+# --- Возврат средств --- #
+[refund:abort]
+    Возврат средств успешно отменен!
+
+[refund:read-refund-amount]
+    Текущий баланс клиента: `[balance]`
+    [br]Введите сумму возврата средств:
+
+[refund:wrong-refund-amount]
+    Неверный ввод! Пожалуйста, введите сумму
+    [space]возврата средств:
+
+[refund:cannot-refund-this-amount]
+    Слишком большая сумма!
+    [br]*Баланс клиента:* [balance]
+    [br]Пожалуйста, введите другую сумму.
+
+[refund:read-refund-comment]
+    Введите описание причины возврата средств:
+
+[refund:wrong-refund-comment]
+    Неверный ввод! Пожалуйста, введите текстовый
+    [space]комментарий причины возврата средств:
+
+[refund:notify]
+    Администратор снял с вашего счета [amount] грн.
+    [br][br]*Причина:*[br][comment]
+
+[refund:cannot-notify]
+    Не получается сообщить человеку о возврате средств!
+    [br]Внимание! Возрат средств произойдет в любом случае.
+
+[refund:confirmation]
+    Вы уверены, что хотите произвести возврат средств?
+    [br]*Клиент:* `[client]`
+    [br][br]*Текущий баланс*: `[balance]`
+    [br]*Сумма снятия:* `[amount]`
+    [br][br]*Описанная вами причина:* `[comment]`
+    [br][br]Клиент будет оповещен о возврате
+    [space]в случае положительного ответа.
+
+[refund:confirm] Да
+
+[refund:dismiss] Нет
+
+[refund:successful-client-notification]
+    [client] успешно оповещен о возврате средств!
+
+[refund:success-notification]
+    *Уведомление об успешном возврате средств!*[br][br]
+    [space]   *Инициатор:* `[made-by-name]`[br]
+    [space]   *Клиент:* `[client-name]`[br][br]
+    [space]   *Снятая сумма:* `[amount] грн.`[br]
+    [space]   *Баланс после снятия:* `[new-balance] грн.`[br]
+    [space]   *Время:* `[registered]`[br][br]
+    [space]   *Комментарий*: ```[comment]```
+# -- [Возврат средств] -- #

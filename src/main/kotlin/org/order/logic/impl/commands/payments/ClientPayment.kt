@@ -11,6 +11,7 @@ import org.order.logic.commands.questions.Question
 import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.RoleTrigger
 import org.order.logic.commands.triggers.CommandTrigger
+import org.order.logic.commands.triggers.StateTrigger
 import org.order.logic.commands.triggers.and
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.COMMISSION
@@ -84,5 +85,5 @@ private object ClientPaymentAmount : Question(READ_CLIENT_PAYMENT_AMOUNT) {
     }
 }
 
-private val CLIENT_PAYMENT_TRIGGER = CommandTrigger(Text["pay-command"]) and RoleTrigger(Client)
+private val CLIENT_PAYMENT_TRIGGER = CommandTrigger(Text["pay-command"]) and StateTrigger(COMMAND) and RoleTrigger(Client)
 val CLIENT_PAYMENT = QuestionSet(ClientPaymentAmount, trigger = CLIENT_PAYMENT_TRIGGER)
