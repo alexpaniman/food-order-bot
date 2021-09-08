@@ -24,16 +24,20 @@ import kotlin.math.max
 // And also because of that they don't need any default arguments
 val USER_SEARCHER = QuestionSet(ReadSearchString, trigger = NegativeTrigger())
 
-private fun longestCommonSubstring(s1: String, s2: String): Int {
+fun longestCommonSubstring(s1: String, s2: String): Int {
     val dynamic = Array(s1.length + 1) {
         IntArray(s2.length + 1) { 0 }
     }
 
-    for (i in 1..s1.length)
-        for (j in 1..s2.length) {
-            dynamic[i][j] = max(dynamic[i - 1][j], dynamic[i][j - 1])
+    for (i in 0..s1.length)
+        for (j in 0..s2.length) {
+            if (i == 0 || j == 0)
+                continue
+
             if (s1[i - 1] == s2[j - 1])
-                dynamic[i][j] += 1
+                dynamic[i][j] = dynamic[i - 1][j - 1] + 1
+            else
+                dynamic[i][j] = max(dynamic[i - 1][j], dynamic[i][j - 1])
         }
 
     return dynamic.last().last()
