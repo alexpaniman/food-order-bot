@@ -11,6 +11,7 @@ import org.order.logic.commands.questions.QuestionSet
 import org.order.logic.commands.triggers.*
 import org.order.logic.corpus.Text
 import org.order.logic.impl.commands.modules.searchUsers
+import org.order.logic.impl.utils.appendMainKeyboard
 import org.order.logic.impl.utils.getTempProperty
 import org.order.logic.impl.utils.removeTempProperty
 import org.order.logic.impl.utils.setTempProperty
@@ -66,8 +67,6 @@ private fun getRefundPayment(user: User): Payment {
 }
 
 private fun SenderContext.abortRefund(user: User, payment: Payment = getRefundPayment(user)) {
-    user.send(Text["refund:abort"])
-
     // Cleanup refund comments
     // Only really useful if confirmation was dismissed.
     RefundComment
@@ -79,6 +78,10 @@ private fun SenderContext.abortRefund(user: User, payment: Payment = getRefundPa
 
     user.state = State.COMMAND
     user.removeTempProperty("refund:payment-id")
+
+    user.send(Text["refund:abort"]) {
+        appendMainKeyboard(user)
+    }
 }
 
 object ReadRefundAmount : Question(State.READ_REFUND_AMOUNT) {
@@ -211,6 +214,7 @@ val REFUND_CONFIRMATION = CallbackProcessor(REFUND_CONFIRMATION_CALLBACK_NAME) p
 
     try {
         payment.client.user.send(Text.get("refund:notify") {
+            it["name"] = user.name!!
             it["amount"] = "$refundAmount"
             it["comment"] = refundComment.comment
         })
@@ -232,6 +236,9 @@ val REFUND_CONFIRMATION = CallbackProcessor(REFUND_CONFIRMATION_CALLBACK_NAME) p
                 it["new-balance"] = "${client.balance}"
                 it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
                 it["comment"] = refundComment.comment
-            })
+            }) {
+                if (user == admin)
+                    appendMainKeyboard(user)
+            }
         }
 }

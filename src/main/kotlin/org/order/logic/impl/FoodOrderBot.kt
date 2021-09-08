@@ -55,15 +55,6 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += MESSAGE_REMOVER
         // ---------------------------
 
-        // --------- Orders ---------
-        this += ORDER_WINDOW
-        this += MAKE_ORDER
-
-        this += ORDER_CANCELLATION_WINDOW
-        this += CANCEL_ORDER
-        // --------------------------
-
-        // - Payments Related Stuff -
         this += REMOVE_CANCELED_PAYMENT
 
         // ----- Parent Payment -----
@@ -74,10 +65,17 @@ class FoodOrderBot(senderContext: SenderContext, username: String, token: String
         this += PAYMENT_CONFIRMATION
         this += PROCESS_SUCCESSFUL_PAYMENT
         this += MODALITY_OF_PAYMENT_WINDOW_FILTER
-        // --------------------------
 
         // ----- Client Payment -----
         this += CLIENT_PAYMENT
+        // --------------------------
+
+        // --------- Orders ---------
+        this += ORDER_WINDOW
+        this += MAKE_ORDER
+
+        this += ORDER_CANCELLATION_WINDOW
+        this += CANCEL_ORDER
         // --------------------------
 
         // --- Manual Account Replenishment ---

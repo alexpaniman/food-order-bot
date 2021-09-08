@@ -20,8 +20,6 @@ import org.order.logic.impl.utils.clients
 import org.order.logic.impl.utils.orZero
 import org.order.logic.impl.utils.withCommission
 import org.telegram.telegrambots.meta.api.objects.Update
-import kotlin.math.ceil
-import kotlin.math.round
 
 private const val WINDOW_MARKER = "read-parent-payment-amount-window"
 
@@ -33,8 +31,8 @@ private fun WindowContext.showParentPaymentWindow(user: User, childNum: Int) {
     val name = client.user.name!!
     val balance = client.balance
 
-    val unfinishedPayment = client.payments.find {
-        it.amount == null // Find unfinished payment
+    val unfinishedPayment = user.payments.find {
+        it.registered == null // Find unfinished payment
     }?.apply {
         this.client = client // Update old client
     } ?: Payment.new {
@@ -87,8 +85,9 @@ private object ReadParentPaymentAmount: Question(READ_PARENT_PAYMENT_AMOUNT) {
 
             button(Text["cancel-button"], "remove-canceled-payment:${unfinishedPayment.id.value}")
         }
+
         user.state = MODALITY_OF_PAYMENT_WINDOW
-        return true
+        return false
     }
 }
 
