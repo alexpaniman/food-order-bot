@@ -51,6 +51,7 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
         }
 
         val (_, clients) = Client.all()
+                .filter { it.user.valid }
                 .groupBy { longestCommonSubstring(it.user.name!!, searchString) }
                 .maxBy { (similarity, _) -> similarity }
                 ?: return false // Means empty clients list (which is very unlikely)

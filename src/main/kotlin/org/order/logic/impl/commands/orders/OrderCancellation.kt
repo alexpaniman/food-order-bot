@@ -30,6 +30,8 @@ private const val WINDOW_MARKER = "order-cancellation-window"
 private val ORDER_CANCELLATION_WINDOW_TRIGGER = CommandTrigger(Text["order-cancellation-command"]) and
         StateTrigger(COMMAND) and (RoleTrigger(Client) or RoleTrigger(Parent))
 
+private const val ABORT_ORDER_CANCELLATION_WINDOW_CALLBACK = "cancellation-window-remove-message"
+
 val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_TRIGGER,
         args = listOf("0", "", "0")) { user, (clientNumStr, /* Last two are only for admins */ searchResults, minusWeeksStr) ->
     clearUsersSearch(user) // Clear user search if its entry exists
@@ -141,9 +143,15 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         // -------------------------------------------------------------
 
         // ------------------ Button to Remove Window ------------------
-        button(Text["cancel-button"], "remove-message")
+        button(Text["cancel-button"], ABORT_ORDER_CANCELLATION_WINDOW_CALLBACK)
         // -------------------------------------------------------------
     }
+}
+
+val ABORT_ORDER_CANCELLATION_WINDOW = CallbackProcessor(ABORT_ORDER_CANCELLATION_WINDOW_CALLBACK) {
+        user, src, _ ->
+    clearUsersSearch(user)
+    src.delete()
 }
 
 private val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS_TRIGGER =
