@@ -127,14 +127,14 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         row {
             for ((date, orders) in ordersWithDate) {
                 val dateDisplay = if (searchMode)
-                    "x"
+                    "${date.dayOfMonth}"
                 else date.dayOfWeekAsShortText
 
                 val joinedOrders = orders.joinToString(":") { it.id.value.toString() }
 
                 val restoreCallback = "$clientNum:$searchResults:$minusWeek"
                 deactivatableButton(dateDisplay,
-                        "cancel-orders-confirmation:$restoreCallback:$date:$joinedOrders") {
+                        "co-c:$restoreCallback:$date:$joinedOrders") {
                     orders.isNotEmpty()
                 }
             }
@@ -164,7 +164,7 @@ val ORDER_CANCELLATION_ENTRY_FOR_ADMINISTRATORS = TriggerCommand(ORDER_CANCELLAT
     searchUsers(user, "$WINDOW_MARKER:0:{}:0")
 }
 
-val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("cancel-orders-confirmation") { user, src, confirmationArgs ->
+val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("co-c") { user, src, confirmationArgs ->
     val args = confirmationArgs.drop(3)
 
     val orders = args.drop(1)
