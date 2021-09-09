@@ -272,6 +272,8 @@
     [space]   *[name]:*
 [my-orders-list:order]
     [description]
+[my-orders-list:empty]
+    *Вы ещё ничего не заказывали на этой неделе!*
 [my-orders-list:list]
     *Список ваших заказов на этой неделе:*[br]
     [orders]

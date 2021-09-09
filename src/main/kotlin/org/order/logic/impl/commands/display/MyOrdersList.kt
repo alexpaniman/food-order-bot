@@ -46,9 +46,13 @@ val MY_ORDERS_LIST_WINDOW = Window(
                         }
             }
 
-    val message = Text.get("my-orders-list:list") {
-        it["orders"] = ordersDisplay
-    }
+
+    val message = if (orders.isEmpty())
+        Text["my-orders-list:empty"]
+    else
+        Text.get("my-orders-list:list") {
+            it["orders"] = ordersDisplay
+        }
 
     show(message) {
         button(Text["update-button"], "$WINDOW_MARKER:$clientNum")
