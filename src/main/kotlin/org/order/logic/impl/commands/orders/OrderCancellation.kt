@@ -127,7 +127,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
         row {
             for ((date, orders) in ordersWithDate) {
                 val dateDisplay = if (searchMode)
-                    "${date.dayOfMonth}"
+                    "x"
                 else date.dayOfWeekAsShortText
 
                 val joinedOrders = orders.joinToString(":") { it.id.value.toString() }
