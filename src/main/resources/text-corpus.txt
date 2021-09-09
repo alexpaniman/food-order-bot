@@ -10,7 +10,7 @@
 [history-search-command] поиск истории
 [resend-buttons-command] отправить клавиатуру
 [replenish-account-command] пополнить счет
-[money-total-command] сводка по деньгам
+[money-total-command] должники
 [polls-pdf-total-command] сводка опросов
 [mailing-command] рассылка
 [money-pdf-total-command] сводка балансов
@@ -239,7 +239,7 @@
     *Заказы в этот день уже были отменены!*
 
 [cancel-orders:confirmation:item]
-    [number]. [name] меню заказано в [date]
+    `[number].` Меню `[menu-name]` было заказано [user-name] в `[date]`.
 
 [cancel-orders:confirmation]
     Вы уверены, что хотите отменить `[n]` заказ(-а) на этот день?[br][br]

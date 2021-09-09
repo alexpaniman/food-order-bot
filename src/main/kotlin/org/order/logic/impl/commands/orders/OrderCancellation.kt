@@ -79,7 +79,6 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
                 searchMode || // <== People who can search can delete order in any time
                         it.orderDate != nowDate || LAST_ORDER_TIME.isAfter(nowTime)
             }
-    println(ordersAfterNow.toList())
 
     val ordersWithDate = (1..5)
             .fold(mutableMapOf<LocalDate, MutableList<Order>>()) { map, dayOfWeek ->
@@ -91,7 +90,6 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
                 }
             }
 
-    println(ordersWithDate)
     // -------------------------------------
 
     show(Text["suggest-order-cancellation"]) {
@@ -177,7 +175,8 @@ val CANCEL_ORDERS_CONFIRMATION = CallbackProcessor("co-c") { user, src, confirma
             for ((index, order) in orders.withIndex())
                 appendln(Text.get("cancel-orders:confirmation:item") {
                     it["number"] = "${index + 1}"
-                    it["name"] = order.menu.name
+                    it["menu-name"] = order.menu.name
+                    it["user-name"] = order.madeBy.name!!
                     it["date"] = order.registered.toString("yyyy-MM-dd HH:MM:ss")
                 })
         }
