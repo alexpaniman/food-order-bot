@@ -64,31 +64,27 @@ private fun ReplyKeyboardMarkup.mainKeyboard(user: User) {
             button(Text["order-cancellation-command"])
     }
 
-    if (isClientOrParent)
-        row {
-            button(Text["pay-command"])
-            button(Text["payments-list-command"])
-        }
-
-    if (isClientOrParent || isAdminOrProducer)
-        row {
-            if (isClientOrParent)
-                button(Text["history-command"])
-
-            if (isAdminOrProducer)
-                button(Text["history-search-command"])
-        }
-
-    if (isAdminOrProducer) row {
-        button(Text["replenish-account-command"])
-        button(Text["refund-command"])
-    }
-
     if (isAdminOrProducer) row {
         button(Text["money-total-command"])
         button(Text["money-pdf-total-command"])
         button(Text["orders-pdf-total-command"])
         button(Text["polls-pdf-total-command"])
+    }
+
+    if (isClientOrParent || isAdminOrProducer) row {
+        if (isClientOrParent) {
+            button(Text["pay-command"])
+            button(Text["history-command"])
+        }
+        // button(Text["payments-list-command"]) FIXME Deprecated in favour of history
+
+        if (isAdminOrProducer)
+            button(Text["history-search-command"])
+    }
+
+    if (isAdminOrProducer) row {
+        button(Text["replenish-account-command"])
+        button(Text["refund-command"])
     }
 
     row {

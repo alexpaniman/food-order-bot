@@ -10,7 +10,7 @@
 [history-search-command] поиск истории
 [resend-buttons-command] отправить клавиатуру
 [replenish-account-command] пополнить счет
-[money-total-command] должники
+[money-total-command] долги
 [polls-pdf-total-command] сводка опросов
 [mailing-command] рассылка
 [money-pdf-total-command] сводка балансов
