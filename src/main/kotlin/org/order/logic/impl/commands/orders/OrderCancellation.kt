@@ -79,6 +79,7 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
                 searchMode || // <== People who can search can delete order in any time
                         it.orderDate != nowDate || LAST_ORDER_TIME.isAfter(nowTime)
             }
+    println(ordersAfterNow.toList())
 
     val ordersWithDate = (1..5)
             .fold(mutableMapOf<LocalDate, MutableList<Order>>()) { map, dayOfWeek ->
@@ -89,6 +90,8 @@ val ORDER_CANCELLATION_WINDOW = Window(WINDOW_MARKER, ORDER_CANCELLATION_WINDOW_
                     } += ordersAfterNow.filter { order -> order.orderDate == day }
                 }
             }
+
+    println(ordersWithDate)
     // -------------------------------------
 
     show(Text["suggest-order-cancellation"]) {
