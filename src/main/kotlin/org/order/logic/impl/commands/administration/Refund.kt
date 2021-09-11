@@ -101,15 +101,6 @@ object ReadRefundAmount : Question(State.READ_REFUND_AMOUNT) {
             val payment = Payment.findById(paymentId)
                 ?: error("Cannot locate payment with id: $paymentId")
 
-            val balance = payment.client.balance
-
-            if (amount > balance) {
-                user.send(Text.get("refund:cannot-refund-this-amount") {
-                    it["balance"] = "$balance"
-                })
-                return false
-            }
-
             payment.amount = -amount // Write amount there
 
             // Temp property is still there, I will remove it in the next question.
