@@ -182,6 +182,10 @@ val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenish
         "dismiss" -> {
             payment.delete()
             src.delete()
+
+            user.send(Text["successfully-dismissed-account-replenishment"]) {
+                appendMainKeyboard(user)
+            }
         }
     }
 }

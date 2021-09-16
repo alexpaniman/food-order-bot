@@ -430,6 +430,9 @@
         [space]   *На счет клиента:* `[client-name]`[br][br]
         [space]   *Сумму:* `[amount] грн.`[br][br]
         [space]   *Время:* `[registered]`
+
+[successfully-dismissed-account-replenishment]
+    *Ручное пополнение счета успешно отменено!*
 # -- [Пополнение счета] -- #
 
 # --- Опросы --- #
