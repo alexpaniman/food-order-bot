@@ -39,6 +39,7 @@ private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_A
 
         val (_, clients) = Client.all()
                 .map { it.user }
+                .filter { it.valid }
                 .groupBy { longestCommonSubstring(it.name!!, response) }
                 .maxBy { (similarity, _) -> similarity } ?: return false
 
@@ -96,7 +97,7 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
             }
         } else uniqueId = 0
 
-        val client = Client.all().filter {
+        val client = Client.all().filter { it.user.valid }.filter {
             val isNameSame = it.user.name == name
             val clientGrade = it.user.grade
             val isGradeSame = grade == clientGrade
