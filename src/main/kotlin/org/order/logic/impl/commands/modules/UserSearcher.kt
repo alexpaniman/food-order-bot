@@ -82,7 +82,7 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
                     // Fill callback with search result
                     val result = (listOf(client) + clients
                             .filter { it != client }
-                            .take(5)) // Drop results if there's too many of them TODO Check if this is a good idea
+                            .take(3)) // Drop results if there's too many of them
                             .joinToString(",") { "${it.id}" }
                     val callback = acceptCallback.replace("{}", result)
 

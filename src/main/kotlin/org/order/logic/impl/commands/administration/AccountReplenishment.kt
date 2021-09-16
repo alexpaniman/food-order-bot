@@ -56,9 +56,7 @@ private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_A
 
         user.send(Text["choose-client-from-list"]) {
             reply {
-                show(namedUsers, 1) { (name, user) ->
-                    "$name, ${user.grade}"
-                }
+                show(namedUsers, 1) { (name, _) -> name }
                 button(Text["cancel-button"])
             }
         }
@@ -84,13 +82,26 @@ object ChooseClientToReplenishAccount: Question(CHOOSE_CLIENT_TO_REPLENISH_ACCOU
             return false
         }
 
-        val (name, grade) = args
-        val client = Client.all().firstOrNull {
+        val name = args[0]
+        val gradeWithUniqueId = args[1].split(" #")
+
+        val uniqueId: Int?
+        val grade: String = gradeWithUniqueId[0]
+        if (gradeWithUniqueId.size == 2) {
+            uniqueId = gradeWithUniqueId[1].toIntOrNull()
+
+            if (uniqueId == null) {
+                user.send(Text["wrong-user-identifier-to-replenish-account"])
+                return false
+            }
+        } else uniqueId = 0
+
+        val client = Client.all().filter {
             val isNameSame = it.user.name == name
             val clientGrade = it.user.grade
             val isGradeSame = grade == clientGrade
             isNameSame && isGradeSame
-        }!!
+        }.sortedBy { it.user.id }[uniqueId]
 
         Payment.new {
             this.madeBy = user
