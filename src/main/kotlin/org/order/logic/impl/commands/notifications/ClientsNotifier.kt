@@ -57,6 +57,7 @@ fun SenderContext.launchClientsNotifier() = thread {
                 val notified = Client.all()
                         .filter { it !in clientsWhoOrdered }
                         .map { it.user }
+                        .filter { it.valid }
                         .flatMap {
                             if (isTimeToNotifyParent)
                                 it.linkedOrNull(Student)?.parents

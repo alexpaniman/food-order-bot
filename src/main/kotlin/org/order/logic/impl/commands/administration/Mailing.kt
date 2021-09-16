@@ -90,7 +90,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
     when (user.state) {
         SEND_MESSAGE_WITH_KEYBOARD_TO_ALL_USERS ->
             User.all()
-                    .filter { it.chat != null }
+                    .filter { it.valid && it.chat != null }
                     .forEach {
                         try {
                             it.send(text) {
@@ -105,7 +105,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
 
         SEND_MESSAGE_TO_ALL_USERS ->
             User.all()
-                    .filter { it.chat != null }
+                    .filter { it.valid && it.chat != null }
                     .forEach {
                         try {
                             it.send(text)
@@ -119,7 +119,7 @@ val PERFORM_MAILING = TriggerCommand(PERFORM_MAILING_TRIGGER) mailing@ { user, u
         SEND_MESSAGE_TO_ALL_CLIENTS ->
             Client.all()
                     .map { it.user }
-                    .filter { it.chat != null }
+                    .filter { it.valid && it.chat != null }
                     .forEach {
                         try {
                             it.send(text)

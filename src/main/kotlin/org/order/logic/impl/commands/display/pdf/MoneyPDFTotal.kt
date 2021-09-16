@@ -54,6 +54,7 @@ fun createMoneyPDFTotal() = createPDF {
             lastFinishedDay = lastFinishedDay.minusDays(1)
 
         val groupedByGrade = Client.all()
+                .filter { it.user.valid }
                 .groupBy { it.user.grade }
                 .toSortedMap(GRADE_COMPARATOR)
 

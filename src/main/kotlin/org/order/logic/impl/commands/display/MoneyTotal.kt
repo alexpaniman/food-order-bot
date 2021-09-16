@@ -22,10 +22,10 @@ val MONEY_TOTAL_WINDOW = Window(WINDOW_MARKER, MONEY_TOTAL_WINDOW_TRIGGER,
         args = listOf("true")) { _, (showOnlyDebtStr) ->
     val showDebtOnly = showOnlyDebtStr.toBoolean()
 
-    val clientsToShow =
-            if (showDebtOnly)
-                Client.find { Clients.balance less 0f }
-            else Client.all()
+    val clientsToShow = (if (showDebtOnly)
+        Client.find { Clients.balance less 0f }
+    else Client.all())
+        .filter { it.user.valid }
 
     val moneyTotal = buildString {
         val groupedByGrade = clientsToShow
@@ -49,7 +49,7 @@ val MONEY_TOTAL_WINDOW = Window(WINDOW_MARKER, MONEY_TOTAL_WINDOW_TRIGGER,
     }
 
     val message =
-            if (!clientsToShow.empty())
+            if (clientsToShow.isNotEmpty())
                 Text.get("money-total") {
                     it["money-total-rows"] = moneyTotal
                 }
