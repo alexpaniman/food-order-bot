@@ -72,7 +72,7 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
                     NamedClient(it.user.name + ", " + it.user.grade, it)
                 } .groupBy { it.name }.map { (_, clients) ->
                     if (clients.size > 1)
-                        clients.mapIndexed { index, (name, client) ->
+                        clients.sortedBy { it.client.user.id }.mapIndexed { index, (name, client) ->
                             NamedClient("$name #$index", client)
                         }
                     else clients

@@ -48,7 +48,7 @@ private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_A
             NamedUser(it.name + ", " + it.grade, it)
         } .groupBy { it.name }.map { (_, users) ->
             if (users.size > 1)
-                users.mapIndexed { index, (name, user) ->
+                users.sortedBy { it.user.id }.mapIndexed { index, (name, user) ->
                     NamedUser("$name #$index", user)
                 }
             else users
