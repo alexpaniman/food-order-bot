@@ -66,7 +66,19 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
 
         user.send(Text["user-searcher:select-user"]) {
             inline {
-                for (client in clients) {
+                data class NamedClient(val name: String, val client: Client)
+
+                val namedClients = clients.map {
+                    NamedClient(it.user.name + ", " + it.user.grade, it)
+                } .groupBy { it.name }.map { (_, clients) ->
+                    if (clients.size > 1)
+                        clients.mapIndexed { index, (name, client) ->
+                            NamedClient("$name #$index", client)
+                        }
+                    else clients
+                }.flatten()
+
+                for ((name, client) in namedClients) {
                     // Fill callback with search result
                     val result = (listOf(client) + clients
                             .filter { it != client }
@@ -75,7 +87,7 @@ object ReadSearchString : Question(READ_SEARCH_STRING) {
                     val callback = acceptCallback.replace("{}", result)
 
                     // FIXME Probably replace with string from text corpus
-                    button(client.user.name + ", " + client.user.grade, callback)
+                    button(name, callback)
                 }
             }
         }

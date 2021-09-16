@@ -42,10 +42,22 @@ private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_A
                 .groupBy { longestCommonSubstring(it.name!!, response) }
                 .maxBy { (similarity, _) -> similarity } ?: return false
 
+        data class NamedUser(val name: String, val user: User)
+
+        val namedUsers = clients.map {
+            NamedUser(it.name + ", " + it.grade, it)
+        } .groupBy { it.name }.map { (_, users) ->
+            if (users.size > 1)
+                users.mapIndexed { index, (name, user) ->
+                    NamedUser("$name #$index", user)
+                }
+            else users
+        }.flatten()
+
         user.send(Text["choose-client-from-list"]) {
             reply {
-                show(clients, 1) {
-                    "${it.name}, ${it.linkedOrNull(Student)?.grade?.name ?: Text["empty-grade"]}"
+                show(namedUsers, 1) { (name, user) ->
+                    "$name, ${user.grade}"
                 }
                 button(Text["cancel-button"])
             }
