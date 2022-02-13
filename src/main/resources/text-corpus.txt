@@ -366,6 +366,15 @@
 [balance-entry]
     *Баланс:* [name]`[balance]`[br]
 
+[multiple-clients-payment-note]
+    К Вашему аккаунту привязано несколько клиентов.
+    [br]После оплаты вам будет предложено на чей счет положить внесенные деньги.
+
+[payment-note] После оплаты, [amount] грн. будет автоматически зачислен на счет [name].
+
+[current-balance-state-note]
+    Текущее состояние баланса:
+
 [name-column]     Имя
 [balance-column]  Баланс
 

@@ -19,5 +19,5 @@ fun TableDsl.defaultSettings() =
 fun Table.stringifyTable() = this.toString()
         .replace('─', '-')
         .replace('│', '|')
-        .replace("[┼┐┌└┘┤├]".toRegex(), " ")
+        .replace("[┼┐┌└┘┤├┬┴]".toRegex(), " ")
         .lines().joinToString("\n") { "`$it`" }

@@ -20,7 +20,7 @@ import kotlin.math.absoluteValue
 private object PaymentAmount : Question(READ_PAYMENT_AMOUNT) {
     override fun SenderContext.ask(user: User) {
         val clients = user.clients()
-        val message = table {
+        val message = Text["current-balance-state-note"] + "\n" + table {
             defaultSettings()
 
             row {
@@ -46,6 +46,7 @@ private object PaymentAmount : Question(READ_PAYMENT_AMOUNT) {
                 button(Text["cancel-button"])
             }
         }
+
     }
 
     override fun SenderContext.receive(user: User, update: Update): Boolean {
@@ -60,7 +61,8 @@ private object PaymentAmount : Question(READ_PAYMENT_AMOUNT) {
             return true
         }
 
-        val balance = user.clients()
+        val clients = user.clients()
+        val balance = clients
                 .map { it.balance }.sum()
 
         val amount = if (answer == Text["pay-a-debt"])
@@ -87,6 +89,19 @@ private object PaymentAmount : Question(READ_PAYMENT_AMOUNT) {
             }, pay = true)
 
             button(Text["cancel-button"], "remove-message")
+        }
+
+        val message = if (user.clients().size > 1)
+            Text["multiple-clients-payment-note"]
+        else
+            Text.get("payment-note") {
+                val client = clients.first()
+                it["name"]   = client.user.name!!
+                it["amount"] = "$actualAmount"
+            }
+
+        user.send(message) {
+            appendMainKeyboard(user)
         }
 
         user.state = COMMAND
