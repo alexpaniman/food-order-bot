@@ -33,8 +33,33 @@ val PROCESS_SUCCESSFUL_PAYMENT = SuccessfulPaymentProcessor("account-replenishme
             ask(user)
             user.state = ASK_WHICH_CLIENT_TO_PAY_FOR
         }
-    else
+    else {
         payment.client = user.clients().first()
+        processFinishedPayment(user, payment)
+    }
+}
+
+private fun SenderContext.processFinishedPayment(user: User, payment: Payment) {
+    payment.client!!.balance += payment.amount!!
+
+    user.send(Text.get("successful-payment") {
+        it["amount"] = payment.amount.toString()
+    }) { appendMainKeyboard(user) }
+
+    user.state = COMMAND
+
+    (Admin.all().map { it.user } + Producer.all().map { it.user })
+            .forEach { admin ->
+                admin.send(Text.get("payment-notification") {
+                    it["user-name"] = payment.madeBy.name!!
+                    it["amount"] = payment.amount!!.toString()
+                    it["actual-amount"] = payment.amount!!.withCommission.toString()
+                    it["client-name"] = payment.client!!.user.name!!
+                    it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
+                    it["telegram-id"] = payment.telegramId!!
+                    it["provider-id"] = payment.providerId!!
+                })
+            }
 }
 
 object AskWhichClientToReplenish: Question(ASK_WHICH_CLIENT_TO_PAY_FOR) {
@@ -74,27 +99,7 @@ object AskWhichClientToReplenish: Question(ASK_WHICH_CLIENT_TO_PAY_FOR) {
         val targetClient = targetClients.first()
         payment.client = targetClient
 
-        targetClient.balance += payment.amount!!
-
-        user.send(Text.get("successful-payment") {
-            it["amount"] = payment.amount.toString()
-        }) { appendMainKeyboard(user) }
-
-        user.state = COMMAND
-
-        (Admin.all().map { it.user } + Producer.all().map { it.user })
-                .forEach { admin ->
-                    admin.send(Text.get("payment-notification") {
-                        it["user-name"] = payment.madeBy.name!!
-                        it["amount"] = payment.amount!!.toString()
-                        it["actual-amount"] = payment.amount!!.withCommission.toString()
-                        it["client-name"] = payment.client!!.user.name!!
-                        it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
-                        it["telegram-id"] = payment.telegramId!!
-                        it["provider-id"] = payment.providerId!!
-                    })
-                }
-
+        processFinishedPayment(user, payment)
         return true
     }
 }
