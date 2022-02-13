@@ -257,7 +257,7 @@ class FoodOrderBotTester {
             true
         }
 
-        every { any<User>().sendInvoice(any(), any(), any(), any()) } answers {
+        every { any<User>().sendInvoice(any(), any(), any(), any(), any()) } answers {
             val user: User = arg(0)
             val title: String = arg(1)
             val amount: Float = arg(2)
@@ -338,12 +338,13 @@ class FoodOrderBotTester {
         bot.onUpdateReceived(update)
     }
 
-    private fun Int.sendSuccessfulPayment(payload: String, telegramId: String, providerId: String) {
+    private fun Int.sendSuccessfulPayment(payload: String, totalAmount: Float, telegramId: String, providerId: String) {
         val update = mockk<Update> {
             every { message.successfulPayment } returns mockk {
                 every { invoicePayload } returns payload
                 every { telegramPaymentChargeId } returns telegramId
                 every { providerPaymentChargeId } returns providerId
+                every { this@mockk.totalAmount } returns (totalAmount * 100).toInt()
             }
 
             every { message.from.id } returns this@sendSuccessfulPayment
@@ -509,10 +510,11 @@ class FoodOrderBotTester {
         }
         "successful" -> activeChat {
             val payload = args[0]
-            val telegramId = args[1]
-            val providerId = args[2]
+            val amount = args[1].toFloat()
+            val telegramId = args[2]
+            val providerId = args[3]
 
-            active!!.sendSuccessfulPayment(payload, telegramId, providerId)
+            active!!.sendSuccessfulPayment(payload, amount, telegramId, providerId)
             "SuccessfulPayment [payload = $payload, telegramId = $telegramId, providerId = $providerId] was sent to the chat [id = $active]."
         }
         "wait" -> {

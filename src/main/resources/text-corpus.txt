@@ -363,9 +363,22 @@
 # --- Помощь --- #
 
 # --- Оплата --- # TODO Окно пополнения счета
+[balance-entry]
+    *Баланс:* [name]`[balance]`[br]
+
+[name-column]     Имя
+[balance-column]  Баланс
+
 [ask-payment-amount]
-    *Ваш баланс:* `[balance]`[br][br]
     *Введите сумму оплаты:*
+
+[ask-payment-client]
+    *На чей счет вы хотите положить* `[amount]`?
+
+[wrong-payment-client]
+    Такого клиента не существует! Пожалуйста, попробуйте ещё раз!
+    [br]Нажмите на кнопку снизу, чтобы выбрать на какого клиента
+    [space]зачислить введенную сумму ([amount] грн.):
 
 [pay-a-debt] оплатить долг
 [wrong-payment-amount]

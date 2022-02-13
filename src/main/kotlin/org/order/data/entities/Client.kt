@@ -22,7 +22,7 @@ class Client(id: EntityID<Int>) : Role(id) {
     var balance by Clients.balance
 
     val orders by Order referrersOn Orders.client
-    val payments by Payment referrersOn Payments.client
+    val payments by Payment optionalReferrersOn Payments.client
 
     override val description
         get() = Text.get("client-description") {

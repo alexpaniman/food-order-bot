@@ -6,6 +6,7 @@ import org.order.data.RoleClass
 import org.order.data.tables.Parents
 import org.order.data.tables.Relations
 import org.order.logic.corpus.Text
+import org.order.logic.impl.utils.stringifyTable
 
 class Parent(id: EntityID<Int>): Role(id) {
     companion object: RoleClass<Parent>(Parents) {
@@ -21,7 +22,7 @@ class Parent(id: EntityID<Int>): Role(id) {
     override val description
         get() = Text.get("parent-description") {
             it["children"] = children.joinToString("\n") { child ->
-                child.user.buildDescription(Student)
+                child.user.buildDescription(Student).stringifyTable()
             }
         }
 }

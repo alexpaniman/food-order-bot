@@ -144,8 +144,8 @@ object ReadRefundComment : Question(State.READ_REFUND_COMMENT) {
             refundAmount *= -1f
 
             user.send(Text.get("refund:confirmation") {
-                it["client"] = payment.client.user.name!!
-                it["balance"] = "${payment.client.balance}"
+                it["client"] = payment.client!!.user.name!!
+                it["balance"] = "${payment.client!!.balance}"
                 it["amount"] = "$refundAmount"
                 it["comment"] = comment
             }) {
@@ -198,20 +198,20 @@ val REFUND_CONFIRMATION = CallbackProcessor(REFUND_CONFIRMATION_CALLBACK_NAME) p
     val client = payment.client
 
     // Update client's balance
-    client.balance -= refundAmount
+    client!!.balance -= refundAmount
 
     // Register refund time
     payment.registered = DateTime.now()
 
     try {
-        payment.client.user.send(Text.get("refund:notify") {
+        payment.client!!.user.send(Text.get("refund:notify") {
             it["name"] = user.name!!
             it["amount"] = "$refundAmount"
             it["comment"] = refundComment.comment
         })
 
         src.edit(Text.get("refund:successful-client-notification") {
-            it["client"] = client.user.name!!
+            it["client"] = client!!.user.name!!
         })
     } catch(exc: Exception) {
         exc.printStackTrace()
@@ -221,7 +221,7 @@ val REFUND_CONFIRMATION = CallbackProcessor(REFUND_CONFIRMATION_CALLBACK_NAME) p
     (Admin.all().map { it.user } + Producer.all().map { it.user })
         .forEach { admin ->
             admin.send(Text.get("refund:success-notification") {
-                it["client-name"] = client.user.name!!
+                it["client-name"] = client!!.user.name!!
                 it["made-by-name"] = user.name!!
                 it["amount"] = "$refundAmount"
                 it["new-balance"] = "${client.balance}"

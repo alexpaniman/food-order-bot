@@ -4,7 +4,7 @@ import org.jetbrains.exposed.dao.IntIdTable
 
 object Payments: IntIdTable() {
     val madeBy = reference("made_by_id", Users  )
-    val client = reference("client_id" , Clients)
+    val client = reference("client_id" , Clients).nullable()
 
     val amount = float("amount").nullable()
 

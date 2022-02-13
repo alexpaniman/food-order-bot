@@ -9,7 +9,7 @@ class Payment(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Payment>(Payments)
 
     var madeBy by User referencedOn Payments.madeBy
-    var client by Client referencedOn Payments.client
+    var client by Client optionalReferencedOn Payments.client
     var amount by Payments.amount
     var registered by Payments.registered
     var telegramId by Payments.telegramId

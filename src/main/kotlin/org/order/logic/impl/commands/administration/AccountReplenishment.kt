@@ -146,7 +146,7 @@ object ChoosePaymentAmountToReplenishAccount: Question(READ_PAYMENT_AMOUNT_TO_RE
         payment.amount = amount
 
         val client = payment.client
-        val clientGrade = client.user.grade
+        val clientGrade = client!!.user.grade
 
         user.send(Text.get("confirm-account-replenishment") {
             it["name"] = client.user.name!!
@@ -168,10 +168,10 @@ val PERFORM_ACCOUNT_REPLENISHMENT = CallbackProcessor("perform-account-replenish
     when(action) {
         "confirm" -> {
             payment.registered = DateTime.now()
-            payment.client.balance += payment.amount!!
+            payment.client!!.balance += payment.amount!!
             src.edit(Text.get("successful-account-replenishment") {
                 it["user-name"] = payment.madeBy.name!!
-                it["client-name"] = payment.client.user.name!!
+                it["client-name"] = payment.client!!.user.name!!
                 it["amount"] = payment.amount.toString()
                 it["registered"] = payment.registered!!.toString("yyyy-MM-dd HH:mm:ss")
             })

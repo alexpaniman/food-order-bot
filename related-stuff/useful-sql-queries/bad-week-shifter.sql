@@ -1,0 +1,1 @@
+update menus set schedule = case when (split_part(split_part(schedule, ':', 1), '-', 3)::int > 24) then concat('2021-09-', (split_part(split_part(schedule, ':', 1), '-', 3)::int - 24)::varchar, ':14') else concat('2021-09-', (split_part(split_part(schedule, ':', 1), '-', 3)::int + 7)::varchar, ':14') end where split_part(schedule, ':', 2) = '14';

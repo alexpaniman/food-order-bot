@@ -11,6 +11,7 @@ import org.order.data.Role
 import org.order.data.RoleClass
 import org.order.data.entities.State.IMAGINE
 import org.order.data.tables.*
+import org.order.logic.impl.utils.defaultSettings
 
 class User(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<User>(Users)
@@ -37,11 +38,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
             .empty()
 
     fun buildDescription(vararg roles: RoleClass<*>) = table {
-        cellStyle {
-            border = true
-            alignment = TextAlignment.MiddleCenter
-            paddingRight = 1; paddingLeft = 1
-        }
+        defaultSettings()
 
         if (name != null)
             row(name)
@@ -52,7 +49,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
         for (role in roles)
             if (hasLinked(role))
                 row(linked(role).description)
-    }.toString()
+    }
 
     private fun unlinkRoles(vararg roles: RoleClass<*>) {
         for (role in roles)
