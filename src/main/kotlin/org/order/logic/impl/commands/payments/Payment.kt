@@ -33,7 +33,7 @@ private object PaymentAmount : Question(READ_PAYMENT_AMOUNT) {
                     cell(client.user.name)
                     cell(client.balance)
                 }
-        }.stringifyTable() + "\n" + Text["ask-payment-amount"]
+        }.stringifyTable().wrapInMono() + "\n" + Text["ask-payment-amount"]
 
         val totalDebt = clients
                 .map { it.balance }.sum()

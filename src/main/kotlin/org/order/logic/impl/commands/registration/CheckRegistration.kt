@@ -14,10 +14,12 @@ import org.order.logic.corpus.Text
 import org.order.logic.impl.utils.appendMainKeyboard
 import org.order.logic.impl.utils.isRegistered
 import org.order.logic.impl.utils.stringifyTable
+import org.order.logic.impl.utils.wrapInMono
 import org.telegram.telegrambots.meta.api.objects.Message
 
 private fun User.descriptionForValidation() = buildDescription(Student, Teacher, Parent, Producer)
         .stringifyTable()
+        .wrapInMono()
 
 val CHECK_REGISTRATION = TriggerCommand(trigger = StateTrigger(REGISTRATION_FINISHED)) { user, _ ->
     user.send(Text.get("registration-summary") {

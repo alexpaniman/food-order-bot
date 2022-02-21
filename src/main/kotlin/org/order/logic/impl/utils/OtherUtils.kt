@@ -20,4 +20,6 @@ fun Table.stringifyTable() = this.toString()
         .replace('─', '-')
         .replace('│', '|')
         .replace("[┼┐┌└┘┤├┬┴]".toRegex(), " ")
-        .lines().joinToString("\n") { "`$it`" }
+
+fun String.wrapInMono() =
+        this.lines().joinToString("\n") { "`$it`" }
