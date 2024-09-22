@@ -1,0 +1,5 @@
+FROM amazoncorretto:21@sha256:6bed61a2358eda7d9bc5738577097bcff0abb807ccf0c83d8981a5a5eca30b13
+WORKDIR /app
+COPY . /app
+RUN [ "./gradlew", "shadowJar" ]
+CMD [ "java", "-jar", "build/libs/food-order-bot-emulated.jar" ]
