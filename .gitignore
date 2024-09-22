@@ -7,3 +7,7 @@ build
 
 # Ignore IDEA files
 .idea
+
+# Ignore Nix files
+result
+.direnv/
