@@ -41,7 +41,7 @@ private object ReadClientToReplenishAccount: Question(READ_CLIENT_TO_REPLENISH_A
                 .map { it.user }
                 .filter { it.valid }
                 .groupBy { longestCommonSubstring(it.name!!, response) }
-                .maxBy { (similarity, _) -> similarity } ?: return false
+                .maxByOrNull { (similarity, _) -> similarity } ?: return false
 
         data class NamedUser(val name: String, val user: User)
 

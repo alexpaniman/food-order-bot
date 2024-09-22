@@ -9,13 +9,13 @@ import java.util.*
 val LOCALE = Locale("ru")
 const val REGION_ID = "Europe/Kiev"
 
-val JDBC_DATABASE_URL = System.getenv("JDBC_DATABASE_URL")!!
-val DATABASE_DRIVER = System.getenv("DATABASE_DRIVER")!!
+val JDBC_DATABASE_URL = System.getenv("JDBC_DATABASE_URL") ?: "jdbc:h2:mem:testdb;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1"
+val DATABASE_DRIVER = System.getenv("DATABASE_DRIVER") ?: "org.h2.Driver"
 
-val BOT_TOKEN = System.getenv("BOT_TOKEN")!!
-val BOT_USERNAME = System.getenv("BOT_USERNAME")!!
+val BOT_TOKEN = System.getenv("BOT_TOKEN") ?: "EMPTY_TOKEN"
+val BOT_USERNAME = System.getenv("BOT_USERNAME") ?: "EMPTY_USERNAME"
 
-val PAYMENTS_TOKEN = System.getenv("PAYMENTS_TOKEN")!!
+val PAYMENTS_TOKEN = System.getenv("PAYMENTS_TOKEN") ?: "EMPTY_PAYMENTS_TOKEN"
 
 val LAST_ORDER_TIME
     get() = LocalTime(getproperty("LAST_ORDER_TIME"))

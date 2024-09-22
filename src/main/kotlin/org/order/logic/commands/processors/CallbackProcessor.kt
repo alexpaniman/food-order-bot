@@ -17,7 +17,8 @@ class CallbackProcessor(private val marker: String,
                     .substringAfter(':')
                     .split(":")
 
-            val source = update.callbackQuery.message
+            val source = update.callbackQuery.message as Message // ??
+
             process(user, source, args)
             return true
         }

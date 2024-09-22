@@ -19,7 +19,7 @@ class Window(private val marker: String,
                     .substringAfter(':')
                     .split(":")
 
-            val source = update.callbackQuery.message
+            val source = update.callbackQuery.message as Message // ??
 
             WindowContext(this, source, user)
                     .window(user, args)

@@ -3,10 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.3.41"
+    id("org.jetbrains.kotlin.jvm") version "2.0.20"
 
     // Apply the shadow jar plugin for creating fat jar
-    id("com.github.johnrengelman.shadow") version "5.1.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 
     // Apply the application plugin to add support for running project on heroku
     application
@@ -14,7 +14,7 @@ plugins {
 
 repositories {
     // Use jcenter for resolving dependencies.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -25,10 +25,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Use the library for building telegram bots
-    implementation("org.telegram:telegrambots:4.4.0.1")
+    implementation("org.telegram:telegrambots:6.9.7.1")
 
     // Use the exposed library for DB usage
-    implementation("org.jetbrains.exposed:exposed:0.17.3")
+    implementation("org.jetbrains.exposed:exposed:0.17.14")
 
     // Use the postgresql DB as main DB
     implementation("org.postgresql:postgresql:42.2.6")
@@ -39,12 +39,12 @@ dependencies {
     // ----------- testing -----------
 
     // Use the h2 database for testing
-    implementation("com.h2database:h2:1.4.199")
+    // implementation("com.h2database:h2:1.4.199")
 
     // Use the mockk library for testing
-    implementation("io.mockk:mockk:1.9.3")
+    implementation("io.mockk:mockk:1.13.11")
 
-    implementation("joda-time:joda-time:2.10.5")
+    implementation("joda-time:joda-time:2.13.0")
 
     // Library for building text tables
     implementation("com.jakewharton.picnic:picnic:0.2.0")
@@ -64,20 +64,22 @@ dependencies {
 
 application {
     // Define the main class for the application
-    mainClassName = "org.order.BotLauncherKt"
+    mainClass.set("org.order.FoodOrderBotTesterKt")
 }
 
 tasks.withType<ShadowJar> {
     manifest {
-        attributes["Main-Class"] = "org.order.BotLauncherKt"
+        attributes["Main-Class"] = "org.order.FoodOrderBotTesterKt"
     }
+
+    archiveFileName.set("food-order-bot-emulated.jar");
 }
 
 task("stage") {
     dependsOn("installShadowDist", "installDist")
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    languageVersion = "1.4"
-}
+// val compileKotlin: KotlinCompile by tasks
+// compileKotlin.kotlinOptions {
+    // languageVersion = "2.0.20"
+// }

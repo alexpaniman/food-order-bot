@@ -1,5 +1,7 @@
 package org.order.bot
 
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.order.bot.send.*
 import org.order.data.entities.State
@@ -26,12 +28,14 @@ open class CommandsBot(
 
     private val handlers: MutableList<Command> = mutableListOf()
     private fun fetchOrCreateUser(rawUser: TUser) =
-            User.find { Users.chat eq rawUser.id }.firstOrNull() ?: User.new {
-                chat  = rawUser.id
+            User.find { Users.chat eq rawUser.id.toInt() }.firstOrNull() ?: User.new {
+                chat  = rawUser.id.toInt()
                 state = State.NEW
             }
 
     override fun onUpdateReceived(update: Update) = transaction {
+        addLogger(StdOutSqlLogger)
+
         val user = fetchOrCreateUser(
                 update.message?.from
                         ?: update.callbackQuery   ?.from

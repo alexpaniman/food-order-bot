@@ -4,12 +4,15 @@ package org.order
 
 import com.jakewharton.picnic.TextAlignment
 import com.jakewharton.picnic.table
+import createOrUpdatePostgreSQLEnum
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
@@ -27,6 +30,8 @@ import org.order.logic.impl.utils.Schedule
 import org.order.logic.impl.utils.newproperty
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
+import org.telegram.telegrambots.meta.api.objects.MaybeInaccessibleMessage
+import org.telegram.telegrambots.meta.api.objects.Message
 import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.payments.PreCheckoutQuery
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
@@ -132,9 +137,7 @@ class FoodOrderBotTester {
             }
 
             val asArray = keyboard.asArray()
-            val maxLength = asArray
-                    .map { it.size }
-                    .max() ?: 1
+            val maxLength = asArray.maxOfOrNull { it.size } ?: 1
 
             row {
                 val coloredText = text.replace("([*_]|```|`).*?\\1".toRegex()) {
@@ -229,7 +232,8 @@ class FoodOrderBotTester {
             val chatId = edit.chatId.toInt()
             val messageId = edit.messageId
 
-            val keyboard = edit.replyMarkup.toKeyboard()
+            // Keyboard actually can be null:
+            val keyboard = if (edit.replyMarkup.keyboard.isNullOrEmpty()) None else edit.replyMarkup.toKeyboard()
 
             chats[chatId]!![messageId] = Message(
                     chatId,
@@ -308,7 +312,7 @@ class FoodOrderBotTester {
     private fun Int.sendText(text: String) {
         val update = mockk<Update> {
             every { message.text } returns text
-            every { message.from.id } returns this@sendText
+            every { message.from.id } returns this@sendText.toLong()
 
             every { message.successfulPayment } returns null
             every { callbackQuery } returns null
@@ -320,7 +324,7 @@ class FoodOrderBotTester {
 
     private fun Int.sendPreCheckoutQuery(id: String, amount: Float, payload: String) {
         val preCheckoutQuery = mockk<PreCheckoutQuery> {
-            every { from.id } returns this@sendPreCheckoutQuery
+            every { from.id } returns this@sendPreCheckoutQuery.toLong()
 
             every { this@mockk.id } returns id
             every { currency } returns CURRENCY
@@ -347,7 +351,7 @@ class FoodOrderBotTester {
                 every { this@mockk.totalAmount } returns (totalAmount * 100).toInt()
             }
 
-            every { message.from.id } returns this@sendSuccessfulPayment
+            every { message.from.id } returns this@sendSuccessfulPayment.toLong()
             every { message.text } returns null
             every { callbackQuery } returns null
             every { preCheckoutQuery } returns null
@@ -359,9 +363,9 @@ class FoodOrderBotTester {
     private fun InlineButton.answer() {
         val update = mockk<Update> {
             every { callbackQuery.data } returns callback
-            every { callbackQuery.from.id } returns this@answer.message.chatId
+            every { callbackQuery.from.id } returns this@answer.message.chatId.toLong()
 
-            every { callbackQuery.message } returns mockk {
+            every { callbackQuery.message } returns mockk<org.telegram.telegrambots.meta.api.objects.Message> {
                 every { chatId } returns this@answer.message.chatId.toLong()
                 every { messageId } returns chats[this@answer.message.chatId]!!
                         .indexOf(this@answer.message)
@@ -629,6 +633,10 @@ fun main() {
     Database.connect(url = JDBC_DATABASE_URL, driver = DATABASE_DRIVER)
 
     transaction {
+        addLogger(StdOutSqlLogger)
+
+        createOrUpdatePostgreSQLEnum(State.entries.toTypedArray())
+
         SchemaUtils.create(
                 Teachers, Admins, Clients, Dishes, Grades,
                 Menus, Orders, Parents, Payments, Producers,
@@ -668,9 +676,16 @@ fun main() {
         newproperty("TIME_TO_SEND_POLL", "11:45")
         newproperty("MAX_DEBT", "165")
         newproperty("COMMISSION", "0.0275")
+
+        exec("create or replace view parent_child_relations as select pu.name as parent_name, pu.is_valid as is_parent_valid, pu.id as parent_user_id, pu.state as parent_state, su.name as child_name, su.is_valid as is_child_valid, su.id as child_user_id, su.state as child_state from relations r, parents p, students s, users pu, users su where r.parent_id = p.id and r.child_id = s.id and pu.id = p.user_id and su.id = s.user_id")
+        exec("create or replace view completed_payments as select um.name as made_by, uc.name as client, p.amount as amount, p.provider_id as provider_id, p.telegram_id as telegram_id, p.registered as registered from payments p, clients c, users uc, users um where p.made_by_id = um.id and p.client_id = c.id and c.user_id = uc.id and provider_id is not null")
+        exec("create or replace view completed_orders as select um.name as made_by, uc.name as client, o.order_date, o.registered, o.is_canceled, m.name as menu_name, m.cost from users uc, users um, clients c, orders o, menus m where m.id = o.menu_id and uc.id = c.user_id and c.id = o.client_id and um.id = o.made_by_id")
+        exec("create or replace view invalid_users as (select null as parent, u.name as student, u.phone as phone, g.name as grade from users u, students s, grades g where s.user_id = u.id and g.id = s.grade_id and state = 'VALIDATION') union (select u.name as parent, us.name as student, u.phone, g.name as grade from users u, users us, parents p, relations r, clients c, students s, grades g where u.id = p.user_id and r.parent_id = p.id and r.child_id = c.id and u.state = 'VALIDATION' and s.user_id = c.user_id and s.grade_id = g.id and us.id = s.user_id)");
     }
 
-    FoodOrderBotTester().apply {
+    val tester = FoodOrderBotTester()
+
+    tester.apply {
         File(PRE_TEST_SCRIPT)
                 .readText()
                 .runScript(display = true)

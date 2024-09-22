@@ -65,7 +65,7 @@ class SenderContext(private val token: String, options: DefaultBotOptions): Defa
     fun User.sendInvoice(title: String, amount: Float, description: String, payload: String, init: InlineKeyboardMarkup.() -> Unit = {}) {
         val realAmount = (amount * 100).toInt()
         val sendInvoice = SendInvoice().also {
-            it.chatId = chat
+            it.chatId = chat.toString()
 
             it.title = title
             it.prices = listOf(LabeledPrice(title, realAmount))

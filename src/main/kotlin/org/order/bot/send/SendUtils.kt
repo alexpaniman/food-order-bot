@@ -85,7 +85,10 @@ fun <T: Any> InlineKeyboardMarkup.show(elements: List<T>, length: Int, callback:
         if (keyboard.size == 0 || keyboard.last().size == length)
             keyboard.add(mutableListOf())
 
-        keyboard.last() += InlineKeyboardButton(show(element)).setCallbackData(callback(element))
+        val inlineKeyboardButton = InlineKeyboardButton(show(element))
+        inlineKeyboardButton.callbackData = callback(element)
+
+        keyboard.last() += inlineKeyboardButton
     }
 }
 
