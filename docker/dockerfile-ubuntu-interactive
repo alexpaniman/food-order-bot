@@ -1,0 +1,15 @@
+FROM ubuntu@sha256:b359f1067efa76f37863778f7b6d0e8d911e3ee8efa807ad01fbf5dc1ef9006b
+WORKDIR /app
+RUN apt update && apt install -y wget gpg tmux postgresql
+RUN wget -O - https://apt.corretto.aws/corretto.key | gpg --dearmor -o /usr/share/keyrings/corretto-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" \
+        | tee /etc/apt/sources.list.d/corretto.list && \
+    apt update && apt install -y java-21-amazon-corretto-jdk
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+COPY . /app
+RUN mkdir -p .gradle && echo "org.gradle.daemon=false" > .gradle/gradle.properties && ./gradlew --no-daemon shadowJar
+CMD tmux new-session \; split-window -v -l 70% \; send-keys "psql '$(echo "$JDBC_DATABASE_URL" | sed 's/jdbc://')'" C-m \; select-pane -t 0 \; send-keys 'java -jar build/libs/food-order-bot-emulated.jar || tmux kill-session' C-m \; 

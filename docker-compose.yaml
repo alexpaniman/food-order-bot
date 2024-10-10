@@ -1,0 +1,36 @@
+services:
+  food-order-bot-db:
+    image: postgres:latest
+    container_name: food-order-bot-db
+    environment:
+      POSTGRES_USER: bot
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: food-order-bot-db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bot -d food-order-bot-db"]
+      interval: 5s
+      retries: 5
+      timeout: 30s
+
+  food-order-bot:
+    container_name: food-order-bot
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: ./docker/dockerfile-ubuntu-interactive
+    depends_on:
+      food-order-bot-db:
+        condition: service_healthy
+        restart: true
+    environment:
+      DATABASE_DRIVER: "org.postgresql.Driver"
+      JDBC_DATABASE_URL: "jdbc:postgresql://food-order-bot-db:5432/food-order-bot-db?user=bot&password=1234"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

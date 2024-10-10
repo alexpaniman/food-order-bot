@@ -1,0 +1,8 @@
+docker/
+build/
+.git/
+.direnv/
+.gradle/
+.idea/
+.kotlin/
+docker-compose.yaml
