@@ -52,6 +52,13 @@
           };
 
           interactive = pkgs.writeShellScriptBin "${project-name}-interactive" ''
+            export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+
+            export LANG=en_US.UTF-8
+            export LANGUAGE=en_US:en
+            export LC_LANG=en_US.UTF-8
+            export LC_ALL=en_US.UTF-8
+
             ${pkgs.tmux}/bin/tmux    \
               new-session            \; \
               split-window -v -l 70% \; \
