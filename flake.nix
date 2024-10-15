@@ -60,6 +60,36 @@
               send-keys '${packages.default}/bin/${project-name} || ${pkgs.tmux}/bin/tmux kill-session' C-m \;
           '';
 
+          docker = pkgs.dockerTools.buildImage {
+            name = "${project-name}-dockerized";
+            tag = "latest";
+
+            copyToRoot = with pkgs; [ packages.default ];
+            config = {
+              Cmd = [ "${packages.default}/bin/${project-name}" ];
+            };
+          };
+
+          docker-interactive = pkgs.dockerTools.buildImage {
+            name = "${project-name}-dockerized-interactive";
+            tag = "latest";
+
+            copyToRoot = with pkgs; [
+              packages.interactive
+
+              pkgs.bash # tmux needs a shell to run
+              # tmux need /tmp to put it's session file there
+              (pkgs.runCommand "tmp" {} ''
+                mkdir $out
+                mkdir -m 1777 $out/tmp
+              '')
+            ];
+
+            config = {
+              Cmd = [ "${packages.interactive}/bin/${project-name}-interactive" ];
+            };
+          };
+
           devShell = pkgs.mkShell {
             buildInputs = packages.default.buildInputs ++ (with pkgs; [ idea-community gradle ]);
           };
