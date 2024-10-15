@@ -20,7 +20,7 @@ services:
     tty: true
     build:
       context: .
-      dockerfile: ./docker/dockerfile-ubuntu-interactive
+      dockerfile: ./docker/dockerfile-nixos-interactive
     depends_on:
       food-order-bot-db:
         condition: service_healthy
