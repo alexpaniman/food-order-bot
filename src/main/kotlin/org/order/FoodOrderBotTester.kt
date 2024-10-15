@@ -26,6 +26,7 @@ import org.order.logic.impl.FoodOrderBot
 import org.order.logic.impl.commands.CURRENCY
 import org.order.logic.impl.commands.DATABASE_DRIVER
 import org.order.logic.impl.commands.JDBC_DATABASE_URL
+import org.order.logic.impl.commands.RES_HOME
 import org.order.logic.impl.utils.Schedule
 import org.order.logic.impl.utils.newproperty
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -42,7 +43,7 @@ import java.io.File
 import java.lang.Thread.sleep
 import org.telegram.telegrambots.meta.api.objects.Message as TMessage
 
-const val PRE_TEST_SCRIPT = "src/main/resources/pre-test.bt"
+val PRE_TEST_SCRIPT = "$RES_HOME/pre-test.bt"
 
 @Suppress("unused", "SameParameterValue")
 
@@ -536,8 +537,10 @@ class FoodOrderBotTester {
                 builder.append(readLine()!!)
             }
             val text = builder.trim().toString()
-            active!!.sendText(text)
-            "Message sent to the active chat [id = $active]."
+            if (active?.sendText(text) == null)
+	        "No active chat selected, please select one first!"
+            else
+                "Message sent to the active chat [id = $active]."
         }
     }
 

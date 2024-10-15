@@ -10,7 +10,7 @@ val LOCALE = Locale("ru")
 const val REGION_ID = "Europe/Kiev"
 
 val JDBC_DATABASE_URL = System.getenv("JDBC_DATABASE_URL") ?: "jdbc:h2:mem:testdb;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1"
-val DATABASE_DRIVER = System.getenv("DATABASE_DRIVER") ?: "org.h2.Driver"
+val DATABASE_DRIVER = System.getenv("DATABASE_DRIVER") ?: "org.postgresql.Driver"
 
 val BOT_TOKEN = System.getenv("BOT_TOKEN") ?: "EMPTY_TOKEN"
 val BOT_USERNAME = System.getenv("BOT_USERNAME") ?: "EMPTY_USERNAME"
@@ -48,7 +48,9 @@ val COMMISSION
 const val INVOICE_START_PARAMETER = "0"
 const val CURRENCY = "UAH"
 
-const val TEXT_CORPUS_PATH = "src/main/resources/text-corpus.txt"
 
-const val FONT_FOR_BUILDING_PDF_PATH = "src/main/resources/font.ttf"
-const val BOLD_FONT_FOR_BUILDING_PDF_PATH = "src/main/resources/bold-font.ttf"
+val RES_HOME = System.getenv("RES_HOME") ?: "src/main/resources/"
+val TEXT_CORPUS_PATH = "$RES_HOME/text-corpus.txt"
+
+val FONT_FOR_BUILDING_PDF_PATH = "$RES_HOME/font.ttf"
+val BOLD_FONT_FOR_BUILDING_PDF_PATH = "$RES_HOME/bold-font.ttf"
