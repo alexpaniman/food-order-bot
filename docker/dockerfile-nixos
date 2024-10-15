@@ -1,0 +1,5 @@
+FROM nixos/nix@sha256:b468b493a830d5dea9e6cd67d0c38bd4b37675eca92ead0c84d774d2ab33c63a
+WORKDIR /app
+COPY . /app
+RUN [ "nix", "--extra-experimental-features", "nix-command flakes", "build", "." ]
+CMD [ "./result/bin/food-order-bot-emulated" ]
