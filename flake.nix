@@ -51,6 +51,15 @@
             '';
           };
 
+          interactive = pkgs.writeShellScriptBin "${project-name}-interactive" ''
+            ${pkgs.tmux}/bin/tmux    \
+              new-session            \; \
+              split-window -v -l 70% \; \
+              send-keys "${pkgs.postgresql}/bin/psql '$(echo "$JDBC_DATABASE_URL" | ${pkgs.gnused}/bin/sed 's/jdbc://')'" C-m \; \
+              select-pane -t 0       \; \
+              send-keys '${packages.default}/bin/${project-name} || ${pkgs.tmux}/bin/tmux kill-session' C-m \;
+          '';
+
           devShell = pkgs.mkShell {
             buildInputs = packages.default.buildInputs ++ (with pkgs; [ idea-community gradle ]);
           };
